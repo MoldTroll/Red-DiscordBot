@@ -438,6 +438,10 @@ msgstr "곡 재생 오류"
 msgid "This command toggles the support of Bandcamp audio playback. An example is <http://deaddiskdrive.bandcamp.com/track/crystal-glass>; disabling this will make the bot unable to play any Bandcamp content"
 msgstr "Bandcamp 재생을 켜거나 끕니다(예: <http://deaddiskdrive.bandcamp.com/track/crystal-glass>). 끄면 봇이 Bandcamp 콘텐츠를 재생할 수 없습니다."
 
+#: redbot/cogs/audio/core/events/dpy.py:185
+msgid "A playback check is running. Try again in a moment."
+msgstr "재생 점검이 진행 중입니다. 잠시 후 다시 시도하세요."
+
 #: redbot/cogs/audio/core/events/lavalink.py:200
 msgid "LIVE"
 msgstr "실시간"

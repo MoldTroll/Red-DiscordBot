@@ -1925,6 +1925,40 @@ msgstr "`주의가 필요한 명령어` Lavalink 노드를 설정합니다.\n"
 "        여기 있는 명령어는 모두 Audio의 작동에 영향을 줄 수 있습니다. Red 지원 서버에서 안내받는 등 변경할 이유가 있을 때만 사용하세요.\n"
 "        "
 
+#: redbot/cogs/audio/core/commands/llset.py:59
+#, docstring
+msgid "Designate an empty test voice channel. Omit the channel to disable playback checks."
+msgstr "재생을 점검할 빈 음성 채널을 지정합니다. 채널을 지정하지 않으면 재생 점검을 끕니다."
+
+#: redbot/cogs/audio/core/commands/llset.py:64
+msgid "Choose a voice channel in this server."
+msgstr "이 서버의 음성 채널을 선택하세요."
+
+#: redbot/cogs/audio/core/commands/llset.py:69
+#, docstring
+msgid "Play a short sample and verify position updates in the designated test channel."
+msgstr "지정한 음성 채널에서 곡을 잠시 재생해 재생 시간이 흐르는지 확인합니다."
+
+#: redbot/cogs/audio/core/commands/llset.py:73
+msgid "Playback advanced while connected to Discord voice."
+msgstr "Discord 음성 채널에 연결된 상태에서 곡의 재생 시간이 흐르는 것을 확인했습니다."
+
+#: redbot/cogs/audio/core/commands/llset.py:74
+msgid "Set a test channel with llset playbackchannel first."
+msgstr "먼저 `llset playbackchannel` 명령어로 점검할 음성 채널을 지정하세요."
+
+#: redbot/cogs/audio/core/commands/llset.py:75
+msgid "Skipped because the test channel or bot is busy."
+msgstr "점검할 음성 채널이나 봇이 사용 중이어서 재생 점검을 건너뛰었습니다."
+
+#: redbot/cogs/audio/core/commands/llset.py:76
+msgid "The configured test voice channel is unavailable."
+msgstr "재생 점검용으로 지정한 음성 채널을 사용할 수 없습니다."
+
+#: redbot/cogs/audio/core/commands/llset.py:77
+msgid "Playback did not pass the voice and track position check."
+msgstr "음성 채널에서 곡의 재생 시간이 흐르는지 확인하지 못했습니다."
+
 #: redbot/cogs/audio/core/commands/llset.py:60
 #, docstring
 msgid "Change your Java executable path.\n\n"
