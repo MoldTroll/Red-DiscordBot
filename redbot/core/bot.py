@@ -13,6 +13,7 @@ import functools
 from collections import namedtuple, OrderedDict
 from datetime import datetime
 from importlib.machinery import ModuleSpec
+from importlib.util import module_from_spec
 from pathlib import Path
 from typing import (
     Optional,
@@ -1807,15 +1808,23 @@ class Red(
         if name in self.extensions:
             raise errors.PackageAlreadyLoaded(spec)
 
-        lib = spec.loader.load_module()
-        if not hasattr(lib, "setup"):
-            del lib
-            raise discord.ClientException(f"extension {name} does not have a setup function")
+        # Core cog discovery may already have imported the package.
+        previous = sys.modules.get(spec.name)
+        lib = previous if previous is not None else module_from_spec(spec)
+        sys.modules[spec.name] = lib
+        try:
+            spec.loader.exec_module(lib)
+            if not hasattr(lib, "setup"):
+                raise discord.ClientException(f"extension {name} does not have a setup function")
+        except BaseException:
+            if previous is None:
+                sys.modules.pop(spec.name, None)
+            raise
 
         try:
             await lib.setup(self)
             await self.tree.red_check_enabled()
-        except Exception as e:
+        except BaseException:
             await self._remove_module_references(lib.__name__)
             await self._call_module_finalizers(lib, name)
             raise

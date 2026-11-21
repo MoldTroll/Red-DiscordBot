@@ -45,3 +45,17 @@ async def test_cogs_on_python_upgrade(red, monkeypatch, tmp_path, lib_contents, 
         notice.assert_called_once()
         assert not any(lib.iterdir())
     assert await red._config.packages() == ["audio"]
+
+
+async def test_load_and_unload_audio_extension(red):
+    await red._async_setup_hook()
+    spec = await red._cog_mgr.find_cog("audio")
+    await red.load_extension(spec)
+    try:
+        audio = red.get_cog("Audio")
+        assert audio is not None
+        assert red.get_command("play").cog is audio
+    finally:
+        await red.unload_extension("audio")
+    assert red.get_command("play") is None
+    assert audio.session.closed
