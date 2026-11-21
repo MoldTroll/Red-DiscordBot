@@ -21,6 +21,7 @@ JOURNAL = STATE / "transaction.json"
 LOCK = Path("/run/lock/redbot-audio-maintenance.lock")
 HELPERS = Path("/usr/local/libexec/red-lavalink")
 PYTHON = "/usr/bin/python3"
+AUTOMATIC_RETRY_SECONDS = 6 * 60 * 60
 
 
 class Busy(Exception):
@@ -353,14 +354,17 @@ class Rollout:
                 raise ValueError("Unexpected managed backup path")
             if path.exists():
                 shutil.rmtree(path)
-        save(
-            {
-                "releases": sorted(releases & keep),
-                "backups": backups,
-                "failed_backup": failed_backup,
-            },
-            ledger,
-        )
+        managed = {
+            "releases": sorted(releases & keep),
+            "backups": backups,
+            "failed_backup": failed_backup,
+        }
+        if not committed:
+            if "retry_after" in tx:
+                managed["automatic_retry"] = {"sha": tx["sha"], "after": tx["retry_after"]}
+            elif "automatic_retry" in known:
+                managed["automatic_retry"] = known["automatic_retry"]
+        save(managed, ledger)
         finish()
         print("Verified new runtimes." if committed else "Restored previous runtimes.", flush=True)
 
@@ -401,10 +405,12 @@ class Rollout:
         if errors:
             raise RuntimeError("Rollback incomplete: " + ", ".join(errors))
         tx["completed"] = False
+        if tx.get("candidate_failed"):
+            tx["retry_after"] = time.time() + AUTOMATIC_RETRY_SECONDS
         save(tx)
         self.complete(tx, committed=False)
 
-    def update(self):
+    def update(self, *, automatic=False):
         staging = STATE / "staging.json"
         if staging.exists():
             # An incomplete install never changes a service link. Once the
@@ -444,6 +450,12 @@ class Rollout:
                 )
             print(f"All instances already use {sha}.")
             return
+        ledger = STATE / "managed.json"
+        if automatic and ledger.exists():
+            retry = json.loads(ledger.read_text()).get("automatic_retry")
+            if retry and retry["sha"] == sha and time.time() < retry["after"]:
+                print(f"Delaying automatic retry of {sha} after its failed rollout.", flush=True)
+                return
         self.idle()
         if not all(self.connected(name) for name in self.names):
             raise RuntimeError("All existing bot services must be connected before an update")
@@ -465,11 +477,13 @@ class Rollout:
         self.apply(tx)
 
     def apply(self, tx):
+        checking_candidate = False
         try:
             for name in self.names:
                 self.idle()
                 row = tx["instances"][name]
-                if row["phase"] == "pending":
+                needs_start = row["phase"] == "pending"
+                if needs_start:
                     row["phase"] = "stopping"
                     save(tx)
                     unit = f"red@{name}.service"
@@ -484,8 +498,11 @@ class Rollout:
                     row["phase"] = "backed_up"
                     save(tx)
                     run(*self.helper("switch", self.link(name), tx["candidate"]))
+                checking_candidate = True
+                if needs_start:
                     run("systemctl", "start", unit)
                 self.health(name, tx["sha"])
+                checking_candidate = False
                 row["phase"] = "ready"
                 save(tx)
                 print(f"Verified {name} at {tx['sha']}.", flush=True)
@@ -496,7 +513,12 @@ class Rollout:
             save(tx)
             raise
         except Exception:
-            self.rollback(tx)
+            try:
+                if checking_candidate:
+                    tx["candidate_failed"] = True
+                    save(tx)
+            finally:
+                self.rollback(tx)
             raise
         tx["completed"] = True
         save(tx)
@@ -505,7 +527,8 @@ class Rollout:
 
 
 def main():
-    if len(sys.argv) > 1:
+    automatic = sys.argv[1:] == ["--automatic"]
+    if len(sys.argv) > 1 and not automatic:
         if os.geteuid() == 0:
             raise ValueError("File operations must run as the instance user")
         command, *args = sys.argv[1:]
@@ -531,7 +554,7 @@ def main():
             print("Another audio maintenance job is running.")
             return
         try:
-            Rollout().update()
+            Rollout().update(automatic=automatic)
         except Busy:
             print("Music or its test channel is busy. Run the update again when idle.")
 

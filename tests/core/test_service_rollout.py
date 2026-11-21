@@ -210,3 +210,82 @@ def test_bad_snapshot_keeps_recovery_available(rollout):
         updater.update()
     assert not operations
     assert update.JOURNAL.exists()
+
+
+def test_failed_canary_delays_only_automatic_retry_of_same_sha(rollout, monkeypatch):
+    updater, tx, operations = rollout
+    health = updater.health
+    clock = Mock(return_value=1000)
+    monkeypatch.setattr(update.time, "time", clock)
+
+    def reject_canary(name, sha=None):
+        if sha:
+            assert name == "canary"
+            raise RuntimeError("candidate playback failed")
+        health(name)
+
+    monkeypatch.setattr(updater, "health", reject_canary)
+    with pytest.raises(RuntimeError, match="candidate playback failed"):
+        updater.apply(tx)
+    assert ("stop", "primary") not in operations
+    assert operations[-1] == ("old_health", "canary")
+    assert not update.JOURNAL.exists()
+
+    remote = Mock(return_value=f"{tx['sha']} {update.REF}")
+    monkeypatch.setattr(update, "output", remote)
+    monkeypatch.setattr(updater, "bot", lambda *args: args)
+    monkeypatch.setattr(updater, "check_layout", Mock())
+    monkeypatch.setattr(updater, "revision", Mock(return_value="c" * 40))
+    monkeypatch.setattr(updater, "connected", Mock(return_value=True))
+    prepare = Mock(side_effect=RuntimeError("staging reached"))
+    monkeypatch.setattr(updater, "prepare", prepare)
+    updater.update(automatic=True)
+    prepare.assert_not_called()
+
+    with pytest.raises(RuntimeError, match="staging reached"):
+        updater.update()
+    prepare.assert_called_once_with(tx["sha"])
+    remote.return_value = f"{'b' * 40} {update.REF}"
+    with pytest.raises(RuntimeError, match="staging reached"):
+        updater.update(automatic=True)
+    prepare.assert_called_with("b" * 40)
+    remote.return_value = f"{tx['sha']} {update.REF}"
+    clock.return_value += update.AUTOMATIC_RETRY_SECONDS
+    with pytest.raises(RuntimeError, match="staging reached"):
+        updater.update(automatic=True)
+    prepare.assert_called_with(tx["sha"])
+
+
+def test_busy_probe_and_interrupted_recovery_do_not_mark_candidate_failed(rollout, monkeypatch):
+    updater, tx, operations = rollout
+    health = updater.health
+    monkeypatch.setattr(updater, "health", Mock(side_effect=update.Busy))
+    with pytest.raises(update.Busy):
+        updater.apply(tx)
+    pending = json.loads(update.JOURNAL.read_text())
+    assert "candidate_failed" not in pending
+    assert ("stop", "primary") not in operations
+    # Simulate interruption while resuming a deferred cutover. Always recover
+    # before contacting the remote or considering another scheduled attempt.
+    pending.pop("deferred")
+    update.save(pending)
+    monkeypatch.setattr(updater, "health", health)
+    monkeypatch.setattr(update, "output", Mock(side_effect=AssertionError("contacted remote")))
+    updater.update(automatic=True)
+    assert "automatic_retry" not in json.loads((update.STATE / "managed.json").read_text())
+    assert not update.JOURNAL.exists()
+
+
+def test_automatic_check_requires_remote_sha_before_attempting_cutover(rollout, monkeypatch):
+    updater, tx, operations = rollout
+    update.finish()
+    monkeypatch.setattr(updater, "bot", lambda *args: args)
+    remote = Mock(side_effect=[OSError("offline"), f"{tx['sha'][:12]} {update.REF}"])
+    monkeypatch.setattr(update, "output", remote)
+    with pytest.raises(OSError, match="offline"):
+        updater.update(automatic=True)
+    with pytest.raises(ValueError, match="Could not resolve"):
+        updater.update(automatic=True)
+    assert not (update.STATE / "managed.json").exists()
+    assert not update.JOURNAL.exists()
+    assert not operations

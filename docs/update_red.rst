@@ -36,7 +36,7 @@ Staged updates for Linux music bot services
 ------------------------------------------
 
 For two or more systemd-managed music instances with JSON storage and a shared
-Lavalink node, the fork includes an operator-triggered updater. It installs the
+Lavalink node, the fork includes a staged updater. It installs the
 exact head of the fork's branch into a fresh virtual environment, then updates
 the instances in the order you specify. Each bot must reconnect to Lavalink and
 pass its health checks before the next bot is stopped.
@@ -103,6 +103,25 @@ configured, the probe joins it and checks that playback advances. Otherwise the
 bot reports that the voice test was skipped. The remaining checks verify
 the running virtual environment, installed commit, bot connection, Lavalink
 API and configured YouTube plugin.
+
+To check the fork automatically, install and enable the systemd timer:
+
+.. code-block:: console
+
+    # install -m 0644 tools/redbot/redbot-fork-autoupdate.{service,timer} /etc/systemd/system/
+    # systemctl daemon-reload
+    # systemctl enable --now redbot-fork-autoupdate.timer
+    # systemctl list-timers --all redbot-fork-autoupdate.timer
+    # journalctl -u redbot-fork-autoupdate.service -n 50 --no-pager
+
+The timer checks 15 seconds after activation and every five minutes thereafter.
+It leaves running bots alone when they already use the fork's current commit.
+Set ``RED_INSTANCES="moldsub mold"`` to verify ``moldsub`` before switching
+``mold``. If playback starts between the two, the timer resumes the rollout
+on an idle check. After a candidate fails to start or pass health checks and
+the previous runtimes are restored, automatic checks wait six hours before
+retrying that commit. A newer commit is eligible on the next check. An
+operator can retry immediately with ``redbot-fork-update.service``.
 
 The root-only ``/var/lib/redbot-fork-update`` directory holds the transaction
 journal and per-instance snapshots. Before switching a bot, the updater stops

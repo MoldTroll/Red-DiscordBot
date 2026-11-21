@@ -1,0 +1,11 @@
+[Unit]
+Description=Check the Red music bot fork every five minutes
+
+[Timer]
+OnActiveSec=15s
+OnCalendar=*-*-* *:00/5:00
+AccuracySec=1s
+Persistent=true
+
+[Install]
+WantedBy=timers.target
