@@ -472,7 +472,12 @@ checkout. It checks for stable Cog Creators Lavalink 3.7 releases daily at
 05:30 Asia/Seoul. It verifies the release checksum and skips restarts while
 audio is playing. After an update it checks that the listed bots have
 reconnected and, when the YouTube plugin is enabled, that a search returns
-tracks. A failed check restores the previous JAR.
+tracks. A failed check restores the previous JAR and verifies it with the same
+checks. If a listener joins during the update, the next timer run resumes
+verification when idle. The updater compares the running version with the
+installed JAR to resume after an interruption without restarting a healthy
+node already on the expected version. It retains the backup and pending state
+until verification succeeds. A later scheduled run can retry a failed release.
 
 The updater uses the Lavalink unit's unprivileged ``User`` and
 ``WorkingDirectory``, the local ``application.yml`` and the IPv4 loopback
@@ -486,7 +491,7 @@ Run these commands from the root of your checkout:
 
     sudo install -d -m 0755 /usr/local/libexec/red-lavalink
     sudo install -m 0755 tools/lavalink/refresh.sh /usr/local/libexec/red-lavalink/
-    sudo install -m 0644 tools/lavalink/release.py /usr/local/libexec/red-lavalink/
+    sudo install -m 0644 tools/lavalink/{release,probe}.py /usr/local/libexec/red-lavalink/
     sudo install -m 0644 tools/lavalink/lavalink-refresh.{service,timer} /etc/systemd/system/
     sudoedit /etc/default/lavalink-refresh
 
@@ -496,6 +501,36 @@ Set the unit names for your installation in the environment file:
 
     LAVALINK_UNIT=lavalink.service
     RED_UNITS="red@music.service red@music2.service"
+
+Playback checks in a test voice channel
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The bot owner can designate an empty Discord voice channel for each bot with
+``[p]llset playbackchannel <channel ID>``. Run ``[p]llset playbackcheck`` to join
+it, play a short sample from Blender's Big Buck Bunny at low volume, and wait
+for two connected Lavalink updates showing advancing playback. The bot leaves
+the channel when the check ends. A busy channel or an existing player in the
+guild defers the check. Running ``[p]llset playbackchannel`` without an argument
+disables it.
+
+For automatic checks on Linux, set the following in the Red systemd template's
+``[Service]`` section and restart the instances:
+
+.. code-block:: ini
+
+    RuntimeDirectory=redbot-probe-%i
+    RuntimeDirectoryMode=0700
+    Environment=RED_AUDIO_PROBE_SOCKET=/run/redbot-probe-%i/check.sock
+
+Add the instance sockets to ``/etc/default/lavalink-refresh``:
+
+.. code-block:: ini
+
+    RED_PLAYBACK_SOCKETS="/run/redbot-probe-music/check.sock /run/redbot-probe-music2/check.sock"
+
+The service accounts running the checks must be able to access the sockets.
+Until a test channel is configured, the updater reports that voice playback
+was skipped and continues to check the Lavalink connection and YouTube search.
 
 Start the timer and run the first check:
 

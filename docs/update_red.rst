@@ -32,6 +32,93 @@ For PostgreSQL-backed instances, use ``Red-DiscordBot[postgres]`` in the
 requirement above. Point your service at the new environment and start it
 under its existing instance name so it uses the same bot data.
 
+Staged updates for Linux music bot services
+------------------------------------------
+
+For two or more systemd-managed music instances with JSON storage and a shared
+Lavalink node, the fork includes an operator-triggered updater. It installs the
+exact head of the fork's branch into a fresh virtual environment, then updates
+the instances in the order you specify. Each bot must reconnect to Lavalink and
+pass its health checks before the next bot is stopped.
+
+Install the helpers from a reviewed checkout using a root shell:
+
+.. code-block:: console
+
+    # install -d -m 0755 /usr/local/libexec/redbot-fork /usr/local/libexec/red-lavalink
+    # install -m 0644 tools/redbot/update.py /usr/local/libexec/redbot-fork/
+    # install -m 0644 tools/lavalink/{release,probe}.py /usr/local/libexec/red-lavalink/
+    # install -m 0644 tools/redbot/redbot-fork-update.service /etc/systemd/system/
+
+The host needs systemd, Git, iproute2, util-linux and system Python 3.11 or
+newer with PyYAML. The bot account needs a supported Python with the
+``venv`` module. Set the root-owned file ``/etc/default/redbot-fork-update``
+for your installation. This example deploys ``canary`` first:
+
+.. code-block:: ini
+
+    RED_INSTANCES="canary main"
+    RED_USER=red
+    RED_ROOT=/home/red/.local/share/redbot-fork
+    RED_PYTHON=/opt/python3.15/bin/python3.15
+    RED_DATA_CANARY=/home/red/.local/share/Red-DiscordBot/data/canary
+    RED_DATA_MAIN=/home/red/.local/share/Red-DiscordBot/data/main
+    LAVALINK_USER=lavalink
+    LAVALINK_DIR=/srv/lavalink
+    LAVALINK_PORT=2333
+    HEALTH_TIMEOUT=120
+
+Each ``RED_DATA_<UPPERCASE_INSTANCE>`` must be the existing absolute JSON
+data directory containing ``core/settings.json`` and ``cogs/Audio/Audio.db``.
+Use a separate data directory per instance. Under ``RED_ROOT/instances``,
+create a symlink named for each instance pointing to its current, working
+virtual environment. The bot account must own the instance links directory and
+be able to create ``RED_ROOT/releases``. Configure ``red@.service`` to run as
+``RED_USER`` with the following service settings:
+
+.. code-block:: ini
+
+    [Service]
+    ExecStart=
+    ExecStart=/home/red/.local/share/redbot-fork/instances/%i/bin/python -O -m redbot %I --no-prompt
+    RuntimeDirectory=redbot-probe-%i
+    RuntimeDirectoryMode=0700
+    Environment=RED_AUDIO_PROBE_SOCKET=/run/redbot-probe-%i/check.sock
+
+Preserve any existing instance-specific startup flags. Reload systemd, then
+start each bot with the new settings during an idle period. For subsequent
+fork updates, run:
+
+.. code-block:: console
+
+    # systemctl start redbot-fork-update.service
+    # journalctl -u redbot-fork-update.service -n 50 --no-pager
+
+The updater shares a lock with the Lavalink updater and checks the node for
+active playback immediately before each service stop. A busy lock, playing
+music or an occupied test channel defers the update with a successful service
+exit. The service logs each deferral and each verified instance and commit.
+Start the service again when idle to resume. Where a test channel is
+configured, the probe joins it and checks that playback advances. Otherwise the
+bot reports that the voice test was skipped. The remaining checks verify
+the running virtual environment, installed commit, bot connection, Lavalink
+API and configured YouTube plugin.
+
+The root-only ``/var/lib/redbot-fork-update`` directory holds the transaction
+journal and per-instance snapshots. Before switching a bot, the updater stops
+it and archives its JSON files and SQLite Audio database, including any WAL or
+journal sidecars. A failed deployment restores the previous environment and
+snapshot for each affected instance. This also reverts changes made to that
+instance's saved data after its snapshot. After an interruption, start the
+service again to recover, then again to retry the update. A failed rollback
+keeps the transaction and backups for another recovery attempt.
+
+After a successful rollout the updater keeps the active and preceding managed
+environments and the two latest successful snapshot sets. After a failed
+rollout it retains the latest failed snapshot set as well. Bootstrap
+environments remain outside this retention policy. Protect the backup directory
+like your bot data because JSON files may contain credentials.
+
 Upstream releases
 *****************
 

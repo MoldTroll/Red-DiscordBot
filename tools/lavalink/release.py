@@ -10,7 +10,7 @@ import sys
 import tempfile
 from urllib.parse import quote, urlencode
 from urllib.request import ProxyHandler, Request, build_opener, urlopen
-from zipfile import ZipFile
+from zipfile import BadZipFile, ZipFile
 
 import yaml
 
@@ -41,6 +41,44 @@ def sha256(path):
         return hashlib.file_digest(incoming, "sha256").hexdigest()
 
 
+def write_phase(value):
+    with tempfile.TemporaryDirectory(dir=STATE) as work:
+        tmp = Path(work) / "pending"
+        tmp.write_text(value + "\n", encoding="ascii")
+        os.replace(tmp, PENDING)
+
+
+def phase():
+    if not PENDING.exists():
+        return "none"
+    value = PENDING.read_text(encoding="ascii").strip()
+    if value in ("", "rollback"):  # Older releases wrote an empty marker.
+        return "rollback"
+    tag = value.removeprefix("candidate ")
+    if tag == value:
+        raise ValueError("Unknown Lavalink update state")
+    version(tag)
+    # A process can stop between recording intent and installing the candidate.
+    try:
+        installed = jar_version(JAR)
+    except (FileNotFoundError, BadZipFile, KeyError, StopIteration, UnicodeDecodeError):
+        return "rollback"
+    if installed != tag:
+        return "rollback"
+    return "candidate"
+
+
+def rollback():
+    if not PENDING.is_file() or not BACKUP.is_file():
+        raise ValueError("Missing Lavalink rollback state")
+    write_phase("rollback")
+    if not JAR.is_file() or sha256(BACKUP) != sha256(JAR):
+        with tempfile.TemporaryDirectory(dir=STATE) as work:
+            saved = Path(work) / JAR
+            shutil.copy2(BACKUP, saved)
+            os.replace(saved, JAR)
+
+
 def local_api(path, config):
     port = int(config["server"]["port"])
     headers = {"Authorization": config["lavalink"]["server"]["password"]}
@@ -51,7 +89,7 @@ def local_api(path, config):
 
 def update(config):
     if PENDING.exists():
-        return 12  # Interrupted update, restore the working version first.
+        return 12
     with urlopen(f"https://api.github.com/repos/{REPO}/releases/latest", timeout=30) as response:
         release = json.load(response)
     tag = release["tag_name"]
@@ -82,7 +120,7 @@ def update(config):
         backup = Path(work) / "previous.jar"
         shutil.copy2(JAR, backup)
         os.replace(backup, BACKUP)
-        PENDING.touch(exist_ok=False)
+        write_phase(f"candidate {tag}")
         os.replace(tmp, JAR)
     print(f"Installed Lavalink {tag}.")
     return 0
@@ -91,13 +129,11 @@ def update(config):
 def main():
     action = sys.argv[1]
     os.chdir(sys.argv[2])
+    if action == "phase":
+        print(phase())
+        return 0
     if action == "rollback":
-        if PENDING.exists():
-            # Keep the backup and marker until the service has been verified.
-            with tempfile.TemporaryDirectory(dir=STATE) as work:
-                saved = Path(work) / JAR
-                shutil.copy2(BACKUP, saved)
-                os.replace(saved, JAR)
+        rollback()
         return 0
     if action == "commit":
         PENDING.unlink()
@@ -105,14 +141,22 @@ def main():
     config = yaml.safe_load(Path("application.yml").read_text())
     if action == "port":
         print(int(config["server"]["port"]))
+    elif action == "running":
+        live_version = local_api("/v3/info", config)["version"]["semver"]
+        return 0 if live_version == jar_version(JAR) else 1
     elif action == "update":
         return update(config)
     elif action == "check":
         local_api("/v3/stats", config)
         if config.get("plugins", {}).get("youtube", {}).get("enabled", False):
+            plugins = local_api("/v3/info", config)["plugins"]
+            if not any(plugin["name"] == "youtube-plugin" for plugin in plugins):
+                raise ValueError("The configured YouTube plugin did not load")
             query = urlencode({"identifier": "ytsearch:Big Buck Bunny Blender Foundation"})
             if not local_api(f"/loadtracks?{query}", config)["tracks"]:
                 raise ValueError("YouTube search returned no tracks")
+    elif action == "idle":
+        return 0 if local_api("/v3/stats", config)["playingPlayers"] == 0 else 75
     else:
         raise ValueError(f"Unknown action {action}")
     return 0

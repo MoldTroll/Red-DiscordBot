@@ -1,0 +1,13 @@
+[Unit]
+Description=Stage and verify both Red music bot services
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/default/redbot-fork-update
+StateDirectory=redbot-fork-update
+StateDirectoryMode=0700
+UMask=0077
+ExecStart=/usr/bin/python3 -I /usr/local/libexec/redbot-fork/update.py
+TimeoutStartSec=45min
