@@ -410,7 +410,16 @@ msgstr "곡 길이: {length} | 신청자: {user}"
 
 #: redbot/cogs/audio/core/events/lavalink.py:235
 msgid "Queue ended."
-msgstr "대기열의 곡을 모두 재생했습니다."
+msgstr "대기열이 비었습니다."
+
+msgid "Track playback stopped responding."
+msgstr "곡 재생이 멈췄습니다."
+
+msgid "None of the configured YouTube clients could play this track."
+msgstr "설정된 YouTube 클라이언트가 모두 이 곡의 오디오를 불러오지 못했습니다."
+
+msgid "Lavalink could not play this track."
+msgstr "Lavalink가 이 곡을 재생하지 못했습니다."
 
 #: redbot/cogs/audio/core/events/lavalink.py:301
 msgid "Multiple Errors Detected"

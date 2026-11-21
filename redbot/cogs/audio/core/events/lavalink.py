@@ -20,6 +20,25 @@ ws_audio_log = getLogger("red.Audio.WS.Audio")
 _ = Translator("Audio", Path(__file__))
 
 
+def _playback_error_description(track, event_type, extra):
+    if event_type == lavalink.LavalinkEvents.TRACK_STUCK:
+        reason = _("Track playback stopped responding.")
+    elif any(
+        "AllClientsFailedException" in (extra.get(key) or "") for key in ("message", "cause")
+    ):
+        reason = _("None of the configured YouTube clients could play this track.")
+    else:
+        reason = _("Lavalink could not play this track.")
+
+    # Node exceptions may contain Java stack traces and signed stream URLs. Use only
+    # a short track title alongside the translated reason, including for direct streams.
+    title = (getattr(track, "title", None) or "").partition("\n")[0].strip()
+    if title and "://" not in title.lower():
+        title = discord.utils.escape_mentions(discord.utils.escape_markdown(title[:240]))
+        return f"{reason}\n{title}"
+    return reason
+
+
 class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
     async def lavalink_update_handler(
         self, player: lavalink.Player, event_type: lavalink.enums.PlayerState, extra
@@ -122,9 +141,6 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
         repeat = guild_data["repeat"]
         notify = guild_data["notify"]
         autoplay = guild_data["auto_play"]
-        description = await self.get_track_description(
-            current_track, self.local_folder_current_path
-        )
         status = await self.config.status()
         prev_song: lavalink.Track = player.fetch("prev_song")
         await self.maybe_reset_error_counter(player)
@@ -194,7 +210,10 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
                 if player.fetch("notify_message") is not None:
                     with contextlib.suppress(discord.HTTPException):
                         await player.fetch("notify_message").delete()
-                if not (description and notify_channel):
+                description = await self.get_track_description(
+                    current_track, self.local_folder_current_path
+                )
+                if not description:
                     return
                 if current_stream:
                     dur = _("LIVE")
@@ -254,12 +273,12 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
             lavalink.LavalinkEvents.TRACK_EXCEPTION,
             lavalink.LavalinkEvents.TRACK_STUCK,
         ]:
-            message_channel = player.fetch("notify_channel")
+            message_channel = guild.get_channel_or_thread(player.fetch("notify_channel"))
             if current_track is not None:
                 failed = [track for track in player.queue if track == current_track]
                 self.api_interface.persistent_queue_api.removed(guild_id, [current_track, *failed])
                 player.queue = [track for track in player.queue if track != current_track]
-            if repeat:
+            if repeat and player.current is current_track:
                 player.current = None
             if not guild_id:
                 return
@@ -285,54 +304,41 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
                 )
                 self._ll_guild_updates.discard(guild_id)
                 self.bot.dispatch("red_audio_audio_disconnect", guild)
-            if message_channel:
-                message_channel = guild.get_channel_or_thread(message_channel)
-                if early_exit:
-                    log.warning(
-                        "Audio detected multiple continuous errors during playback "
-                        "- terminating the player for guild: %s.",
-                        guild_id,
+                log.warning("Closing the player after repeated errors in guild %s.", guild_id)
+                title = _("Multiple Errors Detected")
+                description = _(
+                    "Closing the audio player "
+                    "due to multiple errors being detected. "
+                    "If this persists, please inform the bot owner "
+                    "as the Audio cog may be temporally unavailable."
+                )
+            else:
+                title = (
+                    _("Track Stuck")
+                    if event_type == lavalink.LavalinkEvents.TRACK_STUCK
+                    else _("Track Error")
+                )
+                description = _playback_error_description(current_track, event_type, extra)
+                if event_type == lavalink.LavalinkEvents.TRACK_EXCEPTION and current_id:
+                    asyncio.create_task(
+                        self.api_interface.global_cache_api.report_invalid(current_id)
                     )
-                    log.verbose(
-                        "Player has been terminated due to multiple playback failures: %r", player
+            try:
+                if message_channel and self._has_notify_perms(message_channel):
+                    await self.send_embed_msg(
+                        message_channel, title=title, description=description
                     )
-                    embed = discord.Embed(
-                        colour=await self.bot.get_embed_color(message_channel),
-                        title=_("Multiple Errors Detected"),
-                        description=_(
-                            "Closing the audio player "
-                            "due to multiple errors being detected. "
-                            "If this persists, please inform the bot owner "
-                            "as the Audio cog may be temporally unavailable."
-                        ),
-                    )
-                    await message_channel.send(embed=embed)
-                    return
-                else:
-                    description = description or ""
-                    if event_type == lavalink.LavalinkEvents.TRACK_STUCK:
-                        embed = discord.Embed(
-                            colour=await self.bot.get_embed_color(message_channel),
-                            title=_("Track Stuck"),
-                            description=_(
-                                "Playback of the song has stopped due to an unexpected error.\n{error}"
-                            ).format(error=description),
-                        )
-                    else:
-                        embed = discord.Embed(
-                            title=_("Track Error"),
-                            colour=await self.bot.get_embed_color(message_channel),
-                            description="{}\n{}".format(
-                                extra["message"].replace("\n", ""), description
-                            ),
-                        )
-                        if current_id:
-                            asyncio.create_task(
-                                self.api_interface.global_cache_api.report_invalid(current_id)
-                            )
-                    await message_channel.send(embed=embed)
-            if player.node.ready:
-                await player.skip()
+            except discord.HTTPException as exc:
+                log.warning(
+                    "Playback error notification failed for guild %s (HTTP %s).",
+                    guild_id,
+                    exc.status,
+                )
+            # The client can advance on TrackEnd while Discord is sending the notification.
+            expected_current = None if repeat else current_track
+            if not early_exit and current_track is not None and player.node.ready:
+                if player.current is expected_current:
+                    await player.skip()
 
     async def _websocket_closed_handler(
         self,
