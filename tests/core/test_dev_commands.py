@@ -555,6 +555,7 @@ async def test_regression_format_exception_from_previous_snippet(
     await output.run_eval()
     output = _get_dev_output(snippet_1, source_cache=source_cache, env={"_": output.result})
     await output.run_eval()
-    assert str(output) == result
+    # Some Python releases underline the failing call in the traceback.
+    assert str(output) in (result, result.replace("    _()\n", "    _()\n    ~^^\n"))
     # ensure that our Context mock is never actually used by anything
     assert not output.ctx.mock_calls

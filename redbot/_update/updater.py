@@ -18,6 +18,7 @@ from rich.prompt import Confirm, IntPrompt, Prompt
 from rich.text import Text
 from typing_extensions import Self
 
+from redbot import _fork
 from redbot.core.utils._internal_utils import (
     AvailableVersion,
     detailed_progress,
@@ -234,7 +235,7 @@ class Updater:
     async def run(self) -> None:
         await self._prepare_metadata()
 
-        new_version_available = self.current_version < self.latest.version
+        new_version_available = self.latest.is_newer_than(self.current_version)
         if not self.options.force_reinstall and not new_version_available:
             if self.current_version >= self.metadata.latest_major.version:
                 common.print_with_prefix_column(
@@ -357,6 +358,9 @@ class Updater:
                     raise SystemExit(1)
 
     async def _show_changelog(self) -> None:
+        if self.latest.commit:
+            self.console.print(f"Fork revision: {_fork.REPOSITORY_URL}/commit/{self.latest.commit}")
+            return
         with self.console.status("Fetching changelogs..."):
             changelogs = await changelog.fetch_changelogs()
             self.metadata.changelogs = changelogs = changelog.get_changelogs_between(
@@ -736,7 +740,7 @@ class Updater:
             # scripts path
             self.metadata.interpreter_info.sysconfig_path("scripts", {"base": str(venv_dir)}),
             # Red dependency specifier
-            common.get_red_dependency_specifier(self.latest.version, extras),
+            common.get_red_dependency_specifier(self.latest.version, extras, self.latest.commit),
             set_env_vars={common.INTERNAL_UPDATER_METADATA_ENV_VAR: metadata_file.name},
         )
 

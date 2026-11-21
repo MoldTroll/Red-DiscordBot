@@ -1,4 +1,3 @@
-import os
 import sys
 from pathlib import Path
 
@@ -46,14 +45,9 @@ extras_require["dev"] = extras_combined()
 extras_require["all"] = extras_combined("postgres")
 
 
-python_requires = ">=3.8.1"
-if not os.getenv("TOX_RED", False) or sys.version_info < (3, 12):
-    python_requires += ",<3.12"
-
 # Metadata and options defined in pyproject.toml
 setup(
     version=version,
-    python_requires=python_requires,
     # TODO: use [tool.setuptools.dynamic] table once this feature gets out of beta
     install_requires=install_requires,
     extras_require=extras_require,

@@ -1,0 +1,10 @@
+[Unit]
+Description=Update Red's shared Lavalink node
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/default/lavalink-refresh
+ExecStart=/usr/local/libexec/red-lavalink/refresh.sh ${LAVALINK_UNIT} $RED_UNITS
+TimeoutStartSec=15min

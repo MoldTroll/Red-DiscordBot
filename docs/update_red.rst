@@ -2,6 +2,41 @@
 Updating Red
 ============
 
+Updating the MoldTroll fork
+***************************
+
+This fork tracks the `V3/develop branch on GitHub
+<https://github.com/MoldTroll/Red-DiscordBot/tree/V3/develop>`_.
+Git must be available on the host. Activate the virtual environment used by
+your bot and stop every instance sharing that environment before updating.
+
+For an existing installation of the fork, run the following as the bot's
+service account:
+
+.. code-block:: console
+
+    $ redbot-update
+
+The updater checks the fork branch, preserves installed extras, and installs
+the exact commit it checked. After it finishes, restart the instances.
+
+To migrate from an upstream installation, install the fork into a fresh virtual
+environment using a Python version supported by the fork:
+
+.. code-block:: console
+
+    $ python -m pip install "Red-DiscordBot @ git+https://github.com/MoldTroll/Red-DiscordBot.git@V3/develop"
+    $ python -m pip check
+
+For PostgreSQL-backed instances, use ``Red-DiscordBot[postgres]`` in the
+requirement above. Point your service at the new environment and start it
+under its existing instance name so it uses the same bot data.
+
+Upstream releases
+*****************
+
+The version-specific instructions below apply to upstream PyPI installations.
+
 Updating to the latest version of Red has several benefits:
 
 - New features and improvements are added.

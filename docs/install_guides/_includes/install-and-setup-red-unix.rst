@@ -11,7 +11,7 @@ To install without additional config backend support:
     :modifiers: red-install-guide-install-normal
 
     python -m pip install -U pip wheel
-    python -m pip install -U Red-DiscordBot
+    python -m pip install -U "Red-DiscordBot @ git+https://github.com/MoldTroll/Red-DiscordBot.git@V3/develop"
 
 Or, to install with PostgreSQL support:
 
@@ -20,7 +20,7 @@ Or, to install with PostgreSQL support:
     :modifiers: red-install-guide-install-postgres
 
     python -m pip install -U pip wheel
-    python -m pip install -U "Red-DiscordBot[postgres]"
+    python -m pip install -U "Red-DiscordBot[postgres] @ git+https://github.com/MoldTroll/Red-DiscordBot.git@V3/develop"
 
 
 --------------------------

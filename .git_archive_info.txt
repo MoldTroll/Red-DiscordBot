@@ -1,2 +1,2 @@
-$Format:%h$
-$Format:%(describe:tags=true)$
+$Format:%ct$
+$Format:%H$

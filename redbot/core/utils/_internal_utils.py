@@ -11,6 +11,7 @@ import re
 import shutil
 import tarfile
 import time
+import tomllib
 import warnings
 from datetime import datetime
 from io import BytesIO
@@ -53,6 +54,7 @@ from red_commons.logging import VERBOSE, TRACE
 from typing_extensions import NotRequired, Self
 
 from redbot import __version__
+from redbot import _fork
 from redbot.core import data_manager
 from redbot.core.utils.chat_formatting import box
 
@@ -84,7 +86,7 @@ __all__ = (
 _T = TypeVar("_T")
 
 # I guess there's nothing in allowing people to use an alternative index.
-_SIMPLE_API_URL = os.getenv("RED_SIMPLE_API_URL") or "https://pypi.org/simple/"
+_SIMPLE_API_URL = os.getenv("RED_SIMPLE_API_URL")
 # This variable should only be used for debugging purposes (hence why it starts with `_`).
 # You can debug the behavior by e.g. creating a "Red-DiscordBot.json" file,
 # starting a server with `python -m http.server` and starting Red with the following env vars:
@@ -424,9 +426,22 @@ ReleaseFile = TypedDict(
 
 
 class AvailableVersion:
-    def __init__(self, version: Version, files: Dict[str, ReleaseFile]) -> None:
+    def __init__(
+        self,
+        version: Version,
+        files: Dict[str, ReleaseFile],
+        *,
+        commit: Optional[str] = None,
+        requires_python: Optional[str] = None,
+    ) -> None:
         self.version = version
         self.files = files
+        self.commit = commit
+        if commit is not None:
+            if re.fullmatch(r"[0-9a-f]{40}", commit) is None or not requires_python:
+                raise ValueError("Invalid fork update metadata")
+            self.requires_python = SpecifierSet(requires_python)
+            return
         required_pythons = {f.get("requires-python") or "" for f in files.values()}
         if len(required_pythons) > 1:
             raise ValueError("found multiple files with different Requires-Python values")
@@ -434,7 +449,12 @@ class AvailableVersion:
 
     @classmethod
     def from_json_dict(cls, data: Dict[str, Any]) -> Self:
-        ret = cls(Version(data["version"]), data["files"])
+        ret = cls(
+            Version(data["version"]),
+            data["files"],
+            commit=data.get("commit"),
+            requires_python=data["requires_python"],
+        )
         if str(ret.requires_python) != data["requires_python"]:
             raise ValueError("requires_python key in given data is inconsistent with files")
         return ret
@@ -444,7 +464,15 @@ class AvailableVersion:
             "version": str(self.version),
             "requires_python": str(self.requires_python),
             "files": self.files,
+            "commit": self.commit,
         }
+
+    def is_newer_than(self, installed: Version) -> bool:
+        # Two pushes within the same second have the same public development version.
+        if self.commit and self.version.public == installed.public and installed.local:
+            if re.fullmatch(r"g[0-9a-f]+", installed.local):
+                return not self.commit.startswith(installed.local[1:])
+        return self.version > installed
 
     async def fetch_core_metadata(self) -> Metadata:
         for release_file in self.files.values():
@@ -491,7 +519,7 @@ async def fetch_available_red_versions(
     *, include_prereleases: Optional[bool] = None
 ) -> List[AvailableVersion]:
     """
-    Fetch information about Red releases available on PyPI,
+    Fetch information about the fork branch, or releases available on a configured package index,
     sorted by version (latest first).
 
     Parameters
@@ -515,6 +543,29 @@ async def fetch_available_red_versions(
     KeyError
         The PyPI metadata is missing some of the required information.
     """
+    if _SIMPLE_API_URL is None:
+        async with aiohttp.ClientSession(
+            raise_for_status=True, timeout=aiohttp.ClientTimeout(total=20)
+        ) as session:
+            branch_url = f"https://api.github.com/repos/{_fork.REPOSITORY}/commits/{_fork.BRANCH}"
+            async with session.get(branch_url) as response:
+                commit = await response.json()
+            sha = commit["sha"]
+            if re.fullmatch(r"[0-9a-f]{40}", sha) is None:
+                raise ValueError("Invalid commit returned by GitHub")
+            date = datetime.fromisoformat(commit["commit"]["committer"]["date"])
+            source = f"https://raw.githubusercontent.com/{_fork.REPOSITORY}/{sha}"
+            async with session.get(f"{source}/redbot/__init__.py") as response:
+                match = re.search(r'^_VERSION = "([^"]+)"$', await response.text(), re.MULTILINE)
+            if match is None:
+                raise ValueError("Missing Red version in fork source")
+            version = Version(_fork.version_from_commit(match[1], int(date.timestamp()), sha))
+            async with session.get(f"{source}/pyproject.toml") as response:
+                project = tomllib.loads(await response.text())["project"]
+            return [
+                AvailableVersion(version, {}, commit=sha, requires_python=project["requires-python"])
+            ]
+
     if include_prereleases is None:
         include_prereleases = Version(__version__).is_prerelease
     expected_content_type = "application/vnd.pypi.simple.v1+json"
@@ -568,7 +619,7 @@ async def fetch_latest_red_version(
     *, include_prereleases: Optional[bool] = None
 ) -> AvailableVersion:
     """
-    Fetch information about latest Red release on PyPI.
+    Fetch information about the latest Red version from the configured update source.
 
     Parameters
     ----------

@@ -63,7 +63,7 @@ Installing Red on Ubuntu 24.04 LTS
 Installing the pre-requirements
 -------------------------------
 
-We recommend adding the ``deadsnakes`` ppa to install Python 3.11:
+The fork supports Python 3.15. On Ubuntu 24.04, the ``deadsnakes`` PPA provides the interpreter and its development packages.
 
 .. prompt:: bash
 
@@ -75,10 +75,16 @@ Now install the pre-requirements with apt:
 
 .. prompt:: bash
 
-    sudo apt -y install python3.11 python3.11-dev python3.11-venv git openjdk-25-jre-headless build-essential nano
+    sudo apt -y install python3.15 python3.15-dev python3.15-venv git openjdk-25-jre-headless build-essential nano
 
 .. Include common instructions:
 
-.. include:: _includes/create-env-with-venv3.11.rst
+.. include:: _includes/_create-env-with-venv-intro.rst
+
+.. prompt:: bash
+
+    python3.15 -m venv ~/redenv
+
+.. include:: _includes/_create-env-with-venv-outro.rst
 
 .. include:: _includes/install-and-setup-red-unix.rst

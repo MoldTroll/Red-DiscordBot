@@ -12,7 +12,7 @@ from ..converters import get_lazy_converter, get_playlist_converter
 __version__ = VersionInfo.from_json({"major": 2, "minor": 5, "micro": 0, "releaselevel": "final"})
 
 __author__ = ["aikaterna", "Draper"]
-_SCHEMA_VERSION: Final[int] = 3
+_SCHEMA_VERSION: Final[int] = 5
 _OWNER_NOTIFICATION: Final[int] = 1
 
 LazyGreedyConverter = get_lazy_converter("--")

@@ -360,6 +360,24 @@ class MiscellaneousUtilities(MixinMeta, metaclass=CompositeMetaClass):
             if path is not ...:
                 await self.config.yaml.logging.file.path.set(path)
             await self.config.schema_version.set(4)
+        if from_version < 5 <= to_version:
+            # Read only stored settings so that future changes to defaults still take effect.
+            group = self.config.yaml.plugins.youtube
+            stored = await group.get_raw(default={})
+            old, new = "TVHTML5EMBEDDED", "TVHTML5_SIMPLY"
+            clients = stored.get("clients", [])
+            options = stored.get("clientOptions", {})
+            if old in clients or old in options:
+                if old in clients:
+                    stored["clients"] = [
+                        new if client == old else client
+                        for client in clients
+                        if client != old or new not in clients
+                    ]
+                if old in options:
+                    options[new] = {**options.pop(old), **options.get(new, {})}
+                await group.set(stored)
+            await self.config.schema_version.set(5)
 
         if database_entries:
             await self.api_interface.local_cache_api.lavalink.insert(database_entries)

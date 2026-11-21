@@ -392,7 +392,7 @@ is M and the GB suffix is G.
 
 .. code-block:: ini
 
-	java -jar -Xmx768M Lavalink.jar -Djdk.tls.client.protocols=TLSv1.2
+	java -Xmx768M -jar Lavalink.jar
 
 Leave this command prompt/terminal window open (you will need to do this every time you want to start Lavalink
 for your bots). Once Lavalink says it has fully started, you can start your bots back up.
@@ -415,20 +415,8 @@ Linux Lavalink Auto-Restart
 
 Auto-restarting Lavalink is possible on Linux with systemd, for unmanaged Lavalink backends.
 
-Firstly, find out what your datapath is with the ``[p]datapath`` command. Your Lavalink path is
-``<datapath>/cogs/Audio``. Create a file named ``auto_update.sh`` in your Lavalink path.
-
-Inside this newly created file, paste the following text:
-
-.. code-block:: sh
-
-	curl -LOz Lavalink.jar https://github.com/Cog-Creators/Lavalink-Jars/releases/latest/download/Lavalink.jar
-
-Run the following, replacing ``<Lavalink path>`` with the Lavalink path you generated earlier (``<datapath>/cogs/Audio``).
-
-.. code-block:: sh
-
-	chmod a+rx <Lavalink path>/auto_update.sh
+First, find out what your datapath is with the ``[p]datapath`` command. Your Lavalink path is
+``<datapath>/cogs/Audio``.
 
 Now we need to create a service file so that systemd can do its magic. Run the following command:
 
@@ -453,7 +441,6 @@ Next, paste in the example below, but replacing the following:
 	WorkingDirectory=<Lavalink path>
 	User=<username>
 	Group=<username>
-	ExecStartPre=/bin/bash <Lavalink path>/auto_update.sh # Comment this line out if you did not create the auto_update.sh
 	Type=idle
 	Restart=always
 	RestartSec=15
@@ -476,6 +463,49 @@ Finally, you can run the following to retrieve logs for the service, when you ne
 .. code-block:: sh
 	
 	sudo journalctl -u lavalink
+
+Scheduled updates for a shared Lavalink service
+"""""""""""""""""""""""""""""""""""""""""""""""
+
+For a shared node on Ubuntu with Java 25, install the updater from the fork's
+checkout. It checks for stable Cog Creators Lavalink 3.7 releases daily at
+05:30 Asia/Seoul. It verifies the release checksum and skips restarts while
+audio is playing. After an update it checks that the listed bots have
+reconnected and, when the YouTube plugin is enabled, that a search returns
+tracks. A failed check restores the previous JAR.
+
+The updater uses the Lavalink unit's unprivileged ``User`` and
+``WorkingDirectory``, the local ``application.yml`` and the IPv4 loopback
+address. It requires Python 3.11 or newer at ``/usr/bin/python3`` with PyYAML,
+systemd, iproute2 and util-linux. Remove any ``ExecStartPre`` hook that downloads
+a JAR before enabling the timer so that restarts use the verified file.
+
+Run these commands from the root of your checkout:
+
+.. code-block:: sh
+
+    sudo install -d -m 0755 /usr/local/libexec/red-lavalink
+    sudo install -m 0755 tools/lavalink/refresh.sh /usr/local/libexec/red-lavalink/
+    sudo install -m 0644 tools/lavalink/release.py /usr/local/libexec/red-lavalink/
+    sudo install -m 0644 tools/lavalink/lavalink-refresh.{service,timer} /etc/systemd/system/
+    sudoedit /etc/default/lavalink-refresh
+
+Set the unit names for your installation in the environment file:
+
+.. code-block:: ini
+
+    LAVALINK_UNIT=lavalink.service
+    RED_UNITS="red@music.service red@music2.service"
+
+Start the timer and run the first check:
+
+.. code-block:: sh
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now lavalink-refresh.timer
+    sudo systemctl start lavalink-refresh.service
+    systemctl list-timers lavalink-refresh.timer
+    journalctl -u lavalink-refresh.service -n 20
 
 .. _obtaining-the-latest-lavalink:
 

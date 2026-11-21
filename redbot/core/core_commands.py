@@ -39,6 +39,7 @@ from typing import (
 import aiohttp
 import discord
 from packaging.version import Version
+from redbot import _fork
 from redbot.core.data_manager import storage_type
 
 from . import (
@@ -408,7 +409,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         author_repo = "https://github.com/Twentysix26"
         red_repo = "https://github.com/Cog-Creators/Red-DiscordBot"
         contributors_url = red_repo + "/graphs/contributors"
-        red_pypi = "https://pypi.org/project/Red-DiscordBot"
+        version_url = _fork.REPOSITORY_URL
         support_server_url = "https://discord.gg/red"
         dpy_repo = "https://github.com/Rapptz/discord.py"
         python_url = "https://www.python.org/"
@@ -424,17 +425,18 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
 
         try:
             latest = await fetch_latest_red_version()
-        except (aiohttp.ClientError, TimeoutError) as exc:
-            log.error("Failed to fetch latest version information from PyPI.", exc_info=exc)
-            pypi_version = None
+        except (aiohttp.ClientError, TimeoutError, KeyError, ValueError) as exc:
+            log.error("Failed to fetch latest Red version information.", exc_info=exc)
+            latest_version = None
+            outdated = None
         else:
-            pypi_version = latest.version
-        outdated = pypi_version and pypi_version > Version(__version__)
+            latest_version = latest.version
+            outdated = latest.is_newer_than(Version(__version__))
 
         if embed_links:
             dpy_version = "[{}]({})".format(discord.__version__, dpy_repo)
             python_version = "[{}.{}.{}]({})".format(*sys.version_info[:3], python_url)
-            red_version = "[{}]({})".format(__version__, red_pypi)
+            red_version = "[{}]({})".format(__version__, version_url)
 
             about = _(
                 "This bot is an instance of [Red, an open source Discord bot]({}) "
@@ -456,7 +458,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             if outdated in (True, None):
                 if outdated is True:
                     outdated_value = _("Yes, {version} is available.").format(
-                        version=str(pypi_version)
+                        version=str(latest_version)
                     )
                 else:
                     outdated_value = _("Checking for updates failed.")
@@ -512,7 +514,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             if outdated in (True, None):
                 if outdated is True:
                     outdated_value = _("Yes, {version} is available.").format(
-                        version=str(pypi_version)
+                        version=str(latest_version)
                     )
                 else:
                     outdated_value = _("Checking for updates failed.")
@@ -548,7 +550,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
                 support_server_url,
                 python_url,
                 dpy_repo,
-                red_pypi,
+                version_url,
             )
             await ctx.send(refs)
 

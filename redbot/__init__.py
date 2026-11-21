@@ -2,6 +2,7 @@ import os as _os
 import re as _re
 import sys as _sys
 import warnings as _warnings
+from ._fork import version_from_commit as _version_from_commit
 from math import inf as _inf
 from typing import (
     ClassVar as _ClassVar,
@@ -19,7 +20,7 @@ __all__ = (
     "VersionInfo",
 )
 
-MIN_PYTHON_VERSION = (3, 8, 1)
+MIN_PYTHON_VERSION = (3, 11)
 if _sys.version_info < MIN_PYTHON_VERSION:
     print(
         f"Python {'.'.join(map(str, MIN_PYTHON_VERSION))} is required to run Red, but you have "
@@ -247,29 +248,25 @@ class VersionInfo:
         import subprocess
 
         output = subprocess.check_output(
-            ("git", "describe", "--tags", "--long", "--dirty"),
+            ("git", "show", "-s", "--format=%ct %H", "HEAD"),
             stderr=subprocess.DEVNULL,
             cwd=project_root,
         )
-        _, count, commit, *dirty = output.decode("utf-8").strip().split("-", 3)
-        dirty_suffix = f".{dirty[0]}" if dirty else ""
-        return f"{_VERSION[:-1]}{count}+{commit}{dirty_suffix}"
+        timestamp, commit = output.decode("ascii").split()
+        version = _version_from_commit(_VERSION, int(timestamp), commit)
+        diff = subprocess.run(
+            ("git", "diff", "--quiet", "HEAD", "--"), cwd=project_root, stderr=subprocess.PIPE
+        )
+        if diff.returncode == 1:
+            return f"{version}.dirty"
+        diff.check_returncode()
+        return version
 
     @classmethod
     def _get_version_from_git_archive(cls, project_root: str) -> str:
         with open(_os.path.join(project_root, ".git_archive_info.txt"), encoding="utf-8") as fp:
-            commit, describe_name = fp.read().splitlines()
-            if not describe_name:
-                raise RuntimeError("git archive's describe didn't output anything")
-            if "%(describe" in describe_name:
-                # either git-archive was generated with Git < 2.35 or this is not a git-archive
-                raise RuntimeError("git archive did not support describe output")
-            _, _, suffix = describe_name.partition("-")
-            if suffix:
-                count, _, _ = suffix.partition("-")
-            else:
-                count = "0"
-            return f"{_VERSION[:-1]}{count}+g{commit}"
+            timestamp, commit = fp.read().splitlines()
+        return _version_from_commit(_VERSION, int(timestamp), commit)
 
     @classmethod
     def _get_version_from_sdist_pkg_info(cls, project_root: str) -> str:

@@ -1,4 +1,4 @@
-aiohttp<3.10
+aiohttp>=3.14.5,<4
 aiohttp-json-rpc
 apsw
 babel
@@ -6,6 +6,7 @@ click
 discord.py
 markdown
 packaging
+pip
 platformdirs
 psutil
 python-dateutil
@@ -18,13 +19,13 @@ redbot-update
 rich
 schema
 textual
-typing_extensions
+typing_extensions>=4.16
 yarl
 distro; sys_platform == "linux"
 # https://github.com/MagicStack/uvloop/issues/702
 uvloop; sys_platform != "win32" and platform_python_implementation == "CPython"
 
 # Used by discord.py[speedup]. See Pull request #6587 for more info.
-Brotli
+Brotli>=1.2.1
 orjson
-zstandard
+zstandard; python_version < "3.14"

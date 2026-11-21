@@ -23,7 +23,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.8"
+          python-version: "3.11"
       - run: >
           python -m pip install
           'pyflakes @ https://github.com/pycqa/pyflakes/tarball/1911c20'

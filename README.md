@@ -90,6 +90,9 @@ community of cog repositories.**
 
 # Installation
 
+To install or update this fork, follow [Updating the MoldTroll fork](docs/update_red.rst).
+The fork's updater tracks the `V3/develop` branch.
+
 **The following platforms are officially supported:** 
 
 - [Windows](https://docs.discord.red/en/stable/install_guides/windows.html)

@@ -21,7 +21,7 @@ from redbot.core.i18n import (
     Translator,
     set_contextual_locales_from_guild,
 )
-from .. import __version__ as red_version
+from .. import __version__ as red_version, _fork
 from . import commands
 from ._config import get_latest_confs
 from .utils._internal_utils import (
@@ -54,13 +54,13 @@ ______         _           ______ _                       _  ______       _
 _ = Translator(__name__, __file__)
 
 
-def get_outdated_red_messages(pypi_version: str) -> Tuple[str, str]:
+def get_outdated_red_messages(latest_version: str) -> Tuple[str, str]:
     outdated_red_message = _(
         "Your Red instance is out of date! {} is the current version, however you are using {}!"
-    ).format(pypi_version, red_version)
+    ).format(latest_version, red_version)
     rich_outdated_message = (
         f"[red]Outdated version![/red]\n"
-        f"[red]!!![/red]Version [cyan]{pypi_version}[/] is available, "
+        f"[red]!!![/red]Version [cyan]{latest_version}[/] is available, "
         f"but you're using [cyan]{red_version}[/][red]!!![/red]"
     )
     extra_update = _(
@@ -69,7 +69,7 @@ def get_outdated_red_messages(pypi_version: str) -> Tuple[str, str]:
         "**we highly recommend you to read the update docs at <{docs}> and "
         "make sure there is nothing else that "
         "needs to be done during the update.**"
-    ).format(docs="https://docs.discord.red/en/stable/update_red.html")
+    ).format(docs=f"{_fork.REPOSITORY_URL}/blob/{_fork.BRANCH}/docs/update_red.rst")
 
     redbot_update_bin = redbot_update.find_redbot_update_bin()
     is_windows = platform.system() == "Windows"
@@ -177,11 +177,11 @@ def init_events(bot, cli_flags):
         try:
             latest = await fetch_version_task
         except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
-            log.error("Failed to fetch latest version information from PyPI.", exc_info=exc)
+            log.error("Failed to fetch latest version information from the update source.", exc_info=exc)
         except (KeyError, ValueError) as exc:
-            log.error("Failed to parse version metadata received from PyPI.", exc_info=exc)
+            log.error("Failed to parse version metadata received from the update source.", exc_info=exc)
         else:
-            outdated = latest.version > Version(red_version)
+            outdated = latest.is_newer_than(Version(red_version))
             if outdated:
                 outdated_red_message, rich_outdated_message = get_outdated_red_messages(
                     latest.version

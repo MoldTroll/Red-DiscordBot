@@ -16,6 +16,7 @@ from rich.table import Table
 from rich.text import Text
 
 from redbot import __version__
+from redbot import _fork
 from redbot.core.utils._internal_utils import (
     cli_level_to_log_level,
     get_installed_extras,
@@ -42,15 +43,17 @@ RUNNER_WRAPPER_EXE_ENV_VAR: Final = "REDBOT_UPDATE_RUNNER_WRAPPER_EXE"
 OLD_VENV_BACKUP_DIR_NAME: Final = "redbot-update-old-venv-backup"
 
 
-def get_red_dependency_specifier(version: Version, extras: Iterable[str]) -> str:
+def get_red_dependency_specifier(
+    version: Version, extras: Iterable[str], commit: Optional[str] = None
+) -> str:
     specifier_template = (
         os.getenv("_RED_UPDATE_PRETEND_SPECIFIER_TEMPLATE")
-        or "Red-DiscordBot {extras} {versionspec}"
+        or "Red-DiscordBot{extras} {versionspec}"
     )
     joined_extras = ",".join(extras)
     return specifier_template.format(
         extras=f"[{joined_extras}]" if joined_extras else "",
-        versionspec=f"=={version}",
+        versionspec=f"@ git+{_fork.REPOSITORY_URL}.git@{commit}" if commit else f"=={version}",
     )
 
 
