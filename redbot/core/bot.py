@@ -1279,10 +1279,10 @@ class Red(
                 )
 
         ver_info = list(sys.version_info[:2])
-        python_version_changed = False
+        cleared_downloader_libs = False
         if ver_info != last_system_info["python_version"]:
             await self._config.last_system_info.python_version.set(ver_info)
-            if any(_downloader.LIB_PATH.iterdir()):
+            if _downloader._lib_folder_has_dependencies():
                 shutil.rmtree(str(_downloader.LIB_PATH))
                 _downloader.LIB_PATH.mkdir()
                 asyncio.create_task(
@@ -1296,8 +1296,8 @@ class Red(
                         " all of your previously loaded cogs loaded again.",
                     )
                 )
-                python_version_changed = True
-        else:
+                cleared_downloader_libs = True
+        if not cleared_downloader_libs:
             if self._cli_flags.no_cogs is False:
                 packages.update(dict.fromkeys(await self._config.packages()))
 
@@ -1322,7 +1322,7 @@ class Red(
             await self._config.last_system_info.system.set(system)
             system_changed = True
 
-        if system_changed and not python_version_changed:
+        if system_changed and not cleared_downloader_libs:
             asyncio.create_task(
                 send_to_owners_with_prefix_replaced(
                     self,

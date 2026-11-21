@@ -144,6 +144,22 @@ def _create_lib_folder(*, remove_first: bool = False) -> None:
             pass
 
 
+def _lib_folder_has_dependencies() -> bool:
+    """Ignore the empty cog_shared package created during Downloader initialization."""
+    for path in LIB_PATH.iterdir():
+        if path != SHAREDLIB_PATH or path.is_symlink() or not path.is_dir():
+            return True
+        for entry in path.iterdir():
+            if (
+                entry != _SHAREDLIB_INIT
+                or entry.is_symlink()
+                or not entry.is_file()
+                or entry.stat().st_size
+            ):
+                return True
+    return False
+
+
 async def installed_cogs() -> Tuple[InstalledModule, ...]:
     """Get info on installed cogs.
 
