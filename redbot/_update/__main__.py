@@ -129,9 +129,10 @@ class _PythonInfoParamType(click.ParamType):
     "interactive",
     type=bool,
     is_flag=True,
+    flag_value=False,
     default=True,
     help="Don't ask for user input during the process (non-interactive mode).\n"
-    "NOTE: If you want to use this to automate Red updates, consider specifying --no-major-update"
+    "NOTE: If you want to use this to automate Red updates, consider specifying --no-major-updates"
     " to avoid performing major updates without making an explicit decision to.\n"
     "When performing a major update where the current Python interpreter is no longer compatible,"
     " the --new-python-interpreter option has to be specified or the command will fail.",

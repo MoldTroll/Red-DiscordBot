@@ -1,7 +1,82 @@
+import subprocess
+import sys
+from textwrap import dedent
+
+import aiohttp
 import pytest
 
 from redbot.pytest.rpc import *
 from redbot.core._rpc import get_name
+
+
+def test_rpc_disabled_startup(tmp_path):
+    # A fresh interpreter avoids imports performed by aiohttp-json-rpc's pytest plugin.
+    script = dedent(
+        """\
+        import asyncio
+        import sys
+
+        class BlockRpc:
+            def find_spec(self, fullname, path=None, target=None):
+                if fullname.split(".")[0] == "aiohttp_json_rpc":
+                    raise AssertionError(f"Unexpected import: {fullname}")
+
+        sys.meta_path.insert(0, BlockRpc())
+
+        import discord
+        from redbot.core import _downloader, data_manager
+        from redbot.core._cli import parse_cli_flags
+        from redbot.core.bot import Red
+
+        async def main():
+            data_manager.basic_config = dict(
+                data_manager.basic_config_default,
+                DATA_PATH=sys.argv[1], STORAGE_TYPE="JSON", STORAGE_DETAILS={},
+            )
+            red = Red(cli_flags=parse_cli_flags(["test"]), intents=discord.Intents.default())
+            await red._async_setup_hook()
+            await _downloader._init(red)
+            await red._pre_login()
+            await red._pre_connect()
+            assert not red.rpc_enabled
+            assert red.rpc._site is None
+            core = red.get_cog("Core")
+            assert core._prefixes in red.rpc_handlers["CORE"]
+            await red.remove_cog("Core")
+            assert "CORE" not in red.rpc_handlers
+
+        asyncio.run(main())
+        """
+    )
+    subprocess.run([sys.executable, "-c", script, str(tmp_path)], check=True, timeout=30)
+
+
+@pytest.mark.parametrize("red", [("--rpc", "--rpc-port", "0")], indirect=True)
+async def test_rpc_enabled_websocket(red):
+    from redbot.core import _downloader
+
+    await red._config.schema_version.set(3)
+    await red._async_setup_hook()
+    await _downloader._init(red)
+    await red._pre_login()
+    await red._pre_connect()
+    try:
+        host, port = red.rpc._runner.addresses[0]
+        async with aiohttp.ClientSession() as session:
+            async with session.ws_connect(f"http://{host}:{port}/") as ws:
+                request = {"jsonrpc": "2.0", "id": 1, "method": "CORE__PREFIXES", "params": []}
+                await ws.send_json(request)
+                result = await ws.receive_json(timeout=5)
+                assert result["id"] == 1
+                assert result["result"] == await red._prefix_cache.get_prefixes(guild=None)
+
+                await red.remove_cog("Core")
+                await ws.send_json(dict(request, id=2))
+                result = await ws.receive_json(timeout=5)
+                assert result["id"] == 2
+                assert result["error"]["code"] == -32601
+    finally:
+        await red.rpc.close()
 
 
 def test_get_name(cog):

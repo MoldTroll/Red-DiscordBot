@@ -12,7 +12,7 @@ aiosignal==1.4.0
     # via aiohttp
 apsw==3.54.1.0
     # via -r base.in
-attrs==25.3.0
+attrs==26.1.0
     # via aiohttp
 audioop-lts==0.2.2 ; python_full_version >= '3.13'
     # via discord-py
@@ -20,10 +20,8 @@ babel==2.18.0
     # via -r base.in
 brotli==1.2.1
     # via -r base.in
-click==8.1.8
+click==8.5.1
     # via -r base.in
-colorama==0.4.6 ; sys_platform == 'win32'
-    # via click
 discord-py==2.7.1
     # via
     #   -r base.in
@@ -38,17 +36,17 @@ frozenlist==1.8.0
     #   aiosignal
 idna==3.20
     # via yarl
-linkify-it-py==2.0.3
+linkify-it-py==2.2.0
     # via markdown-it-py
 markdown==3.11.3
     # via -r base.in
-markdown-it-py==3.0.0
+markdown-it-py==4.3.0
     # via
     #   mdit-py-plugins
     #   rich
     #   textual
-mdit-py-plugins==0.4.2
-    # via markdown-it-py
+mdit-py-plugins==0.7.0
+    # via textual
 mdurl==0.1.2
     # via markdown-it-py
 multidict==7.2.1
@@ -57,14 +55,13 @@ multidict==7.2.1
     #   yarl
 orjson==3.13.0
     # via -r base.in
-packaging==26.0
+packaging==26.3
     # via -r base.in
 pip==26.3
     # via -r base.in
-platformdirs==4.3.6
+platformdirs==4.14.8
     # via
     #   -r base.in
-    #   python-discovery
     #   textual
 propcache==0.5.4
     # via
@@ -76,9 +73,9 @@ pygments==2.21.0
     # via
     #   rich
     #   textual
-python-dateutil==2.9.0.post0
+python-dateutil==4.0.0
     # via -r base.in
-python-discovery==1.2.1
+python-discovery==1.9.6
     # via -r base.in
 pyyaml==6.0.4
     # via -r base.in
@@ -92,15 +89,13 @@ red-lavalink==0.11.1
     # via -r base.in
 redbot-update==1.2.0
     # via -r base.in
-rich==14.3.3
+rich==15.0.0
     # via
     #   -r base.in
     #   textual
 schema==0.7.8
     # via -r base.in
-six==1.17.0
-    # via python-dateutil
-textual==6.2.1
+textual==8.2.8
     # via -r base.in
 typing-extensions==4.16.0
     # via
@@ -108,8 +103,8 @@ typing-extensions==4.16.0
     #   aiohttp
     #   aiosignal
     #   textual
-uc-micro-py==1.0.3
-    # via linkify-it-py
+tzdata==2026.6
+    # via python-dateutil
 uvloop==0.23.0 ; platform_python_implementation == 'CPython' and sys_platform != 'win32'
     # via -r base.in
 yarl==1.25.1

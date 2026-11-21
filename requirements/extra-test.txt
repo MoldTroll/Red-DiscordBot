@@ -2,7 +2,6 @@ astroid==4.3.4
     # via pylint
 colorama==0.4.6 ; sys_platform == 'win32'
     # via
-    #   -c base.txt
     #   pylint
     #   pytest
 dill==0.4.0
@@ -13,11 +12,11 @@ isort==5.13.2
     # via pylint
 mccabe==0.7.0
     # via pylint
-packaging==26.0
+packaging==26.3
     # via
     #   -c base.txt
     #   pytest
-platformdirs==4.3.6
+platformdirs==4.14.8
     # via
     #   -c base.txt
     #   pylint

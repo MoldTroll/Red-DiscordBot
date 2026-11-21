@@ -168,10 +168,10 @@ def ctx(empty_member, empty_channel, red):
 
 # region Red Mock
 @pytest.fixture()
-def red(config_fr):
+def red(config_fr, request):
     from redbot.core._cli import parse_cli_flags
 
-    cli_flags = parse_cli_flags(["ignore_me"])
+    cli_flags = parse_cli_flags(["ignore_me", *getattr(request, "param", ())])
 
     Config.get_core_conf = lambda *args, **kwargs: config_fr
 

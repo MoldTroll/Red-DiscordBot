@@ -24,7 +24,6 @@ async def test_cogs_on_python_upgrade(red, monkeypatch, tmp_path, lib_contents, 
     elif lib_contents == "shared_library":
         (shared / "old_shared_library.py").touch()
 
-    await red.rpc._pre_login()
     await red._config.last_system_info.python_version.set([3, 10])
     await red._config.packages.set(["audio"])
     monkeypatch.setattr(bot.modlog, "_init", AsyncMock())

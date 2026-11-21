@@ -9,7 +9,14 @@ from packaging.version import Version
 from rich.console import Console
 
 from redbot._update import common, internal, runner, updater
+from redbot._update.__main__ import cli
 from redbot.core.utils._internal_utils import AvailableVersion
+
+
+@pytest.mark.parametrize("args, interactive", [([], True), (["--no-prompt"], False)])
+def test_updater_prompt_mode(args, interactive):
+    with cli.make_context("redbot-update", args) as context:
+        assert context.params["interactive"] is interactive
 
 
 @pytest.fixture

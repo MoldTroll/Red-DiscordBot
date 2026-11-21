@@ -1,12 +1,9 @@
 import inspect
+import logging
 import sys
 from typing import Optional
 
 from aiohttp import web
-from aiohttp_json_rpc import JsonRpc
-from aiohttp_json_rpc.rpc import JsonRpcMethod
-
-import logging
 
 from redbot.core._cli import ExitCodes
 
@@ -23,56 +20,22 @@ def get_name(func, prefix=""):
     return f"{class_name}__{func_name}".upper()
 
 
-class RedRpc(JsonRpc):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.add_methods(("", self.get_method_info))
-
-    def _add_method(self, method, name="", prefix=""):
-        if not inspect.iscoroutinefunction(method):
-            return
-
-        name = name or get_name(method, prefix)
-
-        self.methods[name] = JsonRpcMethod(method)
-
-    def remove_method(self, method):
-        meth_name = get_name(method)
-        new_methods = {}
-        for name, meth in self.methods.items():
-            if name != meth_name:
-                new_methods[name] = meth
-        self.methods = new_methods
-
-    def remove_methods(self, prefix: str):
-        new_methods = {}
-        for name, meth in self.methods.items():
-            splitted = name.split("__")
-            if len(splitted) < 2 or splitted[0] != prefix:
-                new_methods[name] = meth
-        self.methods = new_methods
-
-    async def get_method_info(self, request):
-        method_name = request.params[0]
-        if method_name in self.methods:
-            return self.methods[method_name].__doc__
-        return "No docstring available."
-
-
 class RPC:
     """
     RPC server manager.
     """
 
     app: web.Application
-    _rpc: RedRpc
     _runner: web.AppRunner
 
     def __init__(self):
+        self._rpc = None
         self._site: Optional[web.TCPSite] = None
         self._started = False
 
     async def _pre_login(self) -> None:
+        from ._rpc_server import RedRpc
+
         self.app = web.Application()
         self._rpc = RedRpc()
         self.app.router.add_route("*", "/", self._rpc.handle_request)
@@ -121,7 +84,8 @@ class RPC:
         if not inspect.iscoroutinefunction(method):
             raise TypeError("RPC methods must be coroutines.")
 
-        self._rpc.add_methods((prefix, method))
+        if self._rpc is not None:
+            self._rpc.add_methods((prefix, method))
 
     def add_multi_method(self, *methods, prefix: str = None):
         if not all(inspect.iscoroutinefunction(m) for m in methods):
@@ -131,21 +95,25 @@ class RPC:
             self.add_method(method, prefix=prefix)
 
     def remove_method(self, method):
-        self._rpc.remove_method(method)
+        if self._rpc is not None:
+            self._rpc.remove_method(method)
 
     def remove_methods(self, prefix: str):
-        self._rpc.remove_methods(prefix)
+        if self._rpc is not None:
+            self._rpc.remove_methods(prefix)
 
 
 class RPCMixin:
-    def __init__(self, **kwargs):
+    def __init__(self, *, rpc_enabled=True, **kwargs):
         super().__init__(**kwargs)
+        self.rpc_enabled = rpc_enabled
         self.rpc = RPC()
 
         self.rpc_handlers = {}  # Uppercase cog name to method
 
     async def _pre_login(self) -> None:
-        await self.rpc._pre_login()
+        if self.rpc_enabled:
+            await self.rpc._pre_login()
 
     def register_rpc_handler(self, method):
         """

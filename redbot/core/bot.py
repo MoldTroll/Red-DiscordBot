@@ -237,7 +237,6 @@ class Red(
         self._shutdown_mode = ExitCodes.CRITICAL
         self._cli_flags = cli_flags
         self._config = _get_core_config()
-        self.rpc_enabled = cli_flags.rpc
         self.rpc_port = cli_flags.rpc_port
         self._last_exception = None
 
@@ -293,6 +292,7 @@ class Red(
         self._cog_mgr = CogManager()
         self._use_team_features = cli_flags.use_team_features
         super().__init__(
+            rpc_enabled=cli_flags.rpc,
             description=kwargs.pop("description", _DEFAULT_DESCRIPTION),
             help_command=None,
             tree_cls=RedTree,

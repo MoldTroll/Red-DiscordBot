@@ -9,7 +9,6 @@ from redbot.core import core_commands
 
 @pytest.mark.parametrize("embed", [True, False])
 async def test_info_names_the_fork_and_credits_upstream(red, monkeypatch, embed):
-    await red.rpc._pre_login()
     cog = core_commands.Core(red)
     ctx = AsyncMock()
     ctx.embed_requested.return_value = embed
