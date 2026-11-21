@@ -160,6 +160,8 @@ class PlayerUtilities(MixinMeta, metaclass=CompositeMetaClass):
                 ),
             )
             await self.send_embed_msg(ctx, embed=embed)
+            if not player.repeat:
+                self.api_interface.persistent_queue_api.removed(ctx.guild.id, [player.current])
             await player.skip()
             return
 
@@ -182,11 +184,12 @@ class PlayerUtilities(MixinMeta, metaclass=CompositeMetaClass):
                 title=_("{skip_to_track} Tracks Skipped").format(skip_to_track=skip_to_track)
             )
             await self.send_embed_msg(ctx, embed=embed)
+            skipped = player.queue[: skip_to_track - 1]
             if player.repeat:
-                queue_to_append = player.queue[0 : min(skip_to_track - 1, len(player.queue) - 1)]
-            player.queue = player.queue[
-                min(skip_to_track - 1, len(player.queue) - 1) : len(player.queue)
-            ]
+                queue_to_append = skipped
+            else:
+                self.api_interface.persistent_queue_api.removed(ctx.guild.id, skipped)
+            del player.queue[: skip_to_track - 1]
         else:
             embed = discord.Embed(
                 title=_("Track Skipped"),
@@ -196,8 +199,12 @@ class PlayerUtilities(MixinMeta, metaclass=CompositeMetaClass):
             )
             await self.send_embed_msg(ctx, embed=embed)
         self.bot.dispatch("red_audio_skip_track", player.guild, player.current, ctx.author)
+        if not player.repeat and player.current:
+            self.api_interface.persistent_queue_api.removed(ctx.guild.id, [player.current])
         await player.play()
-        player.queue += queue_to_append
+        if queue_to_append:
+            player.queue.extend(queue_to_append)
+            self.api_interface.persistent_queue_api.reordered(player)
 
     def update_player_lock(self, ctx: commands.Context, true_or_false: bool) -> None:
         if true_or_false:
@@ -460,12 +467,8 @@ class PlayerUtilities(MixinMeta, metaclass=CompositeMetaClass):
                 elif guild_data["maxlength"] > 0:
                     if self.is_track_length_allowed(track, guild_data["maxlength"]):
                         track_len += 1
-                        track.extras.update(
-                            {
-                                "enqueue_time": int(time.time()),
-                                "vc": player.channel.id,
-                                "requester": ctx.author.id,
-                            }
+                        track = await self.api_interface.persistent_queue_api.prepare_track(
+                            player, track, ctx.author
                         )
                         player.add(ctx.author, track)
                         self.bot.dispatch(
@@ -474,16 +477,12 @@ class PlayerUtilities(MixinMeta, metaclass=CompositeMetaClass):
 
                 else:
                     track_len += 1
-                    track.extras.update(
-                        {
-                            "enqueue_time": int(time.time()),
-                            "vc": player.channel.id,
-                            "requester": ctx.author.id,
-                        }
+                    track = await self.api_interface.persistent_queue_api.prepare_track(
+                        player, track, ctx.author
                     )
                     player.add(ctx.author, track)
                     self.bot.dispatch("red_audio_track_enqueue", player.guild, track, ctx.author)
-            player.maybe_shuffle(0 if empty_queue else 1)
+            self.api_interface.persistent_queue_api.maybe_shuffle(player, 0 if empty_queue else 1)
 
             if len(tracks) > track_len:
                 maxlength_msg = _(" {bad_tracks} tracks cannot be queued.").format(
@@ -552,15 +551,11 @@ class PlayerUtilities(MixinMeta, metaclass=CompositeMetaClass):
                     )
                 elif guild_data["maxlength"] > 0:
                     if self.is_track_length_allowed(single_track, guild_data["maxlength"]):
-                        single_track.extras.update(
-                            {
-                                "enqueue_time": int(time.time()),
-                                "vc": player.channel.id,
-                                "requester": ctx.author.id,
-                            }
+                        single_track = await self.api_interface.persistent_queue_api.prepare_track(
+                            player, single_track, ctx.author
                         )
                         player.add(ctx.author, single_track)
-                        player.maybe_shuffle()
+                        self.api_interface.persistent_queue_api.maybe_shuffle(player)
                         self.bot.dispatch(
                             "red_audio_track_enqueue",
                             player.guild,
@@ -574,15 +569,11 @@ class PlayerUtilities(MixinMeta, metaclass=CompositeMetaClass):
                         )
 
                 else:
-                    single_track.extras.update(
-                        {
-                            "enqueue_time": int(time.time()),
-                            "vc": player.channel.id,
-                            "requester": ctx.author.id,
-                        }
+                    single_track = await self.api_interface.persistent_queue_api.prepare_track(
+                        player, single_track, ctx.author
                     )
                     player.add(ctx.author, single_track)
-                    player.maybe_shuffle()
+                    self.api_interface.persistent_queue_api.maybe_shuffle(player)
                     self.bot.dispatch(
                         "red_audio_track_enqueue", player.guild, single_track, ctx.author
                     )

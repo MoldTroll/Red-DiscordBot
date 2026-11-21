@@ -83,13 +83,16 @@ class QueueFetchResult:
     guild_id: int
     room_id: int
     track: dict = field(default_factory=lambda: {})
-    track_object: lavalink.Track = None
+    entry_id: Optional[int] = None
+    track_object: lavalink.Track = field(init=False, default=None)
 
     def __post_init__(self):
         if isinstance(self.track, str):
             self.track = json.loads(self.track)
         if self.track:
             self.track_object = lavalink.Track(self.track)
+            self.track_object.extras.setdefault("vc", self.room_id)
+            self.track_object._red_queue_entry_id = self.entry_id
 
 
 def standardize_scope(scope: str) -> str:

@@ -828,6 +828,10 @@ msgstr "퐁!"
 msgid "Shows info about [botname]."
 msgstr "[botname]의 정보를 표시합니다."
 
+#: redbot/core/core_commands.py:414
+msgid "This bot runs {fork}, a fork of {upstream}."
+msgstr "이 봇은 {upstream}에서 포크한 {fork} 버전을 사용합니다."
+
 #: redbot/core/core_commands.py:439
 msgid "This bot is an instance of [Red, an open source Discord bot]({}) created by [Twentysix]({}) and [improved by many]({}).\n\n"
 "Red is backed by a passionate community who contributes and creates content for everyone to enjoy. [Join us today]({}) and help us improve!\n\n"

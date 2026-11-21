@@ -20,6 +20,7 @@ from ..utils import (
     DEFAULT_LAVALINK_YAML,
     DEFAULT_LAVALINK_SETTINGS,
 )
+from ..playback_probe import PlaybackProbe
 from . import abc, cog_utils, commands, events, tasks, utilities
 from .cog_utils import CompositeMetaClass
 
@@ -39,6 +40,7 @@ class Audio(
     def __init__(self, bot: Red):
         super().__init__()
         self.bot = bot
+        self.playback_probe = PlaybackProbe(self)
         self.config = Config.get_conf(self, 2711759130, force_registration=True)
 
         self.api_interface = None
@@ -88,6 +90,7 @@ class Audio(
         self._last_ll_update = datetime.datetime.now(datetime.timezone.utc)
 
         default_global = dict(
+            playback_check_channel=None,
             schema_version=1,
             bundled_playlist_version=0,
             owner_notification=0,

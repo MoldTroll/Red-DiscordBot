@@ -1,6 +1,5 @@
 import math
 import re
-import time
 from pathlib import Path
 
 from typing import List, Optional
@@ -169,30 +168,22 @@ class FormattingUtilities(MixinMeta, metaclass=CompositeMetaClass):
             )
         elif guild_data["maxlength"] > 0:
             if self.is_track_length_allowed(search_choice, guild_data["maxlength"]):
-                search_choice.extras.update(
-                    {
-                        "enqueue_time": int(time.time()),
-                        "vc": player.channel.id,
-                        "requester": ctx.author.id,
-                    }
+                search_choice = await self.api_interface.persistent_queue_api.prepare_track(
+                    player, search_choice, ctx.author
                 )
                 player.add(ctx.author, search_choice)
-                player.maybe_shuffle()
+                self.api_interface.persistent_queue_api.maybe_shuffle(player)
                 self.bot.dispatch(
                     "red_audio_track_enqueue", player.guild, search_choice, ctx.author
                 )
             else:
                 return await self.send_embed_msg(ctx, title=_("Track exceeds maximum length."))
         else:
-            search_choice.extras.update(
-                {
-                    "enqueue_time": int(time.time()),
-                    "vc": player.channel.id,
-                    "requester": ctx.author.id,
-                }
+            search_choice = await self.api_interface.persistent_queue_api.prepare_track(
+                player, search_choice, ctx.author
             )
             player.add(ctx.author, search_choice)
-            player.maybe_shuffle()
+            self.api_interface.persistent_queue_api.maybe_shuffle(player)
             self.bot.dispatch("red_audio_track_enqueue", player.guild, search_choice, ctx.author)
 
         if not guild_data["shuffle"] and queue_dur > 0:

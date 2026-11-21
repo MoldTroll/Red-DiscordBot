@@ -5,6 +5,7 @@
 import asyncio
 import contextlib
 import functools
+import inspect
 from types import MappingProxyType
 from typing import Callable, Dict, Iterable, List, Mapping, Optional, TypeVar, Union
 
@@ -203,7 +204,7 @@ async def menu(
         maybe_coro = value
         if isinstance(value, functools.partial):
             maybe_coro = value.func
-        if not asyncio.iscoroutinefunction(maybe_coro):
+        if not inspect.iscoroutinefunction(maybe_coro):
             raise RuntimeError("Function must be a coroutine")
 
     if await ctx.bot.use_buttons() and message is None:

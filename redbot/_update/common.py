@@ -1,8 +1,10 @@
 import enum
 import logging
 import os
+import subprocess
 import sys
 from operator import itemgetter
+from pathlib import Path
 from typing import Any, Final, Iterable, List, Literal, Optional, Tuple, Union
 
 import click
@@ -41,6 +43,20 @@ RUNNER_DIR_ENV_VAR: Final = "REDBOT_UPDATE_RUNNER_DIR"
 RUNNER_WRAPPER_EXE_ENV_VAR: Final = "REDBOT_UPDATE_RUNNER_WRAPPER_EXE"
 
 OLD_VENV_BACKUP_DIR_NAME: Final = "redbot-update-old-venv-backup"
+
+
+def check_update_interpreter(executable: str) -> None:
+    subprocess.check_call((executable, "-I", "-c", "from redbot._update import internal"))
+
+
+def restore_old_venv(venv_dir: Path) -> None:
+    backup_dir = venv_dir / OLD_VENV_BACKUP_DIR_NAME
+    for path in list(backup_dir.iterdir()):
+        destination = venv_dir / path.name
+        if os.path.lexists(destination):
+            raise FileExistsError(f"Cannot restore {path}: {destination} already exists")
+        path.rename(destination)
+    backup_dir.rmdir()
 
 
 def get_red_dependency_specifier(

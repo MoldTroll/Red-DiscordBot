@@ -181,6 +181,8 @@ _ = _T
 class DpyEvents(MixinMeta, metaclass=CompositeMetaClass):
     async def cog_before_invoke(self, ctx: commands.Context) -> None:
         await self.cog_ready_event.wait()
+        if ctx.guild and self.playback_probe.guild_id == ctx.guild.id:
+            raise CheckFailure(_("A playback check is running. Try again in a moment."))
         # check for unsupported arch
         # Check on this needs refactoring at a later date
         # so that we have a better way to handle the tasks
@@ -431,6 +433,7 @@ class DpyEvents(MixinMeta, metaclass=CompositeMetaClass):
     async def cog_unload(self) -> None:
         if not self.cog_cleaned_up:
             self.bot.dispatch("red_audio_unload", self)
+            await self.playback_probe.close()
             await self.session.close()
             if self.player_automated_timer_task:
                 self.player_automated_timer_task.cancel()

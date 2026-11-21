@@ -37,7 +37,6 @@ class AudioEvents(MixinMeta, metaclass=CompositeMetaClass):
             await self.config.guild_from_id(guild_id=guild.id).currently_auto_playing_in.set([])
             return
 
-        track_identifier = track.track_identifier
         if self.playlist_api is not None:
             daily_cache = self._daily_playlist_cache.setdefault(
                 guild.id, await self.config.guild(guild).daily_playlists()
@@ -137,13 +136,6 @@ class AudioEvents(MixinMeta, metaclass=CompositeMetaClass):
                 log.verbose(
                     "Failed to delete global daily playlist ID: %s", too_old_id, exc_info=exc
                 )
-        persist_cache = self._persist_queue_cache.setdefault(
-            guild.id, await self.config.guild(guild).persist_queue()
-        )
-        if persist_cache:
-            await self.api_interface.persistent_queue_api.played(
-                guild_id=guild.id, track_id=track_identifier
-            )
 
     @commands.Cog.listener()
     async def on_red_audio_queue_end(
@@ -155,9 +147,6 @@ class AudioEvents(MixinMeta, metaclass=CompositeMetaClass):
             await self.api_interface.local_cache_api.youtube.clean_up_old_entries()
             await asyncio.sleep(5)
             await self.playlist_api.delete_scheduled()
-            await self.api_interface.persistent_queue_api.drop(guild.id)
-            await asyncio.sleep(5)
-            await self.api_interface.persistent_queue_api.delete_scheduled()
 
     @commands.Cog.listener()
     async def on_red_audio_track_enqueue(
@@ -165,10 +154,7 @@ class AudioEvents(MixinMeta, metaclass=CompositeMetaClass):
     ):
         if not (track and guild):
             return
-        persist_cache = self._persist_queue_cache.setdefault(
-            guild.id, await self.config.guild(guild).persist_queue()
-        )
-        if persist_cache:
+        if "vc" in track.extras:
             await self.api_interface.persistent_queue_api.enqueued(
                 guild_id=guild.id, room_id=track.extras["vc"], track=track
             )
@@ -183,9 +169,6 @@ class AudioEvents(MixinMeta, metaclass=CompositeMetaClass):
             await self.api_interface.local_cache_api.youtube.clean_up_old_entries()
             await asyncio.sleep(5)
             await self.playlist_api.delete_scheduled()
-            await self.api_interface.persistent_queue_api.drop(guild.id)
-            await asyncio.sleep(5)
-            await self.api_interface.persistent_queue_api.delete_scheduled()
 
     @commands.Cog.listener()
     async def on_red_audio_track_auto_play(

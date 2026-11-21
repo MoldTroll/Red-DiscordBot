@@ -54,6 +54,30 @@ class LavalinkSetupCommands(MixinMeta, metaclass=CompositeMetaClass):
         All the commands in here have the potential to break the Audio cog.
         """
 
+    @command_llset.command(name="playbackchannel")
+    @commands.guild_only()
+    async def command_llset_playbackchannel(
+        self, ctx: commands.Context, channel: discord.VoiceChannel = None
+    ):
+        """Designate an empty test voice channel. Omit the channel to disable playback checks."""
+        if channel and channel.guild != ctx.guild:
+            return await ctx.send(_("Choose a voice channel in this server."))
+        await self.config.playback_check_channel.set(channel.id if channel else None)
+        await ctx.tick()
+
+    @command_llset.command(name="playbackcheck")
+    async def command_llset_playbackcheck(self, ctx: commands.Context):
+        """Play a short sample and verify position updates in the designated test channel."""
+        status = await self.playback_probe.check()
+        messages = {
+            "ok": _("Playback advanced while connected to Discord voice."),
+            "unconfigured": _("Set a test channel with llset playbackchannel first."),
+            "busy": _("Skipped because the test channel or bot is busy."),
+            "unavailable": _("The configured test voice channel is unavailable."),
+            "failed": _("Playback did not pass the voice and track position check."),
+        }
+        await ctx.send(messages[status])
+
     @command_llset.command(name="java", cls=LavalinkSetupJavaCommand)
     @has_managed_server()
     async def command_llset_java(self, ctx: commands.Context, *, java_path: str = "java"):

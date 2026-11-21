@@ -2,7 +2,6 @@ import asyncio
 import dataclasses
 import json
 import os
-import shutil
 import sys
 import tarfile
 import tempfile
@@ -359,7 +358,9 @@ class Updater:
 
     async def _show_changelog(self) -> None:
         if self.latest.commit:
-            self.console.print(f"Fork revision: {_fork.REPOSITORY_URL}/commit/{self.latest.commit}")
+            self.console.print(
+                f"Fork revision: {_fork.REPOSITORY_URL}/commit/{self.latest.commit}"
+            )
             return
         with self.console.status("Fetching changelogs..."):
             changelogs = await changelog.fetch_changelogs()
@@ -690,17 +691,6 @@ class Updater:
         console = common.get_console()
         venv_dir = Path(sys.prefix)
         backup_dir = venv_dir / common.OLD_VENV_BACKUP_DIR_NAME
-        try:
-            backup_dir.mkdir()
-        except FileExistsError:
-            console.print(
-                "Found that a partial backup of a virtual environment from a past failed update"
-                " exists at",
-                Text(str(backup_dir), style="bold"),
-                "\nThe update will not proceed to avoid overriding it. If you are certain that"
-                " you don't need to restore anything from it, remove it and try updating again.",
-            )
-            raise SystemExit(1)
 
         with console.status("Determining extras to install..."):
             try:
@@ -716,35 +706,60 @@ class Updater:
         rel_executable = old_executable.relative_to(venv_dir)
         new_executable = backup_dir / rel_executable
         wrapper_exe = runner.get_wrapper_executable()
-
-        with console.status("Moving old virtual environment..."):
-            for path in venv_dir.iterdir():
-                if path == backup_dir or path == wrapper_exe:
-                    continue
-                path.rename(backup_dir / path.name)
-        console.print("Old virtual environment moved.")
-
-        with tempfile.NamedTemporaryFile(
-            "w", encoding="utf-8", prefix="redbot-update-metadata-", suffix=".json", delete=False
-        ) as metadata_file:
-            json.dump(self.metadata.to_json_dict(), metadata_file)
-
-        console.print()
-        runner.make_exec_request(
-            str(new_executable),
-            "reinstall",
-            # base executable for venv creation
-            self.metadata.interpreter_exe,
-            # venv dir
-            str(venv_dir),
-            # scripts path
-            self.metadata.interpreter_info.sysconfig_path("scripts", {"base": str(venv_dir)}),
-            # Red dependency specifier
-            common.get_red_dependency_specifier(self.latest.version, extras, self.latest.commit),
-            set_env_vars={common.INTERNAL_UPDATER_METADATA_ENV_VAR: metadata_file.name},
+        scripts_path = self.metadata.interpreter_info.sysconfig_path(
+            "scripts", {"base": str(venv_dir)}
         )
+        dependency = common.get_red_dependency_specifier(
+            self.latest.version, extras, self.latest.commit
+        )
+
+        try:
+            backup_dir.mkdir()
+        except FileExistsError:
+            console.print(
+                "Found an existing virtual environment backup at",
+                Text(str(backup_dir), style="bold"),
+                "\nIf another update is running, wait for it to finish."
+                " Otherwise check whether the backup needs to be restored before retrying.",
+            )
+            raise SystemExit(1)
+
+        metadata_path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                "w",
+                encoding="utf-8",
+                prefix="redbot-update-metadata-",
+                suffix=".json",
+                delete=False,
+            ) as metadata_file:
+                metadata_path = Path(metadata_file.name)
+                json.dump(self.metadata.to_json_dict(), metadata_file)
+            with console.status("Moving old virtual environment..."):
+                for path in list(venv_dir.iterdir()):
+                    if path != backup_dir and path != wrapper_exe:
+                        path.rename(backup_dir / path.name)
+            console.print("Old virtual environment moved.")
+            common.check_update_interpreter(str(new_executable))
+            runner.make_exec_request(
+                str(new_executable),
+                "reinstall",
+                self.metadata.interpreter_exe,
+                str(venv_dir),
+                scripts_path,
+                dependency,
+                set_env_vars={common.INTERNAL_UPDATER_METADATA_ENV_VAR: str(metadata_path)},
+            )
+        except (Exception, KeyboardInterrupt):
+            common.restore_old_venv(venv_dir)
+            if metadata_path is not None:
+                metadata_path.unlink(missing_ok=True)
+            raise
 
 
 def get_updater_metadata() -> UpdaterMetadata:
-    with open(os.environ[common.INTERNAL_UPDATER_METADATA_ENV_VAR], encoding="utf-8") as fp:
-        return UpdaterMetadata.from_json_dict(json.load(fp))
+    metadata_path = Path(os.environ[common.INTERNAL_UPDATER_METADATA_ENV_VAR])
+    with metadata_path.open(encoding="utf-8") as fp:
+        metadata = UpdaterMetadata.from_json_dict(json.load(fp))
+    metadata_path.unlink()
+    return metadata

@@ -65,7 +65,7 @@ class AudioAPIInterface:
         self.youtube_api: YouTubeWrapper = YouTubeWrapper(self.bot, self.config, session, self.cog)
         self.local_cache_api = LocalCacheWrapper(self.bot, self.config, self.conn, self.cog)
         self.global_cache_api = GlobalCacheWrapper(self.bot, self.config, session, self.cog)
-        self.persistent_queue_api = QueueInterface(self.bot, self.config, self.conn, self.cog)
+        self.persistent_queue_api = QueueInterface(self.config, self.conn, self.cog)
         self._session: aiohttp.ClientSession = session
         self._tasks: MutableMapping = {}
         self._lock: asyncio.Lock = asyncio.Lock()
@@ -627,12 +627,8 @@ class AudioAPIInterface:
                     if guild_data["maxlength"] > 0:
                         if self.cog.is_track_length_allowed(single_track, guild_data["maxlength"]):
                             enqueued_tracks += 1
-                            single_track.extras.update(
-                                {
-                                    "enqueue_time": int(time.time()),
-                                    "vc": player.channel.id,
-                                    "requester": ctx.author.id,
-                                }
+                            single_track = await self.persistent_queue_api.prepare_track(
+                                player, single_track, ctx.author
                             )
                             player.add(ctx.author, single_track)
                             self.bot.dispatch(
@@ -643,12 +639,8 @@ class AudioAPIInterface:
                             )
                     else:
                         enqueued_tracks += 1
-                        single_track.extras.update(
-                            {
-                                "enqueue_time": int(time.time()),
-                                "vc": player.channel.id,
-                                "requester": ctx.author.id,
-                            }
+                        single_track = await self.persistent_queue_api.prepare_track(
+                            player, single_track, ctx.author
                         )
                         player.add(ctx.author, single_track)
                         self.bot.dispatch(
@@ -695,7 +687,7 @@ class AudioAPIInterface:
                         "at `{prefix}audioset youtubeapi`."
                     )
                 )
-            player.maybe_shuffle()
+            self.persistent_queue_api.maybe_shuffle(player)
 
             if spotify_cache:
                 task = ("insert", ("spotify", database_entries))

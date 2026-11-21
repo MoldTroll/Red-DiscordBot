@@ -1,6 +1,5 @@
 import contextlib
 import math
-import time
 from pathlib import Path
 
 from typing import MutableMapping
@@ -295,42 +294,23 @@ class PlayerCommands(MixinMeta, metaclass=CompositeMetaClass):
                 title=_("Unable To Play Tracks"),
                 description=_("This track is not allowed in this server."),
             )
-        elif guild_data["maxlength"] > 0:
-            if self.is_track_length_allowed(single_track, guild_data["maxlength"]):
-                single_track.requester = ctx.author
-                single_track.extras.update(
-                    {
-                        "enqueue_time": int(time.time()),
-                        "vc": player.channel.id,
-                        "requester": ctx.author.id,
-                    }
-                )
-                player.queue.insert(0, single_track)
-                player.maybe_shuffle()
-                self.bot.dispatch(
-                    "red_audio_track_enqueue", player.guild, single_track, ctx.author
-                )
-            else:
-                self.update_player_lock(ctx, False)
-                return await self.send_embed_msg(
-                    ctx,
-                    title=_("Unable To Play Tracks"),
-                    description=_("Track exceeds maximum length."),
-                )
-
-        else:
-            single_track.requester = ctx.author
-            single_track.extras["bumped"] = True
-            single_track.extras.update(
-                {
-                    "enqueue_time": int(time.time()),
-                    "vc": player.channel.id,
-                    "requester": ctx.author.id,
-                }
+        if guild_data["maxlength"] > 0 and not self.is_track_length_allowed(
+            single_track, guild_data["maxlength"]
+        ):
+            self.update_player_lock(ctx, False)
+            return await self.send_embed_msg(
+                ctx,
+                title=_("Unable To Play Tracks"),
+                description=_("Track exceeds maximum length."),
             )
-            player.queue.insert(0, single_track)
-            player.maybe_shuffle()
-            self.bot.dispatch("red_audio_track_enqueue", player.guild, single_track, ctx.author)
+        single_track = await self.api_interface.persistent_queue_api.prepare_track(
+            player, single_track, ctx.author, bumped=True
+        )
+        single_track.requester = ctx.author
+        player.queue.insert(0, single_track)
+        player.maybe_shuffle()
+        self.api_interface.persistent_queue_api.reordered(player)
+        self.bot.dispatch("red_audio_track_enqueue", player.guild, single_track, ctx.author)
         description = await self.get_track_description(
             single_track, self.local_folder_current_path
         )
@@ -824,12 +804,8 @@ class PlayerCommands(MixinMeta, metaclass=CompositeMetaClass):
                     elif guild_data["maxlength"] > 0:
                         if self.is_track_length_allowed(track, guild_data["maxlength"]):
                             track_len += 1
-                            track.extras.update(
-                                {
-                                    "enqueue_time": int(time.time()),
-                                    "vc": player.channel.id,
-                                    "requester": ctx.author.id,
-                                }
+                            track = await self.api_interface.persistent_queue_api.prepare_track(
+                                player, track, ctx.author
                             )
                             player.add(ctx.author, track)
                             self.bot.dispatch(
@@ -837,12 +813,8 @@ class PlayerCommands(MixinMeta, metaclass=CompositeMetaClass):
                             )
                     else:
                         track_len += 1
-                        track.extras.update(
-                            {
-                                "enqueue_time": int(time.time()),
-                                "vc": player.channel.id,
-                                "requester": ctx.author.id,
-                            }
+                        track = await self.api_interface.persistent_queue_api.prepare_track(
+                            player, track, ctx.author
                         )
                         player.add(ctx.author, track)
                         self.bot.dispatch(
@@ -850,7 +822,9 @@ class PlayerCommands(MixinMeta, metaclass=CompositeMetaClass):
                         )
                     if not player.current:
                         await player.play()
-                player.maybe_shuffle(0 if empty_queue else 1)
+                self.api_interface.persistent_queue_api.maybe_shuffle(
+                    player, 0 if empty_queue else 1
+                )
                 if len(tracks) > track_len:
                     maxlength_msg = _(" {bad_tracks} tracks cannot be queued.").format(
                         bad_tracks=(len(tracks) - track_len)

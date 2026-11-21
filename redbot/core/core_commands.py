@@ -407,9 +407,11 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         """Shows info about [botname]."""
         embed_links = await ctx.embed_requested()
         author_repo = "https://github.com/Twentysix26"
-        red_repo = "https://github.com/Cog-Creators/Red-DiscordBot"
+        upstream = "Cog-Creators/Red-DiscordBot"
+        red_repo = f"https://github.com/{upstream}"
         contributors_url = red_repo + "/graphs/contributors"
         version_url = _fork.REPOSITORY_URL
+        fork_info = _("This bot runs {fork}, a fork of {upstream}.")
         support_server_url = "https://discord.gg/red"
         dpy_repo = "https://github.com/Rapptz/discord.py"
         python_url = "https://www.python.org/"
@@ -446,6 +448,14 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
                 "and help us improve!\n\n"
                 "(c) Cog Creators"
             ).format(red_repo, author_repo, contributors_url, support_server_url)
+            about = (
+                fork_info.format(
+                    fork=f"[{_fork.REPOSITORY}]({version_url})",
+                    upstream=f"[{upstream}]({red_repo})",
+                )
+                + "\n\n"
+                + about
+            )
 
             embed = discord.Embed(color=(await ctx.embed_colour()))
             embed.add_field(
@@ -484,7 +494,11 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
                 "and help us improve!\n\n"
                 "(c) Cog Creators"
             )
-            about = box(about)
+            about = box(
+                fork_info.format(fork=f"{_fork.REPOSITORY} (7)", upstream=f"{upstream} (1)")
+                + "\n\n"
+                + about
+            )
 
             if app_info.team:
                 extras = _(

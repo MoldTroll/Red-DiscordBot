@@ -196,10 +196,7 @@ class QueueCommands(MixinMeta, metaclass=CompositeMetaClass):
                 title=_("Unable To Clear Queue"),
                 description=_("You need the DJ role to clear the queue."),
             )
-        async for track in AsyncIter(player.queue):
-            await self.api_interface.persistent_queue_api.played(
-                ctx.guild.id, track.extras.get("enqueue_time")
-            )
+        self.api_interface.persistent_queue_api.removed(ctx.guild.id, player.queue)
         player.queue.clear()
         await self.send_embed_msg(
             ctx, title=_("Queue Modified"), description=_("The queue has been cleared.")
@@ -227,18 +224,11 @@ class QueueCommands(MixinMeta, metaclass=CompositeMetaClass):
                 title=_("Unable To Clean Queue"),
                 description=_("You need the DJ role to clean the queue."),
             )
-        clean_tracks = []
-        removed_tracks = 0
         listeners = player.channel.members
-        async for track in AsyncIter(player.queue):
-            if track.requester in listeners:
-                clean_tracks.append(track)
-            else:
-                await self.api_interface.persistent_queue_api.played(
-                    ctx.guild.id, track.extras.get("enqueue_time")
-                )
-                removed_tracks += 1
-        player.queue = clean_tracks
+        removed = [track for track in player.queue if track.requester not in listeners]
+        self.api_interface.persistent_queue_api.removed(ctx.guild.id, removed)
+        player.queue = [track for track in player.queue if track.requester in listeners]
+        removed_tracks = len(removed)
         if removed_tracks == 0:
             await self.send_embed_msg(ctx, title=_("Removed 0 tracks."))
         else:
@@ -262,17 +252,10 @@ class QueueCommands(MixinMeta, metaclass=CompositeMetaClass):
         if not self._player_check(ctx) or not player.queue:
             return await self.send_embed_msg(ctx, title=_("There's nothing in the queue."))
 
-        clean_tracks = []
-        removed_tracks = 0
-        async for track in AsyncIter(player.queue):
-            if track.requester != ctx.author:
-                clean_tracks.append(track)
-            else:
-                removed_tracks += 1
-                await self.api_interface.persistent_queue_api.played(
-                    ctx.guild.id, track.extras.get("enqueue_time")
-                )
-        player.queue = clean_tracks
+        removed = [track for track in player.queue if track.requester == ctx.author]
+        self.api_interface.persistent_queue_api.removed(ctx.guild.id, removed)
+        player.queue = [track for track in player.queue if track.requester != ctx.author]
+        removed_tracks = len(removed)
         if removed_tracks == 0:
             await self.send_embed_msg(ctx, title=_("Removed 0 tracks."))
         else:
@@ -312,70 +295,33 @@ class QueueCommands(MixinMeta, metaclass=CompositeMetaClass):
         dj_enabled = self._dj_status_cache.setdefault(
             ctx.guild.id, await self.config.guild(ctx.guild).dj_enabled()
         )
-        if (
-            dj_enabled
-            and not await self._can_instaskip(ctx, ctx.author)
-            and not await self.is_requester_alone(ctx)
-        ):
+        try:
+            player = lavalink.get_player(ctx.guild.id)
+        except (NodeNotFound, PlayerNotFound):
+            player = None
+        if not player or not player.queue:
+            ctx.command.reset_cooldown(ctx)
+            return await self.send_embed_msg(
+                ctx,
+                title=_("Unable To Shuffle Queue"),
+                description=_("There's nothing in the queue."),
+            )
+        can_skip = await self._can_instaskip(ctx, ctx.author)
+        if not can_skip and (not ctx.author.voice or ctx.author.voice.channel != player.channel):
+            ctx.command.reset_cooldown(ctx)
+            return await self.send_embed_msg(
+                ctx,
+                title=_("Unable To Shuffle Queue"),
+                description=_("You must be in the voice channel to manage the queue."),
+            )
+        if dj_enabled and not can_skip and not await self.is_requester_alone(ctx):
             ctx.command.reset_cooldown(ctx)
             return await self.send_embed_msg(
                 ctx,
                 title=_("Unable To Shuffle Queue"),
                 description=_("You need the DJ role to shuffle the queue."),
             )
-        if not self._player_check(ctx):
-            ctx.command.reset_cooldown(ctx)
-            return await self.send_embed_msg(
-                ctx,
-                title=_("Unable To Shuffle Queue"),
-                description=_("There's nothing in the queue."),
-            )
-        try:
-            if (
-                not self.can_join_and_speak(ctx.author.voice.channel)
-                or not ctx.author.voice.channel.permissions_for(ctx.me).move_members
-                and self.is_vc_full(ctx.author.voice.channel)
-            ):
-                ctx.command.reset_cooldown(ctx)
-                return await self.send_embed_msg(
-                    ctx,
-                    title=_("Unable To Shuffle Queue"),
-                    description=_("I don't have permission to connect and speak in your channel."),
-                )
-            player = await lavalink.connect(
-                ctx.author.voice.channel,
-                self_deaf=await self.config.guild_from_id(ctx.guild.id).auto_deafen(),
-            )
-            player.store("notify_channel", ctx.channel.id)
-        except AttributeError:
-            ctx.command.reset_cooldown(ctx)
-            return await self.send_embed_msg(
-                ctx,
-                title=_("Unable To Shuffle Queue"),
-                description=_("Connect to a voice channel first."),
-            )
-        except NodeNotFound:
-            ctx.command.reset_cooldown(ctx)
-            return await self.send_embed_msg(
-                ctx,
-                title=_("Unable To Shuffle Queue"),
-                description=_("Connection to Lavalink node has not yet been established."),
-            )
-        except KeyError:
-            ctx.command.reset_cooldown(ctx)
-            return await self.send_embed_msg(
-                ctx,
-                title=_("Unable To Shuffle Queue"),
-                description=_("There's nothing in the queue."),
-            )
-
-        if not self._player_check(ctx) or not player.queue:
-            ctx.command.reset_cooldown(ctx)
-            return await self.send_embed_msg(
-                ctx,
-                title=_("Unable To Shuffle Queue"),
-                description=_("There's nothing in the queue."),
-            )
-
+        player.store("notify_channel", ctx.channel.id)
         player.force_shuffle(0)
+        self.api_interface.persistent_queue_api.reordered(player)
         return await self.send_embed_msg(ctx, title=_("Queue has been shuffled."))

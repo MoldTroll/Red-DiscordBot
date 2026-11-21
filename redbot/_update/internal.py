@@ -434,66 +434,57 @@ def reinstall(
     assert runner.get_request_output().request_type is runner.RequestType.exec
 
     console = common.get_console()
-    with console.status("Creating a new virtual environment..."):
-        subprocess.check_call((base_executable, "-m", "venv", str(venv_dir)))
-    console.print("Created a new virtual environment.")
     executable = str(scripts_path / f"python{sysconfig.get_config_var('EXE')}")
-
-    common.print_with_prefix_column(common.ICON_INFO, "Starting the install process...")
     try:
+        with console.status("Creating a new virtual environment..."):
+            subprocess.check_call((base_executable, "-m", "venv", str(venv_dir)))
+        console.print("Created a new virtual environment.")
+        common.print_with_prefix_column(common.ICON_INFO, "Starting the install process...")
         subprocess.check_call((executable, "-m", "pip", "install", "-U", "pip"))
         subprocess.check_call((executable, "-m", "pip", "install", dependency_specifier))
-    except subprocess.CalledProcessError:
+        subprocess.check_call((executable, "-m", "pip", "check"))
+        common.check_update_interpreter(executable)
+        runner.make_exec_request(executable, "finish-update")
+    except (Exception, KeyboardInterrupt) as error:
         console.print()
         common.print_with_prefix_column(
             common.ICON_ERROR,
-            "Failed to install new version of Red.",
+            "Failed to complete the new installation: ",
+            Text(str(error)),
         )
-        status = console.status("Attempting to restore old virtual environment...")
-        status.start()
         try:
-            _remove_new_venv(venv_dir)
-        except Exception:
-            status.stop()
+            with console.status("Restoring old virtual environment..."):
+                _remove_new_venv(venv_dir)
+                common.restore_old_venv(venv_dir)
+        except OSError as restore_error:
             common.print_with_prefix_column(
-                common.ICON_ERROR, "Failed to remove newly created virtual environment."
+                common.ICON_ERROR,
+                "Failed to restore old virtual environment: ",
+                Text(str(restore_error)),
             )
-            raise SystemExit(1)
-        try:
-            _restore_old_venv(venv_dir)
-        except Exception:
-            status.stop()
-            common.print_with_prefix_column(
-                common.ICON_ERROR, "Failed to restore old virtual environment."
-            )
-        else:
-            status.stop()
-            common.print_with_prefix_column(
-                common.ICON_INFO, "The old virtual environment has been restored."
-            )
-        raise SystemExit(1)
-
-    # NOTE: this will run with the updated version of Red
-    runner.make_exec_request(executable, "finish-update")
+            raise SystemExit(1) from restore_error
+        common.print_with_prefix_column(
+            common.ICON_INFO, "The old virtual environment has been restored."
+        )
+        metadata_file = os.environ.get(common.INTERNAL_UPDATER_METADATA_ENV_VAR)
+        if metadata_file is not None:
+            Path(metadata_file).unlink(missing_ok=True)
+        raise SystemExit(1) from error
 
 
 def _remove_new_venv(venv_dir: Path) -> None:
     backup_dir = venv_dir / common.OLD_VENV_BACKUP_DIR_NAME
+    if backup_dir.is_symlink() or not backup_dir.is_dir():
+        raise FileNotFoundError(f"Missing virtual environment backup at {backup_dir}")
     wrapper_exe = runner.get_wrapper_executable()
 
-    for path in venv_dir.iterdir():
+    for path in list(venv_dir.iterdir()):
         if path == backup_dir or path == wrapper_exe:
             continue
-        if path.is_dir():
-            shutil.rmtree(path)
-        else:
+        if path.is_symlink() or not path.is_dir():
             path.unlink()
-
-
-def _restore_old_venv(venv_dir: Path) -> None:
-    backup_dir = venv_dir / common.OLD_VENV_BACKUP_DIR_NAME
-    for path in backup_dir.iterdir():
-        path.rename(venv_dir / path.name)
+        else:
+            shutil.rmtree(path)
 
 
 if __name__ == "__main__":

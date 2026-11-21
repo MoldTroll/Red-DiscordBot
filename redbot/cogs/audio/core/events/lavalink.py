@@ -30,6 +30,8 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
     async def lavalink_event_handler(
         self, player: lavalink.Player, event_type: lavalink.LavalinkEvents, extra
     ) -> None:
+        if player.fetch("red_playback_probe"):
+            return
         current_track = player.current
         current_channel = player.channel
         guild = self.rgetattr(current_channel, "guild", None)
@@ -137,8 +139,8 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
             player.store("requester", current_requester)
             self.bot.dispatch("red_audio_track_start", guild, current_track, current_requester)
             if guild_id and current_track:
-                await self.api_interface.persistent_queue_api.played(
-                    guild_id=guild_id, track_id=current_track.track_identifier
+                self.api_interface.persistent_queue_api.started(
+                    player, current_track, playing_song, guild_data["persist_queue"]
                 )
             notify_channel = player.fetch("notify_channel")
             if notify_channel and autoplay:
@@ -156,8 +158,6 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
         if event_type == lavalink.LavalinkEvents.QUEUE_END:
             prev_requester = player.fetch("prev_requester")
             self.bot.dispatch("red_audio_queue_end", guild, prev_song, prev_requester)
-            if guild_id:
-                await self.api_interface.persistent_queue_api.drop(guild_id)
             if player.is_auto_playing or (
                 autoplay
                 and not player.queue
@@ -255,11 +255,10 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
             lavalink.LavalinkEvents.TRACK_STUCK,
         ]:
             message_channel = player.fetch("notify_channel")
-            while True:
-                if current_track in player.queue:
-                    player.queue.remove(current_track)
-                else:
-                    break
+            if current_track is not None:
+                failed = [track for track in player.queue if track == current_track]
+                self.api_interface.persistent_queue_api.removed(guild_id, [current_track, *failed])
+                player.queue = [track for track in player.queue if track != current_track]
             if repeat:
                 player.current = None
             if not guild_id:
@@ -273,6 +272,7 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
                 self._disconnected_players[guild_id] = True
                 self.play_lock[guild_id] = False
                 eq = player.fetch("eq")
+                self.api_interface.persistent_queue_api.removed(guild_id, player.queue)
                 player.queue = []
                 player.store("playing_song", None)
                 player.store("autoplay_notified", False)

@@ -3,7 +3,6 @@ import json
 import math
 import os
 import tarfile
-import time
 
 from io import BytesIO
 from pathlib import Path
@@ -1512,17 +1511,15 @@ class PlaylistCommands(MixinMeta, metaclass=CompositeMetaClass):
                             continue
                     if maxlength > 0 and not self.is_track_length_allowed(track, maxlength):
                         continue
-                    track.extras.update(
-                        {
-                            "enqueue_time": int(time.time()),
-                            "vc": player.channel.id,
-                            "requester": ctx.author.id,
-                        }
+                    track = await self.api_interface.persistent_queue_api.prepare_track(
+                        player, track, ctx.author
                     )
                     player.add(author_obj, track)
                     self.bot.dispatch("red_audio_track_enqueue", player.guild, track, ctx.author)
                     track_len += 1
-                player.maybe_shuffle(0 if empty_queue else 1)
+                self.api_interface.persistent_queue_api.maybe_shuffle(
+                    player, 0 if empty_queue else 1
+                )
                 if len(tracks) > track_len:
                     maxlength_msg = _(" {bad_tracks} tracks cannot be queued.").format(
                         bad_tracks=(len(tracks) - track_len)

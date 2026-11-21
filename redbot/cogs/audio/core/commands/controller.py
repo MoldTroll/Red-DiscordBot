@@ -1,6 +1,5 @@
 import asyncio
 import contextlib
-import time
 from pathlib import Path
 
 from typing import Optional, Union
@@ -12,7 +11,6 @@ from red_commons.logging import getLogger
 
 from redbot.core import commands
 from redbot.core.i18n import Translator
-from redbot.core.utils import AsyncIter
 from redbot.core.utils.chat_formatting import humanize_number
 from redbot.core.utils.menus import start_adding_reactions
 from redbot.core.utils.predicates import ReactionPredicate
@@ -104,6 +102,7 @@ class PlayerControllerCommands(MixinMeta, metaclass=CompositeMetaClass):
         self.bot.dispatch("red_audio_audio_disconnect", ctx.guild)
         self.update_player_lock(ctx, False)
         eq = player.fetch("eq")
+        await self.api_interface.persistent_queue_api.drop(ctx.guild.id)
         player.queue = []
         player.store("playing_song", None)
         player.store("autoplay_notified", False)
@@ -113,7 +112,6 @@ class PlayerControllerCommands(MixinMeta, metaclass=CompositeMetaClass):
         await player.disconnect()
         await self.config.guild_from_id(guild_id=ctx.guild.id).currently_auto_playing_in.set([])
         self._ll_guild_updates.discard(ctx.guild.id)
-        await self.api_interface.persistent_queue_api.drop(ctx.guild.id)
 
     @commands.command(name="now")
     @commands.guild_only()
@@ -324,12 +322,8 @@ class PlayerControllerCommands(MixinMeta, metaclass=CompositeMetaClass):
             )
         else:
             track = player.fetch("prev_song")
-            track.extras.update(
-                {
-                    "enqueue_time": int(time.time()),
-                    "vc": player.channel.id,
-                    "requester": ctx.author.id,
-                }
+            track = await self.api_interface.persistent_queue_api.prepare_track(
+                player, track, ctx.author
             )
             player.add(player.fetch("prev_requester"), track)
             self.bot.dispatch("red_audio_track_enqueue", player.guild, track, ctx.author)
@@ -337,6 +331,7 @@ class PlayerControllerCommands(MixinMeta, metaclass=CompositeMetaClass):
             bump_song = player.queue[-1]
             player.queue.insert(0, bump_song)
             player.queue.pop(queue_len)
+            self.api_interface.persistent_queue_api.reordered(player)
             await player.skip()
             description = await self.get_track_description(
                 player.current, self.local_folder_current_path
@@ -654,6 +649,7 @@ class PlayerControllerCommands(MixinMeta, metaclass=CompositeMetaClass):
             eq = player.fetch("eq")
             if eq:
                 await self.config.custom("EQUALIZER", ctx.guild.id).eq_bands.set(eq.bands)
+            await self.api_interface.persistent_queue_api.drop(ctx.guild.id)
             player.queue = []
             player.store("playing_song", None)
             player.store("prev_requester", None)
@@ -665,7 +661,6 @@ class PlayerControllerCommands(MixinMeta, metaclass=CompositeMetaClass):
                 []
             )
             await self.send_embed_msg(ctx, title=_("Stopping..."))
-            await self.api_interface.persistent_queue_api.drop(ctx.guild.id)
 
     @commands.command(name="summon")
     @commands.guild_only()
@@ -890,9 +885,7 @@ class PlayerControllerCommands(MixinMeta, metaclass=CompositeMetaClass):
                 )
             index_or_url -= 1
             removed = player.queue.pop(index_or_url)
-            await self.api_interface.persistent_queue_api.played(
-                ctx.guild.id, removed.extras.get("enqueue_time")
-            )
+            self.api_interface.persistent_queue_api.removed(ctx.guild.id, [removed])
             removed_title = await self.get_track_description(
                 removed, self.local_folder_current_path
             )
@@ -902,17 +895,10 @@ class PlayerControllerCommands(MixinMeta, metaclass=CompositeMetaClass):
                 description=_("Removed {track} from the queue.").format(track=removed_title),
             )
         else:
-            clean_tracks = []
-            removed_tracks = 0
-            async for track in AsyncIter(player.queue):
-                if track.uri != index_or_url:
-                    clean_tracks.append(track)
-                else:
-                    await self.api_interface.persistent_queue_api.played(
-                        ctx.guild.id, track.extras.get("enqueue_time")
-                    )
-                    removed_tracks += 1
-            player.queue = clean_tracks
+            removed = [track for track in player.queue if track.uri == index_or_url]
+            self.api_interface.persistent_queue_api.removed(ctx.guild.id, removed)
+            player.queue = [track for track in player.queue if track.uri != index_or_url]
+            removed_tracks = len(removed)
             if removed_tracks == 0:
                 await self.send_embed_msg(
                     ctx,
@@ -965,6 +951,7 @@ class PlayerControllerCommands(MixinMeta, metaclass=CompositeMetaClass):
         bump_song.extras["bumped"] = True
         player.queue.insert(0, bump_song)
         removed = player.queue.pop(index)
+        self.api_interface.persistent_queue_api.reordered(player)
         description = await self.get_track_description(removed, self.local_folder_current_path)
         await self.send_embed_msg(
             ctx, title=_("Moved track to the top of the queue."), description=description

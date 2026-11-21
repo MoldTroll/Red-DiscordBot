@@ -1,5 +1,4 @@
 import asyncio
-import itertools
 from pathlib import Path
 
 from typing import Optional
@@ -49,7 +48,6 @@ class StartUpTasks(MixinMeta, metaclass=CompositeMetaClass):
                 from_version=await self.config.schema_version(), to_version=_SCHEMA_VERSION
             )
             await self.playlist_api.delete_scheduled()
-            await self.api_interface.persistent_queue_api.delete_scheduled()
             await self._build_bundled_playlist()
             self.lavalink_restart_connect()
             self.player_automated_timer_task = asyncio.create_task(self.player_automated_timer())
@@ -58,11 +56,14 @@ class StartUpTasks(MixinMeta, metaclass=CompositeMetaClass):
             return
 
         self.cog_ready_event.set()
+        try:
+            await self.playback_probe.start()
+        except (OSError, ValueError):
+            log.exception("Unable to start the local playback check socket")
 
     async def restore_players(self):
         log.debug("Starting new restore player task")
         tries = 0
-        tracks_to_restore = await self.api_interface.persistent_queue_api.fetch_all()
         while not lavalink.get_all_nodes():
             await asyncio.sleep(1)
             log.trace("Waiting for node to be available")
@@ -91,12 +92,14 @@ class StartUpTasks(MixinMeta, metaclass=CompositeMetaClass):
         if self.lavalink_connection_aborted:
             log.warning("Aborting player restore due to Lavalink connection being aborted.")
             return
-        for guild_id, track_data in itertools.groupby(tracks_to_restore, key=lambda x: x.guild_id):
+        for (
+            guild_id,
+            room_id,
+        ) in self.api_interface.persistent_queue_api.rooms_to_restore().items():
             await asyncio.sleep(0)
             tries = 0
             try:
                 player: Optional[lavalink.Player] = None
-                track_data = list(track_data)
                 guild = self.bot.get_guild(guild_id)
                 if not guild:
                     log.verbose(
@@ -126,11 +129,9 @@ class StartUpTasks(MixinMeta, metaclass=CompositeMetaClass):
                 auto_deafen = guild_data["auto_deafen"]
 
                 if player is None:
+                    notify_channel_id, vc_id = metadata.pop(guild_id, (None, room_id))
                     while tries < 5 and vc is not None:
                         try:
-                            notify_channel_id, vc_id = metadata.pop(
-                                guild_id, (None, track_data[-1].room_id)
-                            )
                             vc = guild.get_channel(vc_id)
                             if not vc:
                                 break
@@ -172,7 +173,6 @@ class StartUpTasks(MixinMeta, metaclass=CompositeMetaClass):
                             guild_id,
                             vc_id,
                         )
-                    await self.api_interface.persistent_queue_api.drop(guild_id)
                     continue
 
                 player.repeat = repeat
@@ -180,16 +180,21 @@ class StartUpTasks(MixinMeta, metaclass=CompositeMetaClass):
                 player.shuffle_bumped = shuffle_bumped
                 if player.volume != volume:
                     await player.set_volume(volume)
-                for track in track_data:
-                    track = track.track_object
+                present = {
+                    getattr(track, "_red_queue_entry_id", None)
+                    for track in [player.current, *player.queue]
+                }
+                # Requests can be consumed or removed while the voice connection is opening.
+                for row in await self.api_interface.persistent_queue_api.fetch_all(guild_id):
+                    if row.entry_id in present:
+                        continue
+                    track = row.track_object
                     player.add(guild.get_member(track.extras.get("requester")) or guild.me, track)
-                player.maybe_shuffle()
-                if not player.is_playing:
+                if player.queue and not player.is_playing:
                     await player.play()
                 log.debug("Restored %r", player)
             except Exception as exc:
                 log.debug("Error restoring player in %s", guild_id, exc_info=exc)
-                await self.api_interface.persistent_queue_api.drop(guild_id)
 
         for guild_id, (notify_channel_id, vc_id) in metadata.items():
             guild = self.bot.get_guild(guild_id)
