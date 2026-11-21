@@ -17,305 +17,306 @@ msgstr ""
 
 #: redbot/cogs/audio/core/events/cog.py:218
 msgid "Auto Play started."
-msgstr "자동재생이 시작되었어요"
+msgstr "자동 재생을 시작했습니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:35
 msgid "Create Instant Invite"
-msgstr ""
+msgstr "초대 만들기"
 
 #: redbot/cogs/audio/core/events/dpy.py:36
 msgid "Kick Members"
-msgstr ""
+msgstr "멤버 추방하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:37
 msgid "Ban Members"
-msgstr ""
+msgstr "멤버 차단하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:38
 msgid "Administrator"
-msgstr ""
+msgstr "관리자"
 
 #: redbot/cogs/audio/core/events/dpy.py:39
 msgid "Manage Channels"
-msgstr ""
+msgstr "채널 관리하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:40
 msgid "Manage Server"
-msgstr ""
+msgstr "서버 관리하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:41
 msgid "Add Reactions"
-msgstr ""
+msgstr "반응 추가하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:42
 msgid "View Audit Log"
-msgstr ""
+msgstr "감사 로그 보기"
 
 #: redbot/cogs/audio/core/events/dpy.py:43
 msgid "Priority Speaker"
-msgstr ""
+msgstr "우선 발언권"
 
 #: redbot/cogs/audio/core/events/dpy.py:44
 msgid "Video"
-msgstr ""
+msgstr "영상"
 
 #: redbot/cogs/audio/core/events/dpy.py:45
 msgid "Read Text Channels & See Voice Channels"
-msgstr ""
+msgstr "텍스트 채널 읽기 및 음성 채널 보기"
 
 #: redbot/cogs/audio/core/events/dpy.py:46
 msgid "Send Messages"
-msgstr ""
+msgstr "메시지 보내기"
 
 #: redbot/cogs/audio/core/events/dpy.py:47
 msgid "Send Text-to-speech Messages"
-msgstr ""
+msgstr "텍스트 음성 변환 메시지 보내기"
 
 #: redbot/cogs/audio/core/events/dpy.py:48
 msgid "Manage Messages"
-msgstr ""
+msgstr "메시지 관리하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:49
 msgid "Embed Links"
-msgstr ""
+msgstr "링크 임베드하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:50
 msgid "Attach Files"
-msgstr ""
+msgstr "파일 첨부하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:51
 msgid "Read Message History"
-msgstr ""
+msgstr "메시지 기록 보기"
 
 #: redbot/cogs/audio/core/events/dpy.py:52
 msgid "Mention @everyone, @here, and All Roles"
-msgstr ""
+msgstr "@everyone, @here 및 모든 역할 멘션하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:53
 msgid "Use External Emojis"
-msgstr ""
+msgstr "외부 이모지 사용하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:54
 msgid "View Server Insights"
-msgstr ""
+msgstr "서버 인사이트 보기"
 
 #: redbot/cogs/audio/core/events/dpy.py:55
 msgid "Connect"
-msgstr ""
+msgstr "연결하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:56
 msgid "Speak"
-msgstr ""
+msgstr "말하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:57
 msgid "Mute Members"
-msgstr ""
+msgstr "멤버 마이크 음소거하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:58
 msgid "Deafen Members"
-msgstr ""
+msgstr "멤버 헤드셋 음소거하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:59
 msgid "Move Members"
-msgstr ""
+msgstr "멤버 이동하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:60
 msgid "Use Voice Activity"
-msgstr ""
+msgstr "음성 감지 사용하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:61
 msgid "Change Nickname"
-msgstr ""
+msgstr "별명 변경하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:62
 msgid "Manage Nicknames"
-msgstr ""
+msgstr "별명 관리하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:63
 msgid "Manage Roles"
-msgstr ""
+msgstr "역할 관리하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:64
 msgid "Manage Webhooks"
-msgstr ""
+msgstr "웹후크 관리하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:65
 msgid "Manage Expressions"
-msgstr ""
+msgstr "표현 관리하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:66
 msgid "Use Application Commands"
-msgstr ""
+msgstr "애플리케이션 명령어 사용하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:67
 msgid "Request to Speak"
-msgstr ""
+msgstr "발언권 요청하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:68
 msgid "Manage Events"
-msgstr ""
+msgstr "이벤트 관리하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:69
 msgid "Manage Threads"
-msgstr ""
+msgstr "스레드 관리하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:70
 msgid "Create Public Threads"
-msgstr ""
+msgstr "공개 스레드 만들기"
 
 #: redbot/cogs/audio/core/events/dpy.py:71
 msgid "Create Private Threads"
-msgstr ""
+msgstr "비공개 스레드 만들기"
 
 #: redbot/cogs/audio/core/events/dpy.py:72
 msgid "Use External Stickers"
-msgstr ""
+msgstr "외부 스티커 사용하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:73
 msgid "Send Messages in Threads"
-msgstr ""
+msgstr "스레드에서 메시지 보내기"
 
 #: redbot/cogs/audio/core/events/dpy.py:74
 msgid "Use Activities"
-msgstr ""
+msgstr "활동 사용하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:75
 msgid "Time out members"
-msgstr ""
+msgstr "멤버 타임아웃하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:76
 msgid "View Creator Monetization Analytics"
-msgstr ""
+msgstr "크리에이터 수익 창출 분석 보기"
 
 #: redbot/cogs/audio/core/events/dpy.py:77
 msgid "Use Soundboard"
-msgstr ""
+msgstr "사운드보드 사용하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:78
 msgid "Create Expressions"
-msgstr ""
+msgstr "표현 만들기"
 
 #: redbot/cogs/audio/core/events/dpy.py:79
 msgid "Create Events"
-msgstr ""
+msgstr "이벤트 만들기"
 
 #: redbot/cogs/audio/core/events/dpy.py:80
 msgid "Use External Sounds"
-msgstr ""
+msgstr "외부 사운드 사용하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:81
 msgid "Send Voice Messages"
-msgstr ""
+msgstr "음성 메시지 보내기"
 
 #: redbot/cogs/audio/core/events/dpy.py:82
 msgid "Set Voice Channel Status"
-msgstr ""
+msgstr "음성 채널 상태 설정하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:83
 msgid "Create Polls"
-msgstr ""
+msgstr "투표 만들기"
 
 #: redbot/cogs/audio/core/events/dpy.py:84
 msgid "Use External Apps"
-msgstr ""
+msgstr "외부 앱 사용하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:85
 msgid "Pin Messages"
-msgstr ""
+msgstr "메시지 고정하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:86
 msgid "Bypass Slowmode"
-msgstr ""
+msgstr "슬로우 모드 우회하기"
 
 #: redbot/cogs/audio/core/events/dpy.py:90
 msgid "This command will change the executable path of Java, this is useful if you have multiple installations of Java and the default one is causing issues. Please don't change this unless you are certain that the Java version you are specifying is supported by Red. The supported versions are currently Java {supported_java_versions}."
-msgstr ""
+msgstr "이 명령어는 Java 실행 파일의 경로를 변경합니다. Java가 여러 개 설치되어 있고 기본 버전에서 문제가 생길 때 사용하세요. 지정하려는 버전을 Red가 지원하는지 먼저 확인하세요. 현재 지원하는 Java 버전은 {supported_java_versions}입니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:96
 msgid "This command will change the maximum RAM allocation for the managed Lavalink node, usually you will never have to change this, before considering changing it please consult our support team."
-msgstr ""
+msgstr "이 명령어는 봇이 관리하는 Lavalink 노드가 사용할 수 있는 최대 RAM을 변경합니다. 대개 변경할 필요가 없습니다. 변경하기 전에 지원팀에 문의하세요."
 
 #: redbot/cogs/audio/core/events/dpy.py:101
 msgid "This command will disable the managed Lavalink node, if you toggle this command you must specify an external Lavalink node to connect to, if you do not do so Audio will stop working."
-msgstr ""
+msgstr "이 명령어는 봇이 관리하는 Lavalink 노드를 끕니다. 외부 노드를 사용하도록 바꾸면 연결할 Lavalink 노드를 직접 지정해야 합니다. 외부 노드를 지정하지 않으면 Audio가 작동하지 않습니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:106
 msgid "This command is used to specify the IP which will be used by Red to connect to an external Lavalink node. "
-msgstr ""
+msgstr "Red가 외부 Lavalink 노드에 연결할 때 사용할 IP 주소를 지정합니다. "
 
 #: redbot/cogs/audio/core/events/dpy.py:109
 msgid "This command is used to specify the authentication password used by Red to connect to an external Lavalink node."
-msgstr ""
+msgstr "Red가 외부 Lavalink 노드에 연결할 때 사용할 인증 비밀번호를 지정합니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:113
 msgid "This command is used toggle between secured and unsecured connections to an external Lavalink node."
-msgstr ""
+msgstr "Red가 외부 Lavalink 노드에 연결할 때 보안 연결과 일반 연결 중 어느 쪽을 사용할지 설정합니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:116
 msgid "This command is used to specify the connection port used by Red to connect to an external Lavalink node."
-msgstr ""
+msgstr "Red가 외부 Lavalink 노드에 연결할 때 사용할 포트를 지정합니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:119
 msgid "This command specifies which network interface and IP the managed Lavalink node will bind to, by default this is 'localhost', only change this if you want the managed Lavalink node to bind to a specific IP/interface."
-msgstr ""
+msgstr "관리 노드가 연결을 수신할 네트워크 인터페이스와 IP 주소를 지정합니다. 기본값은 'localhost'입니다. 특정 IP 주소나 인터페이스에서 연결을 수신해야 할 때만 변경하세요."
 
 #: redbot/cogs/audio/core/events/dpy.py:124
 msgid "This command changes the authentication password required to connect to this managed node.The default value is 'youshallnotpass'."
-msgstr ""
+msgstr "관리 노드에 연결할 때 필요한 인증 비밀번호를 변경합니다. 기본값은 'youshallnotpass'입니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:128
 msgid "This command changes the connection port used to connect to this managed node, only change this if the default port '2333' is causing conflicts with existing applications."
-msgstr ""
+msgstr "관리 노드에 연결할 때 사용할 포트를 변경합니다. 다른 프로그램이 기본 포트 '2333'을 사용하고 있을 때만 변경하세요."
 
 #: redbot/cogs/audio/core/events/dpy.py:132
 msgid "This command toggles the support of direct url streams like Icecast or Shoutcast streams. An example is <http://ice1.somafm.com/gsclassic-128-mp3>; disabling this will make the bot unable to play any direct url steam content."
-msgstr ""
+msgstr "Icecast나 Shoutcast처럼 URL로 바로 연결하는 스트림의 재생을 켜거나 끕니다(예: <http://ice1.somafm.com/gsclassic-128-mp3>). 끄면 봇이 이런 스트림을 재생할 수 없습니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:142
 msgid "This command toggles the support of local track audio playback. An example is `/mnt/data/my_super_funky_track.mp3`; disabling this will make the bot unable to play any local track content."
-msgstr ""
+msgstr "로컬 음악 파일 재생을 켜거나 끕니다(예: `/mnt/data/my_super_funky_track.mp3`). 끄면 봇이 로컬 파일을 재생할 수 없습니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:147
 msgid "This command toggles the support of SoundCloud playback. An example is <https://soundcloud.com/user-103858850/tilla>; disabling this will make the bot unable to play any SoundCloud content."
-msgstr ""
+msgstr "SoundCloud 재생을 켜거나 끕니다(예: <https://soundcloud.com/user-103858850/tilla>). 끄면 봇이 SoundCloud 콘텐츠를 재생할 수 없습니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:152
 msgid "This command toggles the support of YouTube playback (Spotify depends on YouTube). Disabling this will make the bot unable to play any YouTube content: this includes Spotify."
-msgstr ""
+msgstr "YouTube 재생을 켜거나 끕니다. Spotify는 YouTube를 사용하므로 끄면 YouTube와 Spotify 콘텐츠를 모두 재생할 수 없습니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:157
 msgid "This command toggles the support of Twitch playback. An example of this is <https://twitch.tv/monstercat>; disabling this will make the bot unable to play any Twitch content."
-msgstr ""
+msgstr "Twitch 재생을 켜거나 끕니다(예: <https://twitch.tv/monstercat>). 끄면 봇이 Twitch 콘텐츠를 재생할 수 없습니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:162
 msgid "This command toggles the support of Vimeo playback. An example of this is <https://vimeo.com/157743578>; disabling this will make the bot unable to play any Vimeo content."
-msgstr ""
+msgstr "Vimeo 재생을 켜거나 끕니다(예: <https://vimeo.com/157743578>). 끄면 봇이 Vimeo 콘텐츠를 재생할 수 없습니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:167
 msgid "This setting controls the managed node's framebuffer, do not change this unless instructed."
-msgstr ""
+msgstr "관리 노드의 프레임 버퍼를 설정합니다. 별도의 안내를 받은 경우에만 변경하세요."
 
 #: redbot/cogs/audio/core/events/dpy.py:171
 msgid "This setting controls the managed node's JDA-NAS buffer, do not change this unless instructed."
-msgstr ""
+msgstr "관리 노드의 JDA-NAS 버퍼를 설정합니다. 별도의 안내를 받은 경우에만 변경하세요."
 
 #: redbot/cogs/audio/core/events/dpy.py:175
 msgid "This command will reset every setting changed by `[p]llset`."
-msgstr ""
+msgstr "`[p]llset`으로 변경한 설정을 모두 기본값으로 되돌립니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:192
 msgid "You have attempted to run Audio's managed Lavalink node on an unsupported architecture. Only settings related commands will be available."
-msgstr ""
+msgstr "이 시스템의 아키텍처에서는 Audio가 관리하는 Lavalink 노드를 실행할 수 없습니다. 설정 관련 명령어만 사용할 수 있습니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:214
 msgid "I'm missing permissions to send messages in this server. Please address this as soon as possible."
-msgstr ""
+msgstr "이 서버에서 봇에 메시지 보내기 권한이 없습니다. 권한을 부여해 주세요."
 
 #: redbot/cogs/audio/core/events/dpy.py:240
 msgid "I'm missing permissions in this server, Please address this as soon as possible.\n\n"
 "Expected Permissions:\n"
-msgstr "저에게 이 서버에 대한 몇가지 권한이 누락된 것 같아요, 최대한 빠르게 해당 권한을 부여해 주세요. \n\n"
-"누락되었다고 예상되어지는 권한입니다.:\n"
+msgstr "이 서버에서 봇에 필요한 권한이 빠져 있습니다. 다음 권한을 부여해 주세요.\n"
+"\n"
+"필요한 권한:\n"
 
 #: redbot/cogs/audio/core/events/dpy.py:247
 msgid "Enabled"
@@ -327,26 +328,30 @@ msgstr "비활성화됨"
 
 #: redbot/cogs/audio/core/events/dpy.py:278
 msgid "You should not be running this command."
-msgstr ""
+msgstr "이 명령어를 실행하지 마세요."
 
 #: redbot/cogs/audio/core/events/dpy.py:281
 msgid "\n"
 "{template}\n"
 "If you wish to continue, enter this case sensitive token without spaces as your next message.\n\n"
 "{confirm_token}"
-msgstr ""
+msgstr "\n"
+"{template}\n"
+"계속하려면 다음 메시지에 아래 확인 코드를 입력하세요. 대소문자를 구분하며 공백은 입력하지 마세요.\n"
+"\n"
+"{confirm_token}"
 
 #: redbot/cogs/audio/core/events/dpy.py:329
 msgid "No DJ role found. Disabling DJ mode."
-msgstr "DJ역할을 찾지 못했습니다. DJ역할을 비활성화합니다."
+msgstr "DJ 역할을 찾을 수 없어 DJ 모드를 끕니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:339
 msgid "`{user_input}` is not a valid value for `{command}`"
-msgstr "`{user_input}` 은 `{command}`의 적합한 값이 아니에요"
+msgstr "`{command}`에 사용할 수 없는 값입니다: `{user_input}`"
 
 #: redbot/cogs/audio/core/events/dpy.py:347
 msgid "Unable To Parse Argument"
-msgstr "인수룰 구분할 수 없습니다."
+msgstr "인수를 해석할 수 없음"
 
 #: redbot/cogs/audio/core/events/dpy.py:359
 #: redbot/cogs/audio/core/events/dpy.py:368
@@ -355,45 +360,45 @@ msgstr "잘못된 인수입니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:360
 msgid "The argument you gave for `{}` is not valid: I was expecting a `{}`."
-msgstr "`{}`에 대해 제공 한 인수가 유효하지 않습니다.`{}`를 예상했습니다."
+msgstr "`{}` 인수에는 `{}` 형식의 값이 필요합니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:378
 msgid "Invalid Environment"
-msgstr "잘못된 환경입니다."
+msgstr "올바르지 않은 환경"
 
 #: redbot/cogs/audio/core/events/dpy.py:379
 msgid "Connection to Lavalink node has been lost."
-msgstr ""
+msgstr "Lavalink 노드와의 연결이 끊어졌습니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:387
 msgid "No Player Available"
-msgstr "사용가능한 플레이어가 없습니다."
+msgstr "사용할 수 있는 플레이어 없음"
 
 #: redbot/cogs/audio/core/events/dpy.py:388
 msgid "The bot is not connected to a voice channel."
-msgstr "봇이 음성체널에 접속해 있지 않아요."
+msgstr "봇이 음성 채널에 연결되어 있지 않습니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:396
 #: redbot/cogs/audio/core/events/lavalink.py:183
 msgid "Unable to Get Track"
-msgstr "트랙을 찾을수 없습니다"
+msgstr "곡을 불러올 수 없음"
 
 #: redbot/cogs/audio/core/events/dpy.py:397
 #: redbot/cogs/audio/core/events/lavalink.py:184
 msgid "I'm unable to get a track from the Lavalink node at the moment, try again in a few minutes."
-msgstr ""
+msgstr "지금은 Lavalink 노드에서 곡을 불러올 수 없습니다. 몇 분 후에 다시 시도해 주세요."
 
 #: redbot/cogs/audio/core/events/dpy.py:408
 msgid "There was an issue communicating with Discord."
-msgstr "디스코드와 통신하는데 문제가 있습니다."
+msgstr "Discord와 통신하는 중 문제가 발생했습니다."
 
 #: redbot/cogs/audio/core/events/dpy.py:409
 msgid "This error has been reported to the bot owner."
-msgstr "봇 관리자에게 해당 에러가 보고되었습니다."
+msgstr "봇 소유자에게 이 오류를 알렸습니다."
 
 #: redbot/cogs/audio/core/events/lavalink.py:175
 msgid "Couldn't get a valid track."
-msgstr "유효한 트랙을 얻을 수 없습니다."
+msgstr "재생할 수 있는 곡을 불러오지 못했습니다."
 
 #: redbot/cogs/audio/core/events/lavalink.py:210
 msgid "Now Playing"
@@ -405,27 +410,35 @@ msgstr "곡 길이: {length} | 신청자: {user}"
 
 #: redbot/cogs/audio/core/events/lavalink.py:235
 msgid "Queue ended."
-msgstr "큐 끝남"
+msgstr "대기열의 곡을 모두 재생했습니다."
 
 #: redbot/cogs/audio/core/events/lavalink.py:301
 msgid "Multiple Errors Detected"
-msgstr "여러가지 오류 검출됨"
+msgstr "오류가 여러 번 발생함"
 
 #: redbot/cogs/audio/core/events/lavalink.py:302
 msgid "Closing the audio player due to multiple errors being detected. If this persists, please inform the bot owner as the Audio cog may be temporally unavailable."
-msgstr "오디오 플레이어를 오류로 중지합니다. 오디오 명령어가 작동되지 않을수 있습니다."
+msgstr "오류가 여러 번 발생해 플레이어를 닫습니다. 문제가 계속되면 Audio를 일시적으로 사용할 수 없는 상태일 수 있으니 봇 소유자에게 알려 주세요."
 
 #: redbot/cogs/audio/core/events/lavalink.py:316
 msgid "Track Stuck"
-msgstr "트랙 걸림"
+msgstr "곡 재생이 멈춤"
 
 #: redbot/cogs/audio/core/events/lavalink.py:317
 msgid "Playback of the song has stopped due to an unexpected error.\n"
 "{error}"
-msgstr "예상치 못한 에러로 노래 재생이 중지되었습니다.\n"
+msgstr "예기치 않은 오류로 곡 재생이 중단되었습니다.\n"
 "{error}"
 
 #: redbot/cogs/audio/core/events/lavalink.py:323
 msgid "Track Error"
-msgstr "트랙 에러"
+msgstr "곡 재생 오류"
+
+#: redbot/cogs/audio/core/events/dpy.py:137
+msgid "This command toggles the support of Bandcamp audio playback. An example is <http://deaddiskdrive.bandcamp.com/track/crystal-glass>; disabling this will make the bot unable to play any Bandcamp content"
+msgstr "Bandcamp 재생을 켜거나 끕니다(예: <http://deaddiskdrive.bandcamp.com/track/crystal-glass>). 끄면 봇이 Bandcamp 콘텐츠를 재생할 수 없습니다."
+
+#: redbot/cogs/audio/core/events/lavalink.py:200
+msgid "LIVE"
+msgstr "실시간"
 

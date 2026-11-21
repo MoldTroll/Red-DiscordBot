@@ -71,7 +71,7 @@ class QueueCommands(MixinMeta, metaclass=CompositeMetaClass):
             arrow = await self.draw_time(ctx)
             pos = self.format_time(player.position)
             if player.current.is_stream:
-                dur = "LIVE"
+                dur = _("LIVE")
             else:
                 dur = self.format_time(player.current.length)
             song = (

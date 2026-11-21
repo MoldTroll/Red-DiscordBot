@@ -197,7 +197,7 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
                 if not (description and notify_channel):
                     return
                 if current_stream:
-                    dur = "LIVE"
+                    dur = _("LIVE")
                 else:
                     dur = self.format_time(current_length)
 

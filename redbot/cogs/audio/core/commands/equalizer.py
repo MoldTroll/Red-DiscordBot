@@ -87,10 +87,8 @@ class EqualizerCommands(MixinMeta, metaclass=CompositeMetaClass):
                 return await self.send_embed_msg(
                     ctx,
                     title=_("Unable To Delete Preset"),
-                    description=_(
-                        "{eq_preset} is not in the eq preset list.".format(
-                            eq_preset=eq_preset.capitalize()
-                        )
+                    description=_("{eq_preset} is not in the eq preset list.").format(
+                        eq_preset=eq_preset.capitalize()
                     ),
                 )
             except TypeError:
@@ -104,7 +102,7 @@ class EqualizerCommands(MixinMeta, metaclass=CompositeMetaClass):
                     )
 
         await self.send_embed_msg(
-            ctx, title=_("The {preset_name} preset was deleted.".format(preset_name=eq_preset))
+            ctx, title=_("The {preset_name} preset was deleted.").format(preset_name=eq_preset)
         )
 
     @command_equalizer.command(name="list")
@@ -128,7 +126,7 @@ class EqualizerCommands(MixinMeta, metaclass=CompositeMetaClass):
             try:
                 author = self.bot.get_user(bands["author"])
             except TypeError:
-                author = "None"
+                author = _("None")
             msg = f"{preset}{space * (22 - len(preset))}{author}\n"
             preset_list += msg
 
@@ -154,8 +152,8 @@ class EqualizerCommands(MixinMeta, metaclass=CompositeMetaClass):
             return await self.send_embed_msg(
                 ctx,
                 title=_("No Preset Found"),
-                description=_(
-                    "Preset named {eq_preset} does not exist.".format(eq_preset=eq_preset)
+                description=_("Preset named {eq_preset} does not exist.").format(
+                    eq_preset=eq_preset
                 ),
             )
         except TypeError:
@@ -183,7 +181,7 @@ class EqualizerCommands(MixinMeta, metaclass=CompositeMetaClass):
             content=box(eq.visualise(), lang="ini"),
             embed=discord.Embed(
                 colour=await ctx.embed_colour(),
-                title=_("The {eq_preset} preset was loaded.".format(eq_preset=eq_preset)),
+                title=_("The {eq_preset} preset was loaded.").format(eq_preset=eq_preset),
             ),
         )
         player.store("eq_message", message)

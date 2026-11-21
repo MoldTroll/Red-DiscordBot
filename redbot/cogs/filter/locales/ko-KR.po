@@ -21,12 +21,17 @@ msgid "This cog is designed for \"filtering\" unwanted words and phrases from a 
 "    It provides tools to manage a list of words or sentences, and to customize automatic actions to be taken against users who use those words in channels or in their name/nickname.\n\n"
 "    This can be used to prevent inappropriate language, off-topic discussions, invite links, and more.\n"
 "    "
-msgstr ""
+msgstr "서버에서 금지할 단어나 문구를 관리합니다.\n"
+"\n"
+"금지어 목록을 만들고 채널 메시지, 사용자명 또는 별명에 금지어를 쓴 사용자에게 취할 자동 조치를 설정할 수 있습니다.\n"
+"\n"
+"부적절한 표현, 주제에서 벗어난 대화, 초대 링크 등을 제한할 때 사용할 수 있습니다.\n"
+"    "
 
 #: redbot/cogs/filter/filter.py:85
 #, docstring
 msgid "Base command to manage filter settings."
-msgstr ""
+msgstr "필터 설정을 관리합니다."
 
 #: redbot/cogs/filter/filter.py:90
 #, docstring
@@ -39,11 +44,23 @@ msgid "Set the nickname for users with a filtered name.\n\n"
 "        **Arguments:**\n\n"
 "        - `<name>` The new nickname to assign.\n"
 "        "
-msgstr ""
+msgstr "이름에 금지어가 포함된 사용자에게 부여할 별명을 설정합니다.\n"
+"\n"
+"이름 필터가 꺼져 있으면 적용되지 않습니다. `[p]filter names`로 켜거나 끌 수 있습니다.\n"
+"\n"
+"기본 별명은 *John Doe*입니다.\n"
+"\n"
+"예시:\n"
+"- `[p]filterset defaultname Missingno`\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<name>`: 새로 부여할 별명입니다.\n"
+"        "
 
 #: redbot/cogs/filter/filter.py:106
 msgid "The name to use on filtered names has been set."
-msgstr ""
+msgstr "이름에 금지어가 포함된 사용자에게 부여할 별명을 설정했어요."
 
 #: redbot/cogs/filter/filter.py:110
 #, docstring
@@ -58,109 +75,129 @@ msgid "Set the filter's autoban conditions.\n\n"
 "        - `<count>` The amount of filtered words required to trigger a ban.\n"
 "        - `<timeframe>` The period of time in which too many filtered words will trigger a ban.\n"
 "        "
-msgstr ""
+msgstr "필터의 자동 차단 기준을 설정합니다.\n"
+"\n"
+"`<timeframe>`초 안에 금지어가 포함된 메시지를 `<count>`개 보내면 해당 사용자를 차단합니다.\n"
+"\n"
+"자동 차단을 끄려면 두 값을 모두 0으로 설정하세요.\n"
+"\n"
+"예시:\n"
+"- `[p]filterset ban 5 5` — 5초 안에 금지어가 포함된 메시지를 5개 보내면 차단합니다.\n"
+"- `[p]filterset ban 2 20` — 20초 안에 금지어가 포함된 메시지를 2개 보내면 차단합니다.\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<count>`: 차단 기준이 되는 메시지 수입니다.\n"
+"- `<timeframe>`: 메시지 수를 집계하는 시간입니다.\n"
+"        "
 
 #: redbot/cogs/filter/filter.py:128
 msgid "Count and timeframe either both need to be 0 or both need to be greater than 0!"
-msgstr "개수와 시간은 모두 0이어야 하거나 0보다 커야 해요!"
+msgstr "횟수와 시간은 둘 다 0이거나 둘 다 0보다 커야 해요."
 
 #: redbot/cogs/filter/filter.py:138
 msgid "Autoban disabled."
-msgstr "자동 밴이 중지됐어요."
+msgstr "자동 차단을 껐어요."
 
 #: redbot/cogs/filter/filter.py:143
 msgid "Count and time have been set."
-msgstr "개수와 시간이 설정됐어요."
+msgstr "횟수와 시간을 설정했어요."
 
 #: redbot/cogs/filter/filter.py:149
 #, docstring
 msgid "Base command to add or remove words from the server filter.\n\n"
 "        Use double quotes to add or remove sentences.\n"
 "        "
-msgstr ""
+msgstr "서버 필터에 금지어를 추가하거나 제거합니다.\n"
+"\n"
+"여러 단어로 된 문구는 큰따옴표로 묶어 주세요.\n"
+"        "
 
 #: redbot/cogs/filter/filter.py:157
 #, docstring
 msgid "Clears this server's filter list."
-msgstr ""
+msgstr "이 서버의 금지어 목록을 비웁니다."
 
 #: redbot/cogs/filter/filter.py:162
 msgid "The filter list for this server is empty."
-msgstr ""
+msgstr "이 서버의 금지어 목록이 비어 있어요."
 
 #: redbot/cogs/filter/filter.py:164
 msgid "Are you sure you want to clear this server's filter list?"
-msgstr ""
+msgstr "이 서버의 금지어 목록을 비울까요?"
 
 #: redbot/cogs/filter/filter.py:170 redbot/cogs/filter/filter.py:227
 msgid "You took too long to respond."
-msgstr ""
+msgstr "응답 시간이 지났어요."
 
 #: redbot/cogs/filter/filter.py:175
 msgid "Server filter cleared."
-msgstr ""
+msgstr "서버 금지어 목록을 비웠어요."
 
 #: redbot/cogs/filter/filter.py:177 redbot/cogs/filter/filter.py:234
 msgid "No changes have been made."
-msgstr ""
+msgstr "변경 사항이 없어요."
 
 #: redbot/cogs/filter/filter.py:181
 #, docstring
 msgid "Send a list of this server's filtered words."
-msgstr ""
+msgstr "이 서버의 금지어 목록을 보냅니다."
 
 #: redbot/cogs/filter/filter.py:186
 msgid "There are no current words setup to be filtered in this server."
-msgstr ""
+msgstr "현재 이 서버에 설정된 금지어가 없어요."
 
 #: redbot/cogs/filter/filter.py:189
 msgid "Filtered in this server:"
-msgstr "이 서버에서 필터링 된 항목 :"
+msgstr "서버 금지어:"
 
 #: redbot/cogs/filter/filter.py:194 redbot/cogs/filter/filter.py:251
 msgid "I can't send direct messages to you."
-msgstr "사용자님에게 직접 메시지를 보낼 수 없어요."
+msgstr "DM을 보낼 수 없어요."
 
 #: redbot/cogs/filter/filter.py:198
 #, docstring
 msgid "Base command to add or remove words from the channel filter.\n\n"
 "        Use double quotes to add or remove sentences.\n"
 "        "
-msgstr ""
+msgstr "채널 필터에 금지어를 추가하거나 제거합니다.\n"
+"\n"
+"여러 단어로 된 문구는 큰따옴표로 묶어 주세요.\n"
+"        "
 
 #: redbot/cogs/filter/filter.py:206
 #, docstring
 msgid "Clears this channel's filter list."
-msgstr ""
+msgstr "이 채널의 금지어 목록을 비웁니다."
 
 #: redbot/cogs/filter/filter.py:210
 msgid "Threads can't have a filter list set up. If you want to clear this list for the parent channel, send the command in that channel."
-msgstr ""
+msgstr "스레드에는 별도 금지어 목록을 설정할 수 없어요. 상위 채널의 목록을 비우려면 해당 채널에서 명령을 실행해 주세요."
 
 #: redbot/cogs/filter/filter.py:219
 msgid "The filter list for this channel is empty."
-msgstr ""
+msgstr "이 채널의 금지어 목록이 비어 있어요."
 
 #: redbot/cogs/filter/filter.py:221
 msgid "Are you sure you want to clear this channel's filter list?"
-msgstr ""
+msgstr "이 채널의 금지어 목록을 비울까요?"
 
 #: redbot/cogs/filter/filter.py:232
 msgid "Channel filter cleared."
-msgstr ""
+msgstr "채널 금지어 목록을 비웠어요."
 
 #: redbot/cogs/filter/filter.py:238
 #, docstring
 msgid "Send a list of the channel's filtered words."
-msgstr ""
+msgstr "이 채널의 금지어 목록을 보냅니다."
 
 #: redbot/cogs/filter/filter.py:243
 msgid "There are no current words setup to be filtered in this channel."
-msgstr ""
+msgstr "현재 이 채널에 설정된 금지어가 없어요."
 
 #: redbot/cogs/filter/filter.py:246
 msgid "Filtered in this channel:"
-msgstr ""
+msgstr "채널 금지어:"
 
 #: redbot/cogs/filter/filter.py:262
 #, docstring
@@ -173,15 +210,27 @@ msgid "Add words to the filter.\n\n"
 "        - `<channel>` The text, voice, stage, or forum channel to add filtered words to.\n"
 "        - `[words...]` The words or sentences to filter.\n"
 "        "
-msgstr ""
+msgstr "채널 필터에서 금지어를 추가합니다.\n"
+"\n"
+"여러 단어로 된 문구는 큰따옴표로 묶어 주세요.\n"
+"\n"
+"예시:\n"
+"- `[p]filter channel add #channel word1 word2 word3`\n"
+"- `[p]filter channel add #channel \"This is a sentence\"`\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<channel>`: 필터를 변경할 텍스트, 음성, 스테이지 또는 포럼 채널입니다.\n"
+"- `[words...]`: 차단할 단어나 문구입니다.\n"
+"        "
 
 #: redbot/cogs/filter/filter.py:278
 msgid "Words added to filter."
-msgstr "필터링에 추가된 단어예요."
+msgstr "금지어를 추가했어요."
 
 #: redbot/cogs/filter/filter.py:280
 msgid "Words already in the filter."
-msgstr "필터에 이미 있는 단어예요."
+msgstr "이미 등록된 금지어예요."
 
 #: redbot/cogs/filter/filter.py:291
 #, docstring
@@ -194,15 +243,27 @@ msgid "Remove words from the filter.\n\n"
 "        - `<channel>` The text, voice, stage, or forum channel to add filtered words to.\n"
 "        - `[words...]` The words or sentences to no longer filter.\n"
 "        "
-msgstr ""
+msgstr "채널 필터에서 금지어를 제거합니다.\n"
+"\n"
+"여러 단어로 된 문구는 큰따옴표로 묶어 주세요.\n"
+"\n"
+"예시:\n"
+"- `[p]filter channel remove #channel word1 word2 word3`\n"
+"- `[p]filter channel remove #channel \"This is a sentence\"`\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<channel>`: 필터를 변경할 텍스트, 음성, 스테이지 또는 포럼 채널입니다.\n"
+"- `[words...]`: 차단을 해제할 단어나 문구입니다.\n"
+"        "
 
 #: redbot/cogs/filter/filter.py:306
 msgid "Words removed from filter."
-msgstr "필터에서 제거된 단어예요."
+msgstr "금지어를 제거했어요."
 
 #: redbot/cogs/filter/filter.py:309 redbot/cogs/filter/filter.py:353
 msgid "Those words weren't in the filter."
-msgstr "해당 단어들은 필터에 들어 있지 않아요."
+msgstr "해당 단어는 금지어 목록에 없어요."
 
 #: redbot/cogs/filter/filter.py:313
 #, docstring
@@ -214,15 +275,26 @@ msgid "Add words to the filter.\n\n"
 "        **Arguments:**\n\n"
 "        - `[words...]` The words or sentences to filter.\n"
 "        "
-msgstr ""
+msgstr "서버 필터에서 금지어를 추가합니다.\n"
+"\n"
+"여러 단어로 된 문구는 큰따옴표로 묶어 주세요.\n"
+"\n"
+"예시:\n"
+"- `[p]filter add word1 word2 word3`\n"
+"- `[p]filter add \"This is a sentence\"`\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `[words...]`: 차단할 단어나 문구입니다.\n"
+"        "
 
 #: redbot/cogs/filter/filter.py:329
 msgid "Words successfully added to filter."
-msgstr ""
+msgstr "금지어를 추가했어요."
 
 #: redbot/cogs/filter/filter.py:331
 msgid "Those words were already in the filter."
-msgstr ""
+msgstr "이미 등록된 금지어예요."
 
 #: redbot/cogs/filter/filter.py:335
 #, docstring
@@ -234,44 +306,58 @@ msgid "Remove words from the filter.\n\n"
 "        **Arguments:**\n\n"
 "        - `[words...]` The words or sentences to no longer filter.\n"
 "        "
-msgstr ""
+msgstr "서버 필터에서 금지어를 제거합니다.\n"
+"\n"
+"여러 단어로 된 문구는 큰따옴표로 묶어 주세요.\n"
+"\n"
+"예시:\n"
+"- `[p]filter remove word1 word2 word3`\n"
+"- `[p]filter remove \"This is a sentence\"`\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `[words...]`: 차단을 해제할 단어나 문구입니다.\n"
+"        "
 
 #: redbot/cogs/filter/filter.py:351
 msgid "Words successfully removed from filter."
-msgstr ""
+msgstr "금지어를 제거했어요."
 
 #: redbot/cogs/filter/filter.py:357
 #, docstring
 msgid "Toggle name and nickname filtering.\n\n"
 "        This is disabled by default.\n"
 "        "
-msgstr ""
+msgstr "사용자명과 별명의 금지어 필터를 켜거나 끕니다.\n"
+"\n"
+"기본적으로 꺼져 있습니다.\n"
+"        "
 
 #: redbot/cogs/filter/filter.py:367
 msgid "Names and nicknames will no longer be filtered."
-msgstr ""
+msgstr "이제 사용자명과 별명에 필터를 적용하지 않아요."
 
 #: redbot/cogs/filter/filter.py:369
 msgid "Names and nicknames will now be filtered."
-msgstr ""
+msgstr "이제 사용자명과 별명에 필터를 적용해요."
 
 #: redbot/cogs/filter/filter.py:551
 msgid "Filtered words used: {words}"
-msgstr ""
+msgstr "사용된 금지어: {words}"
 
 #: redbot/cogs/filter/filter.py:553
 msgid "Filtered word used: {word}"
-msgstr ""
+msgstr "사용된 금지어: {word}"
 
 #: redbot/cogs/filter/filter.py:567
 msgid "Autoban (too many filtered messages.)"
-msgstr ""
+msgstr "자동 차단(금지어가 포함된 메시지 반복)"
 
 #: redbot/cogs/filter/filter.py:637
 msgid "Filtered nickname"
-msgstr ""
+msgstr "금지어가 포함된 별명"
 
 #: redbot/cogs/filter/filter.py:637
 msgid "Filtered name"
-msgstr ""
+msgstr "금지어가 포함된 이름"
 

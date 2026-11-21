@@ -18,33 +18,35 @@ msgstr ""
 #: redbot/cogs/customcom/customcom.py:80
 msgid "Welcome to the interactive random {cc} maker!\n"
 "Every message you send will be added as one of the random responses to choose from once this {cc} is triggered. To exit this interactive menu, type `{quit}`"
-msgstr ""
+msgstr "무작위로 응답하는 {cc} 만들기를 시작해요!\n"
+"지금부터 보내는 메시지는 각각 응답 후보로 저장돼요. {cc}를 실행하면 그중 하나를 골라 보내요. 다 입력했으면 `{quit}`를 입력해 주세요."
 
 #: redbot/cogs/customcom/customcom.py:91
 msgid "Add a random response:"
-msgstr "등록된 랜덤 대답 리스트 :"
+msgstr "무작위 응답을 입력해 주세요."
 
 #: redbot/cogs/customcom/customcom.py:98
 msgid "The text response you're trying to create has more than 2000 characters.\n"
 "I cannot send messages that are longer than 2000 characters, please try again."
-msgstr ""
+msgstr "응답이 2,000자를 넘었어요.\n"
+"봇이 보낼 수 있도록 2,000자 이내로 줄여서 다시 입력해 주세요."
 
 #: redbot/cogs/customcom/customcom.py:111
 msgid "Random responses must take the same arguments!"
-msgstr ""
+msgstr "모든 무작위 응답에서 같은 인수를 사용해야 해요."
 
 #: redbot/cogs/customcom/customcom.py:183
 msgid "Do you want to create a 'randomized' custom command?"
-msgstr ""
+msgstr "실행할 때마다 무작위로 응답을 고르는 사용자 지정 명령어를 만들까요?"
 
 #: redbot/cogs/customcom/customcom.py:189
 #: redbot/cogs/customcom/customcom.py:200
 msgid "Response timed out, please try again later."
-msgstr ""
+msgstr "응답 시간이 지났어요. 나중에 다시 시도해 주세요."
 
 #: redbot/cogs/customcom/customcom.py:194
 msgid "What response do you want?"
-msgstr "어떤 대답을 원해요?"
+msgstr "어떤 내용으로 응답할까요?"
 
 #: redbot/cogs/customcom/customcom.py:236
 #, docstring
@@ -53,12 +55,15 @@ msgid "This cog contains commands for creating and managing custom commands that
 "    Custom commands can be used by anyone by default, so be careful with pings.\n"
 "    Commands can only be lowercase, and will not respond to any uppercase letters.\n"
 "    "
-msgstr ""
+msgstr "텍스트로 응답하는 사용자 지정 명령어를 만들고 관리합니다.\n"
+"\n"
+"    자주 묻는 질문의 답변이나 초대 링크를 저장할 때 유용합니다. 기본적으로 누구나 명령어를 실행할 수 있으므로 응답에 멘션을 넣을 때 주의하세요. 명령어 이름에는 소문자만 사용할 수 있으며, 대문자를 입력하면 응답하지 않습니다.\n"
+"    "
 
 #: redbot/cogs/customcom/customcom.py:266
 #, docstring
 msgid "Base command for Custom Commands management."
-msgstr ""
+msgstr "사용자 지정 명령어를 관리합니다."
 
 #: redbot/cogs/customcom/customcom.py:271
 #, docstring
@@ -66,16 +71,23 @@ msgid "Get the raw response of a custom command, to get the proper markdown.\n\n
 "        This is helpful for copy and pasting.\n\n"
 "        **Arguments:**\n\n"
 "        - `<command>` The custom command to get the raw response of."
-msgstr ""
+msgstr "사용자 지정 명령어의 응답을 마크다운 원문으로 표시합니다.\n"
+"\n"
+"        서식을 포함해 복사할 때 유용합니다.\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<command>` 원문을 확인할 사용자 지정 명령어입니다."
 
 #: redbot/cogs/customcom/customcom.py:296
 msgid "Response #{num}/{total}"
-msgstr ""
+msgstr "응답 {num}/{total}"
 
 #: redbot/cogs/customcom/customcom.py:306
 msgid "Response #{num}/{total}:\n"
 "{raw}"
-msgstr ""
+msgstr "응답 {num}/{total}:\n"
+"{raw}"
 
 #: redbot/cogs/customcom/customcom.py:317
 #, docstring
@@ -85,19 +97,27 @@ msgid "\n"
 "        **Arguments:**\n\n"
 "        - `<query>` The query to search for. Can be multiple words.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"        사용자 지정 명령어를 검색합니다.\n"
+"\n"
+"        검색어와 비슷한 이름도 찾습니다.\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<query>` 검색할 내용입니다. 여러 단어를 입력할 수 있습니다.\n"
+"        "
 
 #: redbot/cogs/customcom/customcom.py:339
 msgid "No close matches were found."
-msgstr ""
+msgstr "비슷한 명령어를 찾지 못했어요."
 
 #: redbot/cogs/customcom/customcom.py:344
 msgid "Search results"
-msgstr ""
+msgstr "검색 결과"
 
 #: redbot/cogs/customcom/customcom.py:349
 msgid "The following matches have been found:"
-msgstr ""
+msgstr "다음 명령어를 찾았어요."
 
 #: redbot/cogs/customcom/customcom.py:354
 #, docstring
@@ -106,7 +126,10 @@ msgid "Create custom commands.\n\n"
 "        CCs can be enhanced with arguments, see the guide\n"
 "        [here](https://docs.discord.red/en/stable/cog_customcom.html).\n"
 "        "
-msgstr ""
+msgstr "사용자 지정 명령어를 만듭니다.\n"
+"\n"
+"        유형을 생략하면 응답이 하나인 명령어를 만듭니다. 명령어에 인수를 추가하는 방법은 [안내서](https://docs.discord.red/en/stable/cog_customcom.html)를 참고하세요.\n"
+"        "
 
 #: redbot/cogs/customcom/customcom.py:365
 #, docstring
@@ -115,38 +138,46 @@ msgid "Create a CC where it will randomly choose a response!\n\n"
 "        **Arguments:**\n\n"
 "        - `<command>` The command executed to return the text. Cast to lowercase.\n"
 "        "
-msgstr ""
+msgstr "실행할 때마다 응답을 무작위로 고르는 사용자 지정 명령어를 만듭니다.\n"
+"\n"
+"        명령어를 실행한 후 안내에 따라 응답을 입력하세요.\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<command>` 응답을 보내는 명령어 이름입니다. 소문자로 변환됩니다.\n"
+"        "
 
 #: redbot/cogs/customcom/customcom.py:375
 #: redbot/cogs/customcom/customcom.py:416
 msgid "Custom command names cannot have spaces in them."
-msgstr ""
+msgstr "사용자 지정 명령어 이름에는 공백을 넣을 수 없어요."
 
 #: redbot/cogs/customcom/customcom.py:378
 #: redbot/cogs/customcom/customcom.py:419
 msgid "There already exists a bot command with the same name."
-msgstr ""
+msgstr "같은 이름의 봇 명령어가 이미 있어요."
 
 #: redbot/cogs/customcom/customcom.py:382
 msgid "Custom command process cancelled."
-msgstr ""
+msgstr "사용자 지정 명령어 만들기를 취소했어요."
 
 #: redbot/cogs/customcom/customcom.py:386
 #: redbot/cogs/customcom/customcom.py:423
 msgid "Custom command successfully added."
-msgstr "커스텀 커맨드가 성공적으로 추가됐어요."
+msgstr "사용자 지정 명령어를 추가했어요."
 
 #: redbot/cogs/customcom/customcom.py:389
 #: redbot/cogs/customcom/customcom.py:426
 msgid "This command already exists. Use `{command}` to edit it."
-msgstr ""
+msgstr "이미 있는 명령어예요. 수정하려면 `{command}`를 사용해 주세요."
 
 #: redbot/cogs/customcom/customcom.py:395
 #: redbot/cogs/customcom/customcom.py:434
 #: redbot/cogs/customcom/customcom.py:537
 msgid "The text response you're trying to create has more than 2000 characters.\n"
 "I cannot send messages that are longer than 2000 characters."
-msgstr ""
+msgstr "응답이 2,000자를 넘었어요.\n"
+"봇이 보낼 수 있는 메시지는 최대 2,000자예요."
 
 #: redbot/cogs/customcom/customcom.py:404
 #, docstring
@@ -157,7 +188,16 @@ msgid "Add a simple custom command.\n\n"
 "        - `<command>` The command executed to return the text. Cast to lowercase.\n"
 "        - `<text>` The text to return when executing the command. See guide for enhanced usage.\n"
 "        "
-msgstr ""
+msgstr "응답이 하나인 사용자 지정 명령어를 추가합니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]customcom create simple yourcommand Text you want`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<command>` 응답을 보내는 명령어 이름입니다. 소문자로 변환됩니다.\n"
+"        - `<text>` 명령어를 실행하면 보낼 내용입니다. 고급 사용법은 안내서를 참고하세요.\n"
+"        "
 
 #: redbot/cogs/customcom/customcom.py:445
 #, docstring
@@ -174,33 +214,47 @@ msgid "Set, edit, or view the cooldown for a custom command.\n\n"
 "        - `[cooldown]` The number of seconds to wait before allowing the command to be invoked again. If omitted, will instead return the current cooldown settings.\n"
 "        - `[per]` The group to apply the cooldown on. Defaults to per member. Valid choices are server / guild, user / member, and channel.\n"
 "        "
-msgstr ""
+msgstr "사용자 지정 명령어의 재사용 대기 시간을 확인하거나 변경합니다.\n"
+"\n"
+"        멤버별, 채널별, 서버별로 설정을 함께 적용할 수 있습니다. 설정된 대기 시간이 모두 지나야 명령어를 다시 쓸 수 있습니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]customcom cooldown pingrole`\n"
+"        - `[p]customcom cooldown yourcommand 30`\n"
+"        - `[p]cc cooldown mycommand 30 guild`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<command>` 대기 시간을 확인하거나 변경할 명령어입니다.\n"
+"        - `[cooldown]` 다시 사용할 수 있을 때까지 기다릴 시간(초)입니다. 생략하면 현재 설정을 표시합니다.\n"
+"        - `[per]` 대기 시간을 적용할 단위입니다. 서버는 server / guild, 멤버는 user / member, 채널은 channel을 사용합니다. 기본값은 멤버입니다.\n"
+"        "
 
 #: redbot/cogs/customcom/customcom.py:466
 #: redbot/cogs/customcom/customcom.py:507
 msgid "That command doesn't exist."
-msgstr "해당 커맨드는 추가되어 있지 않아요."
+msgstr "해당 명령어가 없어요."
 
 #: redbot/cogs/customcom/customcom.py:471
 msgid "A {} may call this command every {} seconds"
-msgstr ""
+msgstr "{} 단위로 {}초마다 이 명령어를 사용할 수 있어요."
 
 #: redbot/cogs/customcom/customcom.py:475
 msgid "This command has no cooldown."
-msgstr ""
+msgstr "이 명령어에는 재사용 대기 시간이 없어요."
 
 #: redbot/cogs/customcom/customcom.py:479
 msgid "{} must be one of {}"
-msgstr ""
+msgstr "{}에 사용할 수 있는 값은 다음과 같아요: {}"
 
 #: redbot/cogs/customcom/customcom.py:483
 msgid "Custom command cooldown successfully edited."
-msgstr ""
+msgstr "명령어의 재사용 대기 시간을 변경했어요."
 
 #: redbot/cogs/customcom/customcom.py:486
 #: redbot/cogs/customcom/customcom.py:527
 msgid "That command doesn't exist. Use `{command}` to add it."
-msgstr ""
+msgstr "해당 명령어가 없어요. 추가하려면 `{command}`를 사용해 주세요."
 
 #: redbot/cogs/customcom/customcom.py:494
 #, docstring
@@ -210,11 +264,19 @@ msgid "Delete a custom command.\n\n"
 "        **Arguments:**\n\n"
 "        - `<command>` The custom command to delete.\n"
 "        "
-msgstr ""
+msgstr "사용자 지정 명령어를 삭제합니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]customcom delete yourcommand`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<command>` 삭제할 사용자 지정 명령어입니다.\n"
+"        "
 
 #: redbot/cogs/customcom/customcom.py:505
 msgid "Custom command successfully deleted."
-msgstr "커스텀 커맨드가 성공적으로 삭제됐어요."
+msgstr "사용자 지정 명령어를 삭제했어요."
 
 #: redbot/cogs/customcom/customcom.py:512
 #, docstring
@@ -225,11 +287,20 @@ msgid "Edit a custom command.\n\n"
 "        - `<command>` The custom command to edit.\n"
 "        - `<text>` The new text to return when executing the command.\n"
 "        "
-msgstr ""
+msgstr "사용자 지정 명령어를 수정합니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]customcom edit yourcommand Text you want`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<command>` 수정할 사용자 지정 명령어입니다.\n"
+"        - `<text>` 명령어를 실행하면 보낼 새 응답입니다.\n"
+"        "
 
 #: redbot/cogs/customcom/customcom.py:524
 msgid "Custom command successfully edited."
-msgstr "커스텀 커맨드가 성공적으로 수정됐어요."
+msgstr "사용자 지정 명령어를 수정했어요."
 
 #: redbot/cogs/customcom/customcom.py:546
 #, docstring
@@ -237,19 +308,22 @@ msgid "List all available custom commands.\n\n"
 "        The list displays a preview of each command's response, with\n"
 "        markdown escaped and newlines replaced with spaces.\n"
 "        "
-msgstr ""
+msgstr "사용할 수 있는 사용자 지정 명령어를 모두 표시합니다.\n"
+"\n"
+"        목록에는 각 명령어의 응답 미리보기가 표시됩니다. 마크다운은 원문으로 표시되며 줄바꿈은 공백으로 바뀝니다.\n"
+"        "
 
 #: redbot/cogs/customcom/customcom.py:555
 msgid "There are no custom commands in this server. Use `{command}` to start adding some."
-msgstr ""
+msgstr "이 서버에는 사용자 지정 명령어가 없어요. `{command}`로 추가할 수 있어요."
 
 #: redbot/cogs/customcom/customcom.py:571
 msgid "Custom Command List"
-msgstr ""
+msgstr "사용자 지정 명령어 목록"
 
 #: redbot/cogs/customcom/customcom.py:575
 msgid "Page {num}/{total}"
-msgstr ""
+msgstr "{num}/{total}페이지"
 
 #: redbot/cogs/customcom/customcom.py:585
 #, docstring
@@ -257,52 +331,60 @@ msgid "Shows a custom command's responses and its settings.\n\n"
 "        **Arguments:**\n\n"
 "        - `<command_name>` The custom command to show.\n"
 "        "
-msgstr ""
+msgstr "사용자 지정 명령어의 응답과 설정을 표시합니다.\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<command_name>` 확인할 사용자 지정 명령어입니다.\n"
+"        "
 
 #: redbot/cogs/customcom/customcom.py:595
 msgid "I could not not find that custom command."
-msgstr ""
+msgstr "해당 사용자 지정 명령어를 찾지 못했어요."
 
 #: redbot/cogs/customcom/customcom.py:606
 msgid "Deleted User"
-msgstr ""
+msgstr "삭제된 사용자"
 
 #: redbot/cogs/customcom/customcom.py:612
 msgid "Random"
-msgstr ""
+msgstr "무작위"
 
 #: redbot/cogs/customcom/customcom.py:612
 msgid "Normal"
-msgstr ""
+msgstr "일반"
 
 #: redbot/cogs/customcom/customcom.py:614
 msgid "Command: {command_name}\n"
 "Author: {author}\n"
 "Created: {created_at}\n"
 "Type: {type}\n"
-msgstr ""
+msgstr "명령어: {command_name}\n"
+"만든 사람: {author}\n"
+"만든 시각: {created_at}\n"
+"유형: {type}\n"
 
 #: redbot/cogs/customcom/customcom.py:626
 msgid "Cooldowns:\n"
-msgstr ""
+msgstr "재사용 대기 시간:\n"
 
 #: redbot/cogs/customcom/customcom.py:628
 msgid "{num} seconds per {period}\n"
-msgstr ""
+msgstr "{period} 단위로 {num}초\n"
 
 #: redbot/cogs/customcom/customcom.py:631
 msgid "Responses:\n"
-msgstr ""
+msgstr "응답:\n"
 
 #: redbot/cogs/customcom/customcom.py:731
 msgid "Too many arguments!"
-msgstr ""
+msgstr "인수가 너무 많아요."
 
 #: redbot/cogs/customcom/customcom.py:735
 msgid "Arguments must be sequential. Missing arguments: "
-msgstr "인수는 순차적이어야해요. 미확인된 인수: "
+msgstr "인수 번호는 연속되어야 해요. 빠진 번호: "
 
 #: redbot/cogs/customcom/customcom.py:761
 msgid "Conflicting colon notation for argument {index}: \"{name1}\" and \"{name2}\"."
-msgstr ""
+msgstr "{index}번 인수의 콜론 뒤 표기가 서로 달라요: \"{name1}\", \"{name2}\"."
 

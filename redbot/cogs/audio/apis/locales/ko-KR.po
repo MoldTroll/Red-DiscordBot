@@ -18,64 +18,64 @@ msgstr ""
 #: redbot/cogs/audio/apis/interface.py:270
 #: redbot/cogs/audio/apis/interface.py:600
 msgid "Failing to get tracks, skipping remaining."
-msgstr "트랙을 추가하지 못해 나머지는 건너 뜁니다."
+msgstr "곡을 불러올 수 없어 나머지 곡을 건너뜁니다."
 
 #: redbot/cogs/audio/apis/interface.py:303
 #: redbot/cogs/audio/apis/spotify.py:175
 msgid "The Spotify API key or client secret has not been set properly. \n"
 "Use `{prefix}audioset spotifyapi` for instructions."
-msgstr "You deleted the translation \"Spotify API 키 또는 client secret이 올바르게 설정되지 않았습니다. \n"
-"`{prefix}audioset spotifyapi`를 사용하여 명령어들을 확인하세요.\""
+msgstr "Spotify API 키 또는 클라이언트 시크릿이 올바르게 설정되지 않았습니다.\n"
+"설정 방법은 `{prefix}audioset spotifyapi`로 확인하세요."
 
 #: redbot/cogs/audio/apis/interface.py:345
 msgid "This doesn't seem to be a valid Spotify playlist/album URL or code."
-msgstr "유효한 Spotify 재생 목록, 앨범 URL 또는 코드가 아닌것 같습니다."
+msgstr "유효한 Spotify 재생 목록이나 앨범의 URL 또는 코드를 입력해 주세요."
 
 #: redbot/cogs/audio/apis/interface.py:471
 msgid "This doesn't seem to be a supported Spotify URL or code."
-msgstr "지원되는 Spotify URL 또는 코드가 아닌 것 같습니다."
+msgstr "지원하지 않는 Spotify URL 또는 코드입니다."
 
 #: redbot/cogs/audio/apis/interface.py:561
 msgid "The connection was reset while loading the playlist."
-msgstr "재생 목록을 로드하는 동안 연결이 재설정되었습니다."
+msgstr "재생 목록을 불러오는 중에 연결이 초기화되었습니다."
 
 #: redbot/cogs/audio/apis/interface.py:572
 msgid "Player timeout, skipping remaining tracks."
-msgstr "플래이어 시간이 초과되었습니다. 남은 트랙들을 건너 뜁니다."
+msgstr "플레이어 응답 시간이 초과되어 나머지 곡을 건너뜁니다."
 
 #: redbot/cogs/audio/apis/interface.py:665
 msgid " {bad_tracks} tracks cannot be queued."
-msgstr " {bad_tracks} 을 대기열에 추가할 수 없습니다."
+msgstr " 곡 {bad_tracks}개는 대기열에 추가할 수 없습니다."
 
 #: redbot/cogs/audio/apis/interface.py:673
 msgid "Playlist Enqueued"
-msgstr "대기중인 재생 목록"
+msgstr "재생 목록을 대기열에 추가했습니다"
 
 #: redbot/cogs/audio/apis/interface.py:674
 msgid "Added {num} tracks to the queue.{maxlength_msg}"
-msgstr "대기열에 {num} 개의 트랙이 추가되었습니다. {maxlength_msg}"
+msgstr "대기열에 곡 {num}개를 추가했습니다.{maxlength_msg}"
 
 #: redbot/cogs/audio/apis/interface.py:680
 msgid "{time} until start of playlist playback: starts at #{position} in queue"
-msgstr "재생 목록 재생이 시작될 때까지 {time} 남았습니다.: 대기열의 #{position} 에 시작합니다."
+msgstr "재생 목록은 대기열 {position}번째에서 시작합니다. 재생까지 {time} 남았습니다."
 
 #: redbot/cogs/audio/apis/interface.py:691
 msgid "Nothing found.\n"
 "The YouTube API key may be invalid or you may be rate limited on YouTube's search service.\n"
 "Check the YouTube API key again and follow the instructions at `{prefix}audioset youtubeapi`."
 msgstr "검색 결과가 없습니다.\n"
-" 유튜브 API키가 유효하지 않거나 유튜브 검색 서비스 제한이 걸렸을 수도 있습니다. \n"
-"유튜브 API 키를 다시 확인하고 `{prefix}audioset youtubeapi`.에서 지침을 확인하세요."
+"YouTube API 키가 유효하지 않거나 YouTube 검색 요청 한도에 도달했을 수 있습니다.\n"
+"YouTube API 키를 다시 확인하고 `{prefix}audioset youtubeapi`의 안내를 따르세요."
 
 #: redbot/cogs/audio/apis/youtube.py:62
 msgid "Your YouTube Data API token is invalid.\n"
 "Check the YouTube API key again and follow the instructions at `{prefix}audioset youtubeapi`."
-msgstr "귀하의 YouTube Data API 토큰이 유효하지 않습니다.\n"
-"YouTube API 키를 다시 한번 확인하시고, `{prefix}audioset youtubeapi`의 지침서를 따르세요."
+msgstr "YouTube Data API 토큰이 유효하지 않습니다.\n"
+"YouTube API 키를 다시 확인하고 `{prefix}audioset youtubeapi`의 안내를 따르세요."
 
 #: redbot/cogs/audio/apis/youtube.py:74
 msgid "YouTube API error code: 403\n"
 "Your YouTube API key may have reached the account's query limit for today. Please check <https://developers.google.com/youtube/v3/getting-started#quota> for more information."
-msgstr "유튜브 API 오류 코드: 403\n"
-"YouTube API 키가 오늘 계정의 쿼리 제한에 도달했을 수 있습니다. 자세한 내용은 <https://developers.google.com/youtube/v3/getting-started#quota>을 참조하십시오."
+msgstr "YouTube API 오류 코드: 403\n"
+"이 계정의 YouTube API 일일 요청 한도에 도달했을 수 있습니다. 자세한 내용은 <https://developers.google.com/youtube/v3/getting-started#quota>에서 확인하세요."
 

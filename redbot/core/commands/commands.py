@@ -51,6 +51,12 @@ _T = TypeVar("_T")
 _CogT = TypeVar("_CogT", bound="Cog")
 
 
+def _translated_help(docstring: str, translator: Callable[[str], str]) -> str:
+    if isinstance(translator, Translator):
+        return inspect.cleandoc(translator._translate_docstring(docstring))
+    return inspect.cleandoc(translator(docstring))
+
+
 if TYPE_CHECKING:
     # circular import avoidance
     from .context import Context
@@ -379,7 +385,7 @@ class Command(CogCommandMixin, DPYCommand):
         command_doc = self.callback.__doc__
         if command_doc is None:
             return ""
-        return inspect.cleandoc(translator(command_doc))
+        return _translated_help(command_doc, translator)
 
     @help.setter
     def help(self, value):
@@ -833,7 +839,7 @@ class CogMixin(CogGroupMixin, CogCommandMixin):
         doc = self.__doc__
         translator = getattr(self, "__translator__", lambda s: s)
         if doc:
-            return inspect.cleandoc(translator(doc))
+            return _translated_help(doc, translator)
 
     async def red_get_data_for_user(self, *, user_id: int) -> MutableMapping[str, io.BytesIO]:
         """

@@ -18,43 +18,43 @@ msgstr ""
 #: redbot/cogs/modlog/modlog.py:19
 #, docstring
 msgid "Browse and manage modlog cases. To manage modlog settings, use `[p]modlogset`."
-msgstr ""
+msgstr "관리 기록을 조회하고 수정합니다. 기록 설정을 변경하려면 `[p]modlogset`을 사용하세요."
 
 #: redbot/cogs/modlog/modlog.py:32
 #, docstring
 msgid "Show the specified case."
-msgstr ""
+msgstr "지정한 관리 기록을 표시합니다."
 
 #: redbot/cogs/modlog/modlog.py:36
 msgid "That case does not exist for this server."
-msgstr ""
+msgstr "이 서버에는 해당 관리 기록이 없어요."
 
 #: redbot/cogs/modlog/modlog.py:45 redbot/cogs/modlog/modlog.py:82
 #: redbot/cogs/modlog/modlog.py:117
 msgid "Timestamp:"
-msgstr ""
+msgstr "기록 시각:"
 
 #: redbot/cogs/modlog/modlog.py:52
 #, docstring
 msgid "Display cases for the specified member."
-msgstr ""
+msgstr "지정한 멤버의 관리 기록을 표시합니다."
 
 #: redbot/cogs/modlog/modlog.py:64 redbot/cogs/modlog/modlog.py:103
 msgid "That user does not exist."
-msgstr ""
+msgstr "해당 사용자가 존재하지 않아요."
 
 #: redbot/cogs/modlog/modlog.py:67 redbot/cogs/modlog/modlog.py:106
 msgid "Something unexpected went wrong while fetching that user by ID."
-msgstr ""
+msgstr "ID로 사용자를 조회하는 중에 예기치 않은 오류가 발생했어요."
 
 #: redbot/cogs/modlog/modlog.py:71 redbot/cogs/modlog/modlog.py:109
 msgid "That user does not have any cases."
-msgstr ""
+msgstr "해당 사용자의 관리 기록이 없어요."
 
 #: redbot/cogs/modlog/modlog.py:91
 #, docstring
 msgid "List cases for the specified member."
-msgstr ""
+msgstr "지정한 멤버의 관리 기록 목록을 표시합니다."
 
 #: redbot/cogs/modlog/modlog.py:126
 #, docstring
@@ -63,21 +63,26 @@ msgid "Specify a reason for a modlog case.\n\n"
 "        the owner of unless you are a mod, admin or server owner.\n\n"
 "        If no case number is specified, the latest case will be used.\n"
 "        "
-msgstr ""
+msgstr "관리 기록의 사유를 지정합니다.\n"
+"\n"
+"운영진, 관리자, 서버 소유자는 모든 기록을 수정할 수 있습니다. 그 외의 사용자는 자신이 작성한 기록만 수정할 수 있습니다.\n"
+"\n"
+"번호를 생략하면 가장 최근 기록을 수정합니다.\n"
+"        "
 
 #: redbot/cogs/modlog/modlog.py:139
 msgid "There are no modlog cases in this server."
-msgstr ""
+msgstr "이 서버에 관리 기록이 없어요."
 
 #: redbot/cogs/modlog/modlog.py:145
 msgid "That case does not exist!"
-msgstr "해당 사례는 등록되어 있지 않아요."
+msgstr "해당 관리 기록이 없어요."
 
 #: redbot/cogs/modlog/modlog.py:152
 msgid "You are not authorized to modify that case!"
-msgstr "사용자님은 해당 사례를 수정할 권한이 없어요!"
+msgstr "해당 관리 기록을 수정할 권한이 없어요."
 
 #: redbot/cogs/modlog/modlog.py:160
 msgid "Reason for case #{num} has been updated."
-msgstr ""
+msgstr "관리 기록 #{num}의 사유를 수정했어요."
 

@@ -17,105 +17,105 @@ msgstr ""
 
 #: redbot/cogs/mod/events.py:57 redbot/cogs/mod/events.py:72
 msgid "Mention spam (Autoban)"
-msgstr ""
+msgstr "멘션 도배(자동 차단)"
 
 #: redbot/cogs/mod/events.py:81
 msgid "Mention Spam (Autokick)"
-msgstr ""
+msgstr "멘션 도배(자동 추방)"
 
 #: redbot/cogs/mod/events.py:96
 msgid "Mention spam (Autokick)"
-msgstr ""
+msgstr "멘션 도배(자동 추방)"
 
 #: redbot/cogs/mod/events.py:105
 msgid "Please do not mass mention people!"
-msgstr ""
+msgstr "여러 사람을 한꺼번에 멘션하지 말아 주세요!"
 
 #: redbot/cogs/mod/events.py:109
 msgid "{member}, Please do not mass mention people!"
-msgstr ""
+msgstr "{member}님, 여러 사람을 한꺼번에 멘션하지 말아 주세요!"
 
 #: redbot/cogs/mod/events.py:128
 msgid "Mention spam (Autowarn)"
-msgstr ""
+msgstr "멘션 도배(자동 경고)"
 
 #: redbot/cogs/mod/kickban.py:82
 msgid "That user is not in a voice channel."
-msgstr ""
+msgstr "해당 사용자가 음성 채널에 접속해 있지 않아요."
 
 #: redbot/cogs/mod/kickban.py:89
 msgid "I require the {perms} permission(s) in that user's channel to do that."
-msgstr ""
+msgstr "해당 사용자의 채널에서 이 작업을 하려면 봇에 {perms} 권한이 필요해요."
 
 #: redbot/cogs/mod/kickban.py:99
 msgid "You must have the {perms} permission(s) in that user's channel to use this command."
-msgstr ""
+msgstr "이 명령을 사용하려면 해당 사용자의 채널에서 {perms} 권한이 있어야 해요."
 
 #: redbot/cogs/mod/kickban.py:121
 msgid "You must provide a reason for the ban."
-msgstr ""
+msgstr "차단 사유를 입력해 주세요."
 
 #: redbot/cogs/mod/kickban.py:124 redbot/cogs/mod/kickban.py:487
 #: redbot/cogs/mod/kickban.py:664
 msgid "Invalid days. Must be between 0 and 7."
-msgstr "올바르지 않은 요일이에요. 0에서 7사이여야 해요."
+msgstr "삭제할 메시지의 기간은 0일에서 7일 사이로 입력해 주세요."
 
 #: redbot/cogs/mod/kickban.py:130 redbot/cogs/mod/kickban.py:638
 msgid "I cannot let you do that. Self-harm is bad {}"
-msgstr "그렇게 하게 둘 수는 없어요. 자해는 나빠요. {}"
+msgstr "자기 자신에게는 이 명령을 사용할 수 없어요. {}"
 
 #: redbot/cogs/mod/kickban.py:135 redbot/cogs/mod/kickban.py:335
 #: redbot/cogs/mod/kickban.py:643 redbot/cogs/mod/kickban.py:750
 #: redbot/cogs/mod/kickban.py:840 redbot/cogs/mod/names.py:64
 msgid "I cannot let you do that. You are not higher than the user in the role hierarchy."
-msgstr "그렇게 하게 둘 수는 없어요. 역할 계층의 사용자보다 높지 않아요."
+msgstr "상대방의 최고 역할보다 높은 역할이 있어야 이 작업을 할 수 있어요."
 
 #: redbot/cogs/mod/kickban.py:142 redbot/cogs/mod/kickban.py:343
 #: redbot/cogs/mod/kickban.py:651
 msgid "I cannot do that due to Discord hierarchy rules."
-msgstr ""
+msgstr "Discord의 역할 순서 때문에 이 작업을 할 수 없어요."
 
 #: redbot/cogs/mod/kickban.py:150
 msgid "You have been banned from {guild}."
-msgstr ""
+msgstr "{guild} 서버에서 차단되었어요."
 
 #: redbot/cogs/mod/kickban.py:154 redbot/cogs/mod/kickban.py:354
 #: redbot/cogs/mod/kickban.py:686
 msgid "**Reason**"
-msgstr ""
+msgstr "**사유**"
 
 #: redbot/cogs/mod/kickban.py:155 redbot/cogs/mod/kickban.py:355
 #: redbot/cogs/mod/kickban.py:687
 msgid "No reason was given."
-msgstr ""
+msgstr "지정된 사유가 없어요."
 
 #: redbot/cogs/mod/kickban.py:187 redbot/cogs/mod/kickban.py:504
 msgid "User with ID {user_id} is already banned."
-msgstr ""
+msgstr "ID가 {user_id}인 사용자는 이미 차단되어 있어요."
 
 #: redbot/cogs/mod/kickban.py:198
 msgid "User with ID {user_id} was upgraded from a temporary to a permanent ban."
-msgstr ""
+msgstr "ID가 {user_id}인 사용자의 임시 차단을 영구 차단으로 변경했어요."
 
 #: redbot/cogs/mod/kickban.py:214 redbot/cogs/mod/kickban.py:384
 msgid "Done. That felt good."
-msgstr "다 했어요. 앙 기분 좋아."
+msgstr "차단했어요."
 
 #: redbot/cogs/mod/kickban.py:216 redbot/cogs/mod/kickban.py:363
 msgid "I'm not allowed to do that."
-msgstr "그렇게 하는 건 허용하지 않아요."
+msgstr "봇에 필요한 권한이 없어요."
 
 #: redbot/cogs/mod/kickban.py:218 redbot/cogs/mod/kickban.py:578
 msgid "User with ID {user_id} not found"
-msgstr ""
+msgstr "ID가 {user_id}인 사용자를 찾을 수 없어요."
 
 #: redbot/cogs/mod/kickban.py:228
 msgid "An unexpected error occurred."
-msgstr ""
+msgstr "예기치 않은 오류가 발생했어요."
 
 #: redbot/cogs/mod/kickban.py:282
 msgid "Tempban finished"
-msgstr ""
+msgstr "임시 차단 기간 만료"
 
 #: redbot/cogs/mod/kickban.py:307
 #, docstring
@@ -129,19 +129,29 @@ msgid "\n"
 "        If a reason is specified, it will be the reason that shows up\n"
 "        in the audit log.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"사용자를 서버에서 추방합니다.\n"
+"\n"
+"예시:\n"
+"- `[p]kick 428675506947227648 wanted to be kicked.`\n"
+"    ID가 428675506947227648인 사용자를 추방합니다.\n"
+"- `[p]kick @Twentysix wanted to be kicked.`\n"
+"    Twentysix님을 추방합니다.\n"
+"\n"
+"사유를 입력하면 감사 로그에 기록됩니다.\n"
+"        "
 
 #: redbot/cogs/mod/kickban.py:323
 msgid "You must provide a reason for the kick."
-msgstr ""
+msgstr "추방 사유를 입력해 주세요."
 
 #: redbot/cogs/mod/kickban.py:328 redbot/cogs/mod/kickban.py:743
 msgid "I cannot let you do that. Self-harm is bad {emoji}"
-msgstr ""
+msgstr "자기 자신에게는 이 명령을 사용할 수 없어요. {emoji}"
 
 #: redbot/cogs/mod/kickban.py:350
 msgid "You have been kicked from {guild}."
-msgstr ""
+msgstr "{guild} 서버에서 추방되었어요."
 
 #: redbot/cogs/mod/kickban.py:398
 #, docstring
@@ -156,7 +166,18 @@ msgid "Ban a user from this server and optionally delete days of messages.\n\n"
 "        If days is not a number, it's treated as the first word of the reason.\n"
 "        Minimum 0 days, maximum 7. If not specified, the defaultdays setting will be used instead.\n"
 "        "
-msgstr ""
+msgstr "사용자를 서버에서 차단합니다. 최근 며칠간의 메시지도 함께 삭제할 수 있습니다.\n"
+"\n"
+"`days`는 삭제할 메시지의 기간(일)입니다.\n"
+"\n"
+"예시:\n"
+"- `[p]ban 428675506947227648 7 Continued to spam after told to stop.`\n"
+"    해당 ID의 사용자를 차단하고 최근 7일간의 메시지를 삭제합니다.\n"
+"- `[p]ban @Twentysix 7 Continued to spam after told to stop.`\n"
+"    Twentysix님을 차단하고 최근 7일간의 메시지를 삭제합니다.\n"
+"\n"
+"서버 멤버가 아닌 사용자는 ID로 지정하세요. 기간은 0~7일이며 생략하면 defaultdays 설정을 따릅니다. 숫자가 아닌 값은 사유의 첫 단어로 처리합니다.\n"
+"        "
 
 #: redbot/cogs/mod/kickban.py:436
 #, docstring
@@ -168,37 +189,48 @@ msgid "Mass bans user(s) from the server.\n\n"
 "        User IDs need to be provided in order to ban\n"
 "        using this command.\n"
 "        "
-msgstr ""
+msgstr "여러 사용자를 ID로 지정해 한꺼번에 차단합니다.\n"
+"\n"
+"`days`는 함께 삭제할 메시지의 기간(일)입니다.\n"
+"\n"
+"예시:\n"
+"- `[p]massban 345628097929936898 57287406247743488 7 they broke all rules.`\n"
+"    두 사용자를 차단하고 각 사용자의 최근 7일간 메시지를 삭제합니다.\n"
+"\n"
+"이 명령을 사용하려면 대상 사용자의 ID를 입력해야 합니다.\n"
+"        "
 
 #: redbot/cogs/mod/kickban.py:452
 msgid "You must provide a reason for the massban."
-msgstr ""
+msgstr "일괄 차단 사유를 입력해 주세요."
 
 #: redbot/cogs/mod/kickban.py:456
 msgid "Banned {num} users from the server."
-msgstr ""
+msgstr "이 서버에서 사용자 {num}명을 차단했어요."
 
 #: redbot/cogs/mod/kickban.py:460
 msgid "\n"
 "Errors:\n"
-msgstr ""
+msgstr "\n"
+"오류:\n"
 
 #: redbot/cogs/mod/kickban.py:463
 msgid "\n"
 "Following user IDs have been upgraded from a temporary to a permanent ban:\n"
-msgstr ""
+msgstr "\n"
+"다음 ID에 해당하는 사용자의 임시 차단을 영구 차단으로 변경했어요:\n"
 
 #: redbot/cogs/mod/kickban.py:491
 msgid "I lack the permissions to do this."
-msgstr "제게 행동할 수 있는 권한이 없어요."
+msgstr "봇에 필요한 권한이 없어요."
 
 #: redbot/cogs/mod/kickban.py:543 redbot/cogs/mod/kickban.py:547
 msgid "Failed to ban user {user_id}: {reason}"
-msgstr ""
+msgstr "사용자 {user_id} 차단 실패: {reason}"
 
 #: redbot/cogs/mod/kickban.py:583
 msgid "Could not ban user with ID {user_id}: missing permissions."
-msgstr ""
+msgstr "ID가 {user_id}인 사용자를 차단할 권한이 없어요."
 
 #: redbot/cogs/mod/kickban.py:616
 #, docstring
@@ -213,108 +245,120 @@ msgid "Temporarily ban a user from this server.\n\n"
 "        - `[p]tempban 428675506947227648 1d2h15m 5 Evil person`\n"
 "            This will ban the user with ID 428675506947227648 for 1 day 2 hours 15 minutes and will delete the last 5 days of their messages.\n"
 "        "
-msgstr ""
+msgstr "사용자를 이 서버에서 일정 기간 차단합니다.\n"
+"\n"
+"`duration`은 차단 기간이며, `days`는 함께 삭제할 메시지의 기간(일)입니다.\n"
+"\n"
+"예시:\n"
+"- `[p]tempban @Twentysix Because I say so`\n"
+"    관리자가 설정한 기본 기간 동안 차단합니다.\n"
+"- `[p]tempban @Twentysix 15m You need a timeout`\n"
+"    15분 동안 차단합니다.\n"
+"- `[p]tempban 428675506947227648 1d2h15m 5 Evil person`\n"
+"    해당 ID의 사용자를 1일 2시간 15분 동안 차단하고 최근 5일간의 메시지를 삭제합니다.\n"
+"        "
 
 #: redbot/cogs/mod/kickban.py:633
 msgid "You must provide a reason for the temporary ban."
-msgstr ""
+msgstr "임시 차단 사유를 입력해 주세요."
 
 #: redbot/cogs/mod/kickban.py:679
 msgid "You have been temporarily banned from {guild} until {date}."
-msgstr ""
+msgstr "{guild} 서버에서 {date}까지 임시 차단되었어요."
 
 #: redbot/cogs/mod/kickban.py:692
 msgid "Here is an invite for when your ban expires"
-msgstr ""
+msgstr "차단 기간이 끝나면 이 초대 링크로 다시 참여할 수 있어요."
 
 #: redbot/cogs/mod/kickban.py:712
 msgid "I can't do that for some reason."
-msgstr "왠지 모르겠어요."
+msgstr "작업을 완료하지 못했어요."
 
 #: redbot/cogs/mod/kickban.py:714
 msgid "Something went wrong while banning."
-msgstr ""
+msgstr "차단하는 중에 오류가 발생했어요."
 
 #: redbot/cogs/mod/kickban.py:726
 msgid "Done. Enough chaos for now."
-msgstr ""
+msgstr "임시 차단했어요."
 
 #: redbot/cogs/mod/kickban.py:733
 #, docstring
 msgid "Kick a user and delete 1 day's worth of their messages."
-msgstr ""
+msgstr "사용자를 추방하고 그 사용자의 최근 하루치 메시지를 삭제합니다."
 
 #: redbot/cogs/mod/kickban.py:738
 msgid "You must provide a reason for the softban."
-msgstr ""
+msgstr "메시지 삭제를 동반한 추방 사유를 입력해 주세요."
 
 #: redbot/cogs/mod/kickban.py:764
 msgid "You have been banned and then unbanned as a quick way to delete your messages.\n"
 "You can now join the server again. {invite_link}"
-msgstr ""
+msgstr "메시지를 삭제하기 위해 차단한 뒤 바로 해제했어요.\n"
+"이제 서버에 다시 참여할 수 있어요. {invite_link}"
 
 #: redbot/cogs/mod/kickban.py:775
 msgid "My role is not high enough to softban that user."
-msgstr "제 역할이 그 사용자를 밴 할 만큼 충분하지 않습니다."
+msgstr "봇의 역할 순위가 낮아서 해당 사용자를 추방하고 메시지를 삭제할 수 없어요."
 
 #: redbot/cogs/mod/kickban.py:819
 msgid "Done. Enough chaos."
-msgstr "다 했어요. 충분히 혼란스러워요."
+msgstr "추방하고 최근 하루치 메시지를 삭제했어요."
 
 #: redbot/cogs/mod/kickban.py:827
 #, docstring
 msgid "Kick a member from a voice channel."
-msgstr ""
+msgstr "음성 채널에서 멤버의 연결을 끊습니다."
 
 #: redbot/cogs/mod/kickban.py:829
 msgid "You must provide a reason for the voice kick."
-msgstr ""
+msgstr "음성 채널 연결을 끊는 사유를 입력해 주세요."
 
 #: redbot/cogs/mod/kickban.py:853
 msgid "I am unable to kick this member from the voice channel."
-msgstr ""
+msgstr "해당 멤버의 음성 채널 연결을 끊을 수 없어요."
 
 #: redbot/cogs/mod/kickban.py:856
 msgid "Something went wrong while attempting to kick that member."
-msgstr ""
+msgstr "해당 멤버의 음성 채널 연결을 끊는 중에 오류가 발생했어요."
 
 #: redbot/cogs/mod/kickban.py:870
 msgid "User has been kicked from the voice channel."
-msgstr ""
+msgstr "해당 사용자의 음성 채널 연결을 끊었어요."
 
 #: redbot/cogs/mod/kickban.py:878
 #, docstring
 msgid "Unban a user from speaking and listening in the server's voice channels."
-msgstr ""
+msgstr "사용자가 서버 음성 채널에서 다시 말하고 들을 수 있게 합니다."
 
 #: redbot/cogs/mod/kickban.py:880
 msgid "You must provide a reason for the voice unban."
-msgstr ""
+msgstr "음성 차단을 해제하는 사유를 입력해 주세요."
 
 #: redbot/cogs/mod/kickban.py:901
 msgid "That user isn't muted or deafened by the server."
-msgstr ""
+msgstr "해당 사용자는 서버에서 마이크나 헤드셋이 음소거된 상태가 아니에요."
 
 #: redbot/cogs/mod/kickban.py:917
 msgid "User is now allowed to speak and listen in voice channels."
-msgstr ""
+msgstr "이제 해당 사용자가 음성 채널에서 말하고 들을 수 있어요."
 
 #: redbot/cogs/mod/kickban.py:923
 #, docstring
 msgid "Ban a user from speaking and listening in the server's voice channels."
-msgstr ""
+msgstr "사용자가 서버 음성 채널에서 말하거나 들을 수 없게 합니다."
 
 #: redbot/cogs/mod/kickban.py:925
 msgid "You must provide a reason for the voice ban."
-msgstr ""
+msgstr "음성 차단 사유를 입력해 주세요."
 
 #: redbot/cogs/mod/kickban.py:948
 msgid "That user is already muted and deafened server-wide."
-msgstr ""
+msgstr "해당 사용자는 이미 서버 전체에서 마이크와 헤드셋이 음소거되어 있어요."
 
 #: redbot/cogs/mod/kickban.py:962
 msgid "User has been banned from speaking or listening in voice channels."
-msgstr ""
+msgstr "해당 사용자가 음성 채널에서 말하거나 들을 수 없게 했어요."
 
 #: redbot/cogs/mod/kickban.py:971
 #, docstring
@@ -323,145 +367,156 @@ msgid "Unban a user from this server.\n\n"
 "        1. Copy it from the mod log case (if one was created), or\n"
 "        2. Enable Developer Mode, go to Bans in this server's settings, right-click the user and select 'Copy ID'.\n"
 "        "
-msgstr ""
+msgstr "이 서버에서 사용자의 차단을 해제합니다.\n"
+"\n"
+"사용자 ID를 지정해야 합니다. 다음 방법으로 찾을 수 있습니다.\n"
+"1. 해당 관리 기록이 있다면 기록에서 ID를 복사합니다.\n"
+"2. 또는 개발자 모드를 켜고 서버 설정의 차단 목록에서 사용자를 우클릭한 뒤 ID 복사를 선택합니다.\n"
+"        "
 
 #: redbot/cogs/mod/kickban.py:978
 msgid "You must provide a reason for the unban."
-msgstr ""
+msgstr "차단 해제 사유를 입력해 주세요."
 
 #: redbot/cogs/mod/kickban.py:987
 msgid "It seems that user isn't banned!"
-msgstr "사용자들이 밴 처리되지 않은 것 같아요!"
+msgstr "해당 사용자는 차단되어 있지 않아요."
 
 #: redbot/cogs/mod/kickban.py:992
 msgid "Something went wrong while attempting to unban that user."
-msgstr ""
+msgstr "차단을 해제하는 중에 오류가 발생했어요."
 
 #: redbot/cogs/mod/kickban.py:1006
 msgid "Unbanned that user from this server."
-msgstr ""
+msgstr "이 서버에서 해당 사용자의 차단을 해제했어요."
 
 #: redbot/cogs/mod/kickban.py:1012
 msgid "I don't share another server with this user. I can't reinvite them."
-msgstr ""
+msgstr "해당 사용자와 함께 있는 다른 서버가 없어 다시 초대할 수 없어요."
 
 #: redbot/cogs/mod/kickban.py:1020
 msgid "You've been unbanned from {server}.\n"
 "Here is an invite for that server: {invite_link}"
-msgstr ""
+msgstr "{server} 서버에서 차단이 해제되었어요.\n"
+"초대 링크로 다시 참여할 수 있어요: {invite_link}"
 
 #: redbot/cogs/mod/kickban.py:1027
 msgid "I failed to send an invite to that user. Perhaps you may be able to send it for me?\n"
 "Here's the invite link: {invite_link}"
-msgstr ""
+msgstr "해당 사용자에게 초대를 보내지 못했어요. 대신 이 링크를 전달해 주세요: {invite_link}"
 
 #: redbot/cogs/mod/kickban.py:1035
 msgid "Something went wrong when attempting to send that user an invite. Here's the link so you can try: {invite_link}"
-msgstr ""
+msgstr "해당 사용자에게 초대를 보내는 중에 오류가 발생했어요. 직접 이 링크를 전달해 주세요: {invite_link}"
 
 #: redbot/cogs/mod/mod.py:44
 #, docstring
 msgid "Moderation tools."
-msgstr ""
+msgstr "서버 운영 도구입니다."
 
 #: redbot/cogs/mod/mod.py:139 redbot/cogs/mod/mod.py:149
 msgid "Ignored guilds and channels have been moved. Please use {command} to migrate the old settings."
-msgstr ""
+msgstr "무시할 서버 및 채널 설정의 위치가 바뀌었어요. {command} 명령으로 기존 설정을 이전해 주세요."
 
 #: redbot/cogs/mod/mod.py:159
 msgid "Delete delay settings have been moved. Please use {command} to migrate the old settings."
-msgstr ""
+msgstr "삭제 지연 시간 설정의 위치가 바뀌었어요. {command} 명령으로 기존 설정을 이전해 주세요."
 
 #: redbot/cogs/mod/mod.py:180
 #, docstring
 msgid "Move ignored channels and servers to core"
-msgstr ""
+msgstr "무시할 채널 및 서버 설정을 코어로 이전합니다."
 
 #: redbot/cogs/mod/mod.py:189
 msgid "Ignored channels and guilds restored."
-msgstr ""
+msgstr "무시할 채널 및 서버 설정을 복원했어요."
 
 #: redbot/cogs/mod/mod.py:194
 #, docstring
 msgid "\n"
 "        Move deletedelay settings to core\n"
 "        "
-msgstr ""
+msgstr "\n"
+"삭제 지연 시간 설정을 코어로 이전합니다.\n"
+"        "
 
 #: redbot/cogs/mod/mod.py:203
 msgid "Delete delay settings restored."
-msgstr ""
+msgstr "삭제 지연 시간 설정을 복원했어요."
 
 #: redbot/cogs/mod/names.py:38
 #, docstring
 msgid "Change a member's server nickname.\n\n"
 "        Leaving the nickname argument empty will remove it.\n"
 "        "
-msgstr ""
+msgstr "멤버의 서버 별명을 변경합니다.\n"
+"\n"
+"별명을 생략하면 기존 서버 별명을 지웁니다.\n"
+"        "
 
 #: redbot/cogs/mod/names.py:47
 msgid "Nicknames must be between 2 and 32 characters long."
-msgstr ""
+msgstr "별명은 2~32자로 입력해 주세요."
 
 #: redbot/cogs/mod/names.py:55
 msgid "I do not have permission to rename that member. They may be higher than or equal to me in the role hierarchy."
-msgstr ""
+msgstr "해당 멤버의 별명을 변경할 권한이 없어요. 해당 멤버의 최고 역할이 봇과 같거나 더 높을 수 있어요."
 
 #: redbot/cogs/mod/names.py:75
 msgid "I do not have permission to rename that member."
-msgstr ""
+msgstr "해당 멤버의 별명을 변경할 권한이 없어요."
 
 #: redbot/cogs/mod/names.py:78
 msgid "That nickname is invalid."
-msgstr ""
+msgstr "사용할 수 없는 별명이에요."
 
 #: redbot/cogs/mod/names.py:80
 msgid "An unexpected error has occurred."
-msgstr ""
+msgstr "예기치 않은 오류가 발생했어요."
 
 #: redbot/cogs/mod/names.py:82
 msgid "Done."
-msgstr "다 했어요."
+msgstr "완료했어요."
 
 #: redbot/cogs/mod/names.py:93
 msgid "Custom: {emoji} {name}"
-msgstr ""
+msgstr "사용자 지정 상태: {emoji} {name}"
 
 #: redbot/cogs/mod/names.py:95
 msgid "Custom: {emoji}"
-msgstr ""
+msgstr "사용자 지정 상태: {emoji}"
 
 #: redbot/cogs/mod/names.py:97
 msgid "Custom: {name}"
-msgstr ""
+msgstr "사용자 지정 상태: {name}"
 
 #: redbot/cogs/mod/names.py:105
 msgid "Playing: {name}"
-msgstr ""
+msgstr "플레이 중: {name}"
 
 #: redbot/cogs/mod/names.py:114
 msgid "Streaming: [{name}{sep}{game}]({url})"
-msgstr ""
+msgstr "방송 중: [{name}{sep}{game}]({url})"
 
 #: redbot/cogs/mod/names.py:121
 msgid "Streaming: {name}"
-msgstr ""
+msgstr "방송 중: {name}"
 
 #: redbot/cogs/mod/names.py:130
 msgid "Listening: [{title}{sep}{artist}]({url})"
-msgstr ""
+msgstr "듣는 중: [{title}{sep}{artist}]({url})"
 
 #: redbot/cogs/mod/names.py:137
 msgid "Listening: {title}"
-msgstr ""
+msgstr "듣는 중: {title}"
 
 #: redbot/cogs/mod/names.py:145
 msgid "Watching: {name}"
-msgstr ""
+msgstr "시청 중: {name}"
 
 #: redbot/cogs/mod/names.py:153
 msgid "Competing in: {competing}"
-msgstr ""
+msgstr "참가 중: {competing}"
 
 #: redbot/cogs/mod/names.py:176
 #, docstring
@@ -471,7 +526,12 @@ msgid "Show information about a member.\n\n"
 "        If the member has no roles, previous usernames, global display names, or server nicknames,\n"
 "        these fields will be omitted.\n"
 "        "
-msgstr ""
+msgstr "멤버 정보를 표시합니다.\n"
+"\n"
+"현재 상태, Discord 가입일, 서버 참여일, 음성 연결 상태와 과거에 사용한 사용자명·표시 이름·서버 별명을 확인할 수 있습니다.\n"
+"\n"
+"역할이나 과거에 사용한 이름 또는 별명이 없으면 해당 항목은 표시하지 않습니다.\n"
+"        "
 
 #: redbot/cogs/mod/names.py:219
 msgid "Unknown"
@@ -479,19 +539,19 @@ msgstr "알 수 없음"
 
 #: redbot/cogs/mod/names.py:231
 msgid "Chilling in {} status"
-msgstr "{} 상태로 오싹해졌어요."
+msgstr "현재 상태: {}"
 
 #: redbot/cogs/mod/names.py:244
 msgid "and {numeric_number} more roles not displayed due to embed limits."
-msgstr ""
+msgstr "임베드 길이 제한으로 역할 {numeric_number}개를 더 표시할 수 없어요."
 
 #: redbot/cogs/mod/names.py:271
 msgid "Joined Discord on"
-msgstr "가입된 디스코드 켜짐"
+msgstr "Discord 가입일"
 
 #: redbot/cogs/mod/names.py:272
 msgid "Joined this server on"
-msgstr ""
+msgstr "서버 참여일"
 
 #: redbot/cogs/mod/names.py:275
 msgid "Roles"
@@ -499,80 +559,80 @@ msgstr "역할"
 
 #: redbot/cogs/mod/names.py:275
 msgid "Role"
-msgstr ""
+msgstr "역할"
 
 #: redbot/cogs/mod/names.py:278
 msgid "Previous Username"
-msgstr ""
+msgstr "이전 사용자명"
 
 #: redbot/cogs/mod/names.py:278
 msgid "Previous Usernames"
-msgstr ""
+msgstr "이전 사용자명"
 
 #: redbot/cogs/mod/names.py:279
 msgid "Previous Global Display Name"
-msgstr ""
+msgstr "이전 표시 이름"
 
 #: redbot/cogs/mod/names.py:279
 msgid "Previous Global Display Names"
-msgstr ""
+msgstr "이전 표시 이름"
 
 #: redbot/cogs/mod/names.py:280
 msgid "Previous Server Nickname"
-msgstr ""
+msgstr "이전 서버 별명"
 
 #: redbot/cogs/mod/names.py:280
 msgid "Previous Server Nicknames"
-msgstr ""
+msgstr "이전 서버 별명"
 
 #: redbot/cogs/mod/names.py:290
 msgid "Current voice channel"
-msgstr ""
+msgstr "현재 음성 채널"
 
 #: redbot/cogs/mod/names.py:294
 msgid "Member #{} | User ID: {}"
-msgstr "멤버 # {} | 사용자 ID : {}"
+msgstr "멤버 #{} | 사용자 ID: {}"
 
 #: redbot/cogs/mod/names.py:308
 #, docstring
 msgid "Show previous usernames, global display names, and server nicknames of a member."
-msgstr ""
+msgstr "멤버가 이전에 사용한 사용자명, 표시 이름, 서버 별명을 표시합니다."
 
 #: redbot/cogs/mod/names.py:312
 msgid "Past 20 usernames: "
-msgstr ""
+msgstr "최근 사용자명 20개: "
 
 #: redbot/cogs/mod/names.py:313
 msgid "Past 20 global display names: "
-msgstr ""
+msgstr "최근 표시 이름 20개: "
 
 #: redbot/cogs/mod/names.py:314
 msgid "Past 20 server nicknames: "
-msgstr ""
+msgstr "최근 서버 별명 20개: "
 
 #: redbot/cogs/mod/names.py:324
 msgid "That member doesn't have any recorded name or nickname change."
-msgstr ""
+msgstr "이 멤버의 이름이나 별명 변경 기록이 없어요."
 
 #: redbot/cogs/mod/settings.py:22
 #, docstring
 msgid "Manage server administration settings."
-msgstr ""
+msgstr "서버 운영 설정을 관리합니다."
 
 #: redbot/cogs/mod/settings.py:26
 #, docstring
 msgid "Show the current server administration settings."
-msgstr ""
+msgstr "현재 서버 운영 설정을 표시합니다."
 
 #: redbot/cogs/mod/settings.py:30
 msgid "Track name changes: {yes_or_no}\n"
-msgstr ""
+msgstr "이름 변경 기록: {yes_or_no}\n"
 
 #: redbot/cogs/mod/settings.py:31 redbot/cogs/mod/settings.py:57
 #: redbot/cogs/mod/settings.py:85 redbot/cogs/mod/settings.py:93
 #: redbot/cogs/mod/settings.py:96 redbot/cogs/mod/settings.py:108
 msgid "Yes"
-msgstr "그래요!"
+msgstr "예"
 
 #: redbot/cogs/mod/settings.py:31 redbot/cogs/mod/settings.py:57
 #: redbot/cogs/mod/settings.py:62 redbot/cogs/mod/settings.py:67
@@ -580,97 +640,97 @@ msgstr "그래요!"
 #: redbot/cogs/mod/settings.py:85 redbot/cogs/mod/settings.py:93
 #: redbot/cogs/mod/settings.py:96 redbot/cogs/mod/settings.py:108
 msgid "No"
-msgstr ""
+msgstr "아니요"
 
 #: redbot/cogs/mod/settings.py:55
 msgid "Overridden by another setting"
-msgstr ""
+msgstr "다른 설정이 우선 적용됨"
 
 #: redbot/cogs/mod/settings.py:58
 msgid "Track nickname changes: {yes_or_no}\n"
-msgstr ""
+msgstr "별명 변경 기록: {yes_or_no}\n"
 
 #: redbot/cogs/mod/settings.py:59
 msgid "Delete repeats: {num_repeats}\n"
-msgstr ""
+msgstr "반복 메시지 삭제: {num_repeats}\n"
 
 #: redbot/cogs/mod/settings.py:60
 msgid "after {num} repeats"
-msgstr ""
+msgstr "{num}회 반복 시"
 
 #: redbot/cogs/mod/settings.py:64
 msgid "Warn mention spam: {num_mentions}\n"
-msgstr ""
+msgstr "멘션 도배 경고 기준: {num_mentions}\n"
 
 #: redbot/cogs/mod/settings.py:65 redbot/cogs/mod/settings.py:70
 #: redbot/cogs/mod/settings.py:75
 msgid "{num} mentions"
-msgstr ""
+msgstr "멘션 {num}개"
 
 #: redbot/cogs/mod/settings.py:69
 msgid "Kick mention spam: {num_mentions}\n"
-msgstr ""
+msgstr "멘션 도배 추방 기준: {num_mentions}\n"
 
 #: redbot/cogs/mod/settings.py:74
 msgid "Ban mention spam: {num_mentions}\n"
-msgstr ""
+msgstr "멘션 도배 차단 기준: {num_mentions}\n"
 
 #: redbot/cogs/mod/settings.py:80
 msgid "Mention Spam Strict: All mentions will count including duplicates\n"
-msgstr ""
+msgstr "멘션 도배 집계: 같은 대상의 중복 멘션도 모두 집계\n"
 
 #: redbot/cogs/mod/settings.py:82
 msgid "Mention Spam Strict: Only unique mentions will count\n"
-msgstr ""
+msgstr "멘션 도배 집계: 같은 대상은 한 번만 집계\n"
 
 #: redbot/cogs/mod/settings.py:84
 msgid "Respects hierarchy: {yes_or_no}\n"
-msgstr ""
+msgstr "역할 순서 적용: {yes_or_no}\n"
 
 #: redbot/cogs/mod/settings.py:87
 msgid "Delete delay: {num_seconds}\n"
-msgstr ""
+msgstr "삭제 지연 시간: {num_seconds}\n"
 
 #: redbot/cogs/mod/settings.py:88
 msgid "{num} seconds"
-msgstr ""
+msgstr "{num}초"
 
 #: redbot/cogs/mod/settings.py:90 redbot/cogs/mod/settings.py:111
 #: redbot/cogs/mod/settings.py:114
 msgid "None"
-msgstr "읎어요."
+msgstr "없음"
 
 #: redbot/cogs/mod/settings.py:92
 msgid "Reinvite on unban: {yes_or_no}\n"
-msgstr ""
+msgstr "차단 해제 시 재초대: {yes_or_no}\n"
 
 #: redbot/cogs/mod/settings.py:95
 msgid "Send message to users on kick/ban: {yes_or_no}\n"
-msgstr ""
+msgstr "추방·차단 시 사용자에게 알림: {yes_or_no}\n"
 
 #: redbot/cogs/mod/settings.py:99
 msgid "Default message history delete on ban: Previous {num_days} days\n"
-msgstr ""
+msgstr "차단 시 기본 메시지 삭제 범위: 최근 {num_days}일\n"
 
 #: redbot/cogs/mod/settings.py:103
 msgid "Default message history delete on ban: Don't delete any\n"
-msgstr ""
+msgstr "차단 시 기본 메시지 삭제 범위: 삭제하지 않음\n"
 
 #: redbot/cogs/mod/settings.py:104
 msgid "Default tempban duration: {duration}\n"
-msgstr ""
+msgstr "기본 임시 차단 기간: {duration}\n"
 
 #: redbot/cogs/mod/settings.py:107
 msgid "Show optional information field in embed: {yes_or_no}\n"
-msgstr ""
+msgstr "임베드에 추가 정보 표시: {yes_or_no}\n"
 
 #: redbot/cogs/mod/settings.py:110
 msgid "Title of the optional extra field: {ban_embed_title}\n"
-msgstr ""
+msgstr "추가 정보 제목: {ban_embed_title}\n"
 
 #: redbot/cogs/mod/settings.py:113
 msgid "Contents of the optional extra field: {ban_embed_contents}"
-msgstr ""
+msgstr "추가 정보 내용: {ban_embed_contents}"
 
 #: redbot/cogs/mod/settings.py:121
 #, docstring
@@ -679,22 +739,29 @@ msgid "Toggle role hierarchy check for mods and admins.\n\n"
 "        actions on users above them in the role hierarchy!\n\n"
 "        This is enabled by default.\n"
 "        "
-msgstr ""
+msgstr "운영진과 관리자가 명령을 사용할 때 역할 순서를 확인할지 설정합니다.\n"
+"\n"
+"**주의**: 이 설정을 끄면 운영진이 자신보다 역할이 높은 사용자에게도 제재를 가할 수 있습니다.\n"
+"\n"
+"기본적으로 켜져 있습니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:133
 msgid "Role hierarchy will be checked when moderation commands are issued."
-msgstr "절제 커맨드를 사용하면 역할 계층 구조가 검사돼요."
+msgstr "이제 관리 명령을 실행할 때 역할 순서를 확인해요."
 
 #: redbot/cogs/mod/settings.py:138
 msgid "Role hierarchy will be ignored when moderation commands are issued."
-msgstr "절제 커맨드를 사용하면 역할 계층은 무시될 거예요."
+msgstr "이제 관리 명령을 실행할 때 역할 순서를 무시해요."
 
 #: redbot/cogs/mod/settings.py:144
 #, docstring
 msgid "\n"
 "        Manage the automoderation settings for mentionspam.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"멘션 도배에 대한 자동 제재를 설정합니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:151
 #, docstring
@@ -704,23 +771,29 @@ msgid "\n"
 "        If disabled only unique mentions will count.\n\n"
 "        Use this command without any parameter to see current setting.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"중복 멘션을 집계할지 설정합니다.\n"
+"\n"
+"켜면 같은 사용자나 역할을 여러 번 멘션해도 모두 집계합니다. 끄면 같은 대상은 한 번만 집계합니다.\n"
+"\n"
+"인수 없이 실행하면 현재 설정을 확인할 수 있습니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:163
 msgid "Mention spam currently accounts for multiple mentions of the same user."
-msgstr ""
+msgstr "현재는 같은 대상을 여러 번 멘션해도 모두 집계해요."
 
 #: redbot/cogs/mod/settings.py:165
 msgid "Mention spam currently only accounts for mentions of different users."
-msgstr ""
+msgstr "현재는 같은 대상의 멘션을 한 번만 집계해요."
 
 #: redbot/cogs/mod/settings.py:170
 msgid "Mention spam will now account for multiple mentions of the same user."
-msgstr ""
+msgstr "이제 같은 대상을 여러 번 멘션해도 모두 집계해요."
 
 #: redbot/cogs/mod/settings.py:172
 msgid "Mention spam will only account for mentions of different users."
-msgstr ""
+msgstr "이제 같은 대상의 멘션을 한 번만 집계해요."
 
 #: redbot/cogs/mod/settings.py:179
 #, docstring
@@ -730,34 +803,43 @@ msgid "\n"
 "        `<max_mentions>` mentions.\n\n"
 "        `<max_mentions>` Must be 0 or greater. Set to 0 to disable this feature.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"멘션 도배 자동 경고 기준을 설정합니다.\n"
+"\n"
+"메시지 하나의 멘션 수가 `<max_mentions>`에 도달하면 작성자에게 경고합니다.\n"
+"\n"
+"`<max_mentions>`에는 0 이상의 값을 입력하세요. 0으로 설정하면 이 기능을 끕니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:190
 msgid "Autowarn for mention spam is already disabled."
-msgstr ""
+msgstr "멘션 도배 자동 경고가 이미 꺼져 있어요."
 
 #: redbot/cogs/mod/settings.py:192
 msgid "Autowarn for mention spam disabled."
-msgstr ""
+msgstr "멘션 도배 자동 경고를 껐어요."
 
 #: redbot/cogs/mod/settings.py:195
 msgid "`<max_mentions>` must be 1 or higher to autowarn."
-msgstr ""
+msgstr "자동 경고를 사용하려면 `<max_mentions>`가 1 이상이어야 해요."
 
 #: redbot/cogs/mod/settings.py:201
 msgid "\n"
 "Autowarn is equal to or higher than autokick."
-msgstr ""
+msgstr "\n"
+"자동 경고 기준이 자동 추방 기준과 같거나 더 높아요."
 
 #: redbot/cogs/mod/settings.py:205
 msgid "\n"
 "Autowarn is equal to or higher than autoban."
-msgstr ""
+msgstr "\n"
+"자동 경고 기준이 자동 차단 기준과 같거나 더 높아요."
 
 #: redbot/cogs/mod/settings.py:209
 msgid "Autowarn for mention spam enabled. Anyone mentioning {max_mentions} or more people in a single message will be autowarned.\n"
 "{mismatch_message}"
-msgstr ""
+msgstr "멘션 도배 자동 경고를 켰어요. 한 메시지의 멘션이 {max_mentions}개 이상이면 작성자에게 경고해요.\n"
+"{mismatch_message}"
 
 #: redbot/cogs/mod/settings.py:219
 #, docstring
@@ -767,34 +849,43 @@ msgid "\n"
 "        `<max_mentions>` mentions.\n\n"
 "        `<max_mentions>` Must be 0 or greater. Set to 0 to disable this feature.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"멘션 도배 자동 추방 기준을 설정합니다.\n"
+"\n"
+"메시지 하나의 멘션 수가 `<max_mentions>`에 도달하면 작성자를 추방합니다.\n"
+"\n"
+"`<max_mentions>`에는 0 이상의 값을 입력하세요. 0으로 설정하면 이 기능을 끕니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:230
 msgid "Autokick for mention spam is already disabled."
-msgstr ""
+msgstr "멘션 도배 자동 추방이 이미 꺼져 있어요."
 
 #: redbot/cogs/mod/settings.py:232
 msgid "Autokick for mention spam disabled."
-msgstr ""
+msgstr "멘션 도배 자동 추방을 껐어요."
 
 #: redbot/cogs/mod/settings.py:235
 msgid "`<max_mentions>` must be 1 or higher to autokick."
-msgstr ""
+msgstr "자동 추방을 사용하려면 `<max_mentions>`가 1 이상이어야 해요."
 
 #: redbot/cogs/mod/settings.py:241
 msgid "\n"
 "Autokick is equal to or lower than autowarn."
-msgstr ""
+msgstr "\n"
+"자동 추방 기준이 자동 경고 기준과 같거나 더 낮아요."
 
 #: redbot/cogs/mod/settings.py:245
 msgid "\n"
 "Autokick is equal to or higher than autoban."
-msgstr ""
+msgstr "\n"
+"자동 추방 기준이 자동 차단 기준과 같거나 더 높아요."
 
 #: redbot/cogs/mod/settings.py:249
 msgid "Autokick for mention spam enabled. Anyone mentioning {max_mentions} or more people in a single message will be autokicked.\n"
 "{mismatch_message}"
-msgstr ""
+msgstr "멘션 도배 자동 추방을 켰어요. 한 메시지의 멘션이 {max_mentions}개 이상이면 작성자를 추방해요.\n"
+"{mismatch_message}"
 
 #: redbot/cogs/mod/settings.py:259
 #, docstring
@@ -803,34 +894,42 @@ msgid "Set the autoban conditions for mention spam.\n\n"
 "        `<max_mentions>` mentions.\n\n"
 "        `<max_mentions>` Must be 0 or greater. Set to 0 to disable this feature.\n"
 "        "
-msgstr ""
+msgstr "멘션 도배 자동 차단 기준을 설정합니다.\n"
+"\n"
+"메시지 하나의 멘션 수가 `<max_mentions>`에 도달하면 작성자를 차단합니다.\n"
+"\n"
+"`<max_mentions>`에는 0 이상의 값을 입력하세요. 0으로 설정하면 이 기능을 끕니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:269
 msgid "Autoban for mention spam is already disabled."
-msgstr ""
+msgstr "멘션 도배 자동 차단이 이미 꺼져 있어요."
 
 #: redbot/cogs/mod/settings.py:271
 msgid "Autoban for mention spam disabled."
-msgstr "스팸 언급 자동 밴 사용 안 함."
+msgstr "멘션 도배 자동 차단을 껐어요."
 
 #: redbot/cogs/mod/settings.py:274
 msgid "`<max_mentions>` must be 1 or higher to autoban."
-msgstr ""
+msgstr "자동 차단을 사용하려면 `<max_mentions>`가 1 이상이어야 해요."
 
 #: redbot/cogs/mod/settings.py:280
 msgid "\n"
 "Autoban is equal to or lower than autowarn."
-msgstr ""
+msgstr "\n"
+"자동 차단 기준이 자동 경고 기준과 같거나 더 낮아요."
 
 #: redbot/cogs/mod/settings.py:284
 msgid "\n"
 "Autoban is equal to or lower than autokick."
-msgstr ""
+msgstr "\n"
+"자동 차단 기준이 자동 추방 기준과 같거나 더 낮아요."
 
 #: redbot/cogs/mod/settings.py:288
 msgid "Autoban for mention spam enabled. Anyone mentioning {max_mentions} or more people in a single message will be autobanned.\n"
 "{mismatch_message}"
-msgstr ""
+msgstr "멘션 도배 자동 차단을 켰어요. 한 메시지의 멘션이 {max_mentions}개 이상이면 작성자를 차단해요.\n"
+"{mismatch_message}"
 
 #: redbot/cogs/mod/settings.py:298
 #, docstring
@@ -838,23 +937,28 @@ msgid "Enable auto-deletion of repeated messages.\n\n"
 "        Must be between 2 and 20.\n\n"
 "        Set to -1 to disable this feature.\n"
 "        "
-msgstr ""
+msgstr "반복 메시지를 자동으로 삭제하도록 설정합니다.\n"
+"\n"
+"반복 횟수는 2~20 사이로 입력하세요.\n"
+"\n"
+"-1로 설정하면 이 기능을 끕니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:309 redbot/cogs/mod/settings.py:335
 msgid "Repeated messages will be ignored."
-msgstr "반복된 메세지는 무시됍니다."
+msgstr "반복 메시지를 무시해요."
 
 #: redbot/cogs/mod/settings.py:315
 msgid "Messages repeated up to {num} times will be deleted."
-msgstr ""
+msgstr "같은 메시지가 {num}회 반복되면 삭제해요."
 
 #: redbot/cogs/mod/settings.py:319
 msgid "Number of repeats must be between 2 and 20 or equal to -1 if you want to disable this feature!"
-msgstr ""
+msgstr "반복 횟수는 2~20 사이로 입력해 주세요. 이 기능을 끄려면 -1을 입력하세요."
 
 #: redbot/cogs/mod/settings.py:328
 msgid "Bot will delete repeated messages after {num} repeats. Set this value to -1 to ignore repeated messages"
-msgstr ""
+msgstr "같은 메시지가 {num}회 반복되면 삭제해요. 반복 메시지를 무시하려면 -1로 설정하세요."
 
 #: redbot/cogs/mod/settings.py:340
 #, docstring
@@ -862,22 +966,27 @@ msgid "Toggle whether an invite will be sent to a user when unbanned.\n\n"
 "        If this is True, the bot will attempt to create and send a single-use invite\n"
 "        to the newly-unbanned user.\n"
 "        "
-msgstr ""
+msgstr "차단을 해제한 사용자에게 초대를 보낼지 설정합니다.\n"
+"\n"
+"켜면 봇이 차단을 해제한 사용자에게 일회용 초대 링크를 만들어 보내려고 시도합니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:350
 msgid "Users unbanned with {command} will be reinvited."
-msgstr ""
+msgstr "{command} 명령으로 차단을 해제하면 사용자를 다시 초대해요."
 
 #: redbot/cogs/mod/settings.py:357
 msgid "Users unbanned with {command} will not be reinvited."
-msgstr ""
+msgstr "{command} 명령으로 차단을 해제해도 사용자를 다시 초대하지 않아요."
 
 #: redbot/cogs/mod/settings.py:365
 #, docstring
 msgid "\n"
 "        Settings for messaging the user when being kicked or banned.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"추방되거나 차단되는 사용자에게 보낼 알림을 설정합니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:371
 #, docstring
@@ -885,19 +994,22 @@ msgid "Toggle whether a message should be sent to a user when they are kicked/ba
 "        If this option is enabled, the bot will attempt to DM the user with the guild name\n"
 "        and reason as to why they were kicked/banned.\n"
 "        "
-msgstr ""
+msgstr "사용자를 추방하거나 차단할 때 알림을 보낼지 설정합니다.\n"
+"\n"
+"켜면 봇이 서버 이름과 추방·차단 사유를 사용자에게 DM으로 보내려고 시도합니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:380
 msgid "DM when kicked/banned is currently set to: {setting}"
-msgstr ""
+msgstr "현재 추방·차단 시 DM 알림 설정: {setting}"
 
 #: redbot/cogs/mod/settings.py:385
 msgid "Bot will now attempt to send a DM to user before kick and ban."
-msgstr ""
+msgstr "이제 추방·차단 전에 사용자에게 DM 전송을 시도해요."
 
 #: redbot/cogs/mod/settings.py:388
 msgid "Bot will no longer attempt to send a DM to user before kick and ban."
-msgstr ""
+msgstr "이제 추방·차단 전에 사용자에게 DM을 보내지 않아요."
 
 #: redbot/cogs/mod/settings.py:393
 #, docstring
@@ -905,19 +1017,23 @@ msgid "\n"
 "        Toggle whether to show an extra customizable field when banning.\n\n"
 "        This can be used to add additional information for the banned user, such as a ban appeal link.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"차단 알림에 추가 정보 항목을 표시할지 설정합니다.\n"
+"\n"
+"차단 이의 제기 링크 등 사용자에게 필요한 정보를 안내할 수 있습니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:402
 msgid "The extra embed field is currently set to: {setting}"
-msgstr ""
+msgstr "현재 임베드 추가 항목 설정: {setting}"
 
 #: redbot/cogs/mod/settings.py:408
 msgid "An extra field will be shown when banning. Configure it with `{prefix}modset dm banextrafieldtitle` and `{prefix}modset dm banextrafieldcontents`"
-msgstr ""
+msgstr "이제 차단 알림에 추가 항목을 표시해요. `{prefix}modset dm banextrafieldtitle`과 `{prefix}modset dm banextrafieldcontents`로 설정해 주세요."
 
 #: redbot/cogs/mod/settings.py:413
 msgid "An extra field will be no longer be shown when banning."
-msgstr ""
+msgstr "이제 차단 알림에 추가 항목을 표시하지 않아요."
 
 #: redbot/cogs/mod/settings.py:417
 #, docstring
@@ -925,15 +1041,19 @@ msgid "\n"
 "        Set the title for the optional extra embed on ban.\n\n"
 "        Cannot be over 252 characters long.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"차단 알림의 추가 항목 제목을 설정합니다.\n"
+"\n"
+"최대 252자까지 입력할 수 있습니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:427
 msgid "Embed title cannot be over 252 characters long."
-msgstr ""
+msgstr "임베드 제목은 252자를 넘을 수 없어요."
 
 #: redbot/cogs/mod/settings.py:430
 msgid "Embed Title has been set to `{title}`"
-msgstr ""
+msgstr "임베드 제목을 `{title}`(으)로 설정했어요."
 
 #: redbot/cogs/mod/settings.py:434
 #, docstring
@@ -941,15 +1061,19 @@ msgid "\n"
 "        Set the contents for the optional extra embed on ban\n\n"
 "        Cannot be over 1024 characters long.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"차단 알림의 추가 항목 내용을 설정합니다.\n"
+"\n"
+"최대 1024자까지 입력할 수 있습니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:441
 msgid "Embed contents cannot be over 1024 characters long."
-msgstr ""
+msgstr "임베드 내용은 1024자를 넘을 수 없어요."
 
 #: redbot/cogs/mod/settings.py:445
 msgid "Embed Contents has been set to `{contents}`"
-msgstr ""
+msgstr "임베드 내용을 `{contents}`(으)로 설정했어요."
 
 #: redbot/cogs/mod/settings.py:451
 #, docstring
@@ -957,34 +1081,41 @@ msgid "\n"
 "        Toggle whether a reason is required for mod actions.\n\n"
 "        If this is enabled, the bot will require a reason to be provided for all mod actions.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"관리 조치를 취할 때 사유를 필수로 입력할지 설정합니다.\n"
+"\n"
+"켜면 모든 관리 조치에 사유를 입력해야 합니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:460
 msgid "Mod action reason requirement is currently set to: {setting}"
-msgstr ""
+msgstr "현재 관리 조치 사유 필수 설정: {setting}"
 
 #: redbot/cogs/mod/settings.py:467
 msgid "Bot will now require a reason for all mod actions."
-msgstr ""
+msgstr "이제 모든 관리 조치에 사유를 입력해야 해요."
 
 #: redbot/cogs/mod/settings.py:469
 msgid "Bot will no longer require a reason for all mod actions."
-msgstr ""
+msgstr "이제 관리 조치의 사유를 생략할 수 있어요."
 
 #: redbot/cogs/mod/settings.py:474
 #, docstring
 msgid "Set the default number of days worth of messages to be deleted when a user is banned.\n\n"
 "        The number of days must be between 0 and 7.\n"
 "        "
-msgstr ""
+msgstr "사용자를 차단할 때 기본으로 삭제할 메시지의 기간을 일 단위로 설정합니다.\n"
+"\n"
+"0~7일 사이로 입력하세요.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:480
 msgid "Invalid number of days. Must be between 0 and 7."
-msgstr ""
+msgstr "기간은 0~7일 사이로 입력해 주세요."
 
 #: redbot/cogs/mod/settings.py:483
 msgid "{days} days worth of messages will be deleted when a user is banned."
-msgstr ""
+msgstr "사용자를 차단하면 최근 {days}일간의 메시지를 삭제해요."
 
 #: redbot/cogs/mod/settings.py:498
 #, docstring
@@ -995,11 +1126,18 @@ msgid "Set the default time to be used when a user is tempbanned.\n\n"
 "            `[p]modset defaultduration 7d12h10m`\n"
 "            `[p]modset defaultduration 7 days 12 hours 10 minutes`\n"
 "        "
-msgstr ""
+msgstr "사용자의 기본 임시 차단 기간을 설정합니다.\n"
+"\n"
+"초, 분, 시간, 일, 주 단위를 사용할 수 있습니다. `duration`은 0보다 커야 합니다.\n"
+"\n"
+"예시:\n"
+"    `[p]modset defaultduration 7d12h10m`\n"
+"    `[p]modset defaultduration 7 days 12 hours 10 minutes`\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:510
 msgid "The default duration for tempbanning a user is now {duration}."
-msgstr ""
+msgstr "기본 임시 차단 기간을 {duration}(으)로 설정했어요."
 
 #: redbot/cogs/mod/settings.py:518
 #, docstring
@@ -1007,23 +1145,27 @@ msgid "\n"
 "        Toggle whether server nickname changes should be tracked.\n\n"
 "        This setting will be overridden if trackallnames is disabled.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"서버 별명 변경을 기록할지 설정합니다.\n"
+"\n"
+"trackallnames가 꺼져 있으면 이 설정도 적용되지 않습니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:527
 msgid "Nickname changes are currently being tracked."
-msgstr ""
+msgstr "현재 별명 변경을 기록하고 있어요."
 
 #: redbot/cogs/mod/settings.py:529
 msgid "Nickname changes are not currently being tracked."
-msgstr ""
+msgstr "현재 별명 변경을 기록하지 않아요."
 
 #: redbot/cogs/mod/settings.py:534
 msgid "Nickname changes will now be tracked."
-msgstr ""
+msgstr "이제 별명 변경을 기록해요."
 
 #: redbot/cogs/mod/settings.py:536
 msgid "Nickname changes will no longer be tracked."
-msgstr ""
+msgstr "이제 별명 변경을 기록하지 않아요."
 
 #: redbot/cogs/mod/settings.py:543
 #, docstring
@@ -1031,24 +1173,29 @@ msgid "\n"
 "        Toggle whether all name changes should be tracked.\n\n"
 "        Toggling this off also overrides the tracknicknames setting.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"모든 이름 변경을 기록할지 설정합니다.\n"
+"\n"
+"끄면 tracknicknames 설정과 관계없이 서버 별명 변경도 기록하지 않습니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:551
 msgid "Name changes are currently being tracked."
-msgstr ""
+msgstr "현재 이름 변경을 기록하고 있어요."
 
 #: redbot/cogs/mod/settings.py:553
 msgid "All name changes are currently not being tracked."
-msgstr ""
+msgstr "현재 어떤 이름 변경도 기록하지 않아요."
 
 #: redbot/cogs/mod/settings.py:558
 msgid "Name changes will now be tracked."
-msgstr ""
+msgstr "이제 이름 변경을 기록해요."
 
 #: redbot/cogs/mod/settings.py:560
 msgid "All name changes will no longer be tracked.\n"
 "To delete existing name data, use {command}."
-msgstr ""
+msgstr "이제 어떤 이름 변경도 기록하지 않아요.\n"
+"기존 이름 기록을 삭제하려면 {command} 명령을 사용하세요."
 
 #: redbot/cogs/mod/settings.py:571
 #, docstring
@@ -1059,16 +1206,26 @@ msgid "Delete all stored usernames, global display names, and server nicknames.\
 "        **Arguments**\n\n"
 "        - `<confirmation>` This will default to false unless specified.\n"
 "        "
-msgstr ""
+msgstr "저장된 사용자명, 표시 이름, 서버 별명을 모두 삭제합니다.\n"
+"\n"
+"예시:\n"
+"- `[p]modset deletenames` — 삭제를 확인하지 않아 도움말만 표시합니다.\n"
+"- `[p]modset deletenames yes` — 저장된 사용자명, 표시 이름, 서버 별명을 모두 삭제합니다.\n"
+"\n"
+"**인수**\n"
+"\n"
+"- `<confirmation>`을 생략하면 삭제하지 않습니다.\n"
+"        "
 
 #: redbot/cogs/mod/settings.py:583
 msgid "This will delete all stored usernames, global display names, and server nicknames the bot has stored.\n"
 "If you're sure, type {command}"
-msgstr ""
+msgstr "봇에 저장된 사용자명, 표시 이름, 서버 별명이 모두 삭제됩니다.\n"
+"계속하려면 {command} 명령을 입력해 주세요."
 
 #: redbot/cogs/mod/settings.py:627
 msgid "Usernames, global display names, and server nicknames have been deleted from Mod config."
-msgstr ""
+msgstr "Mod 설정에서 사용자명, 표시 이름, 서버 별명을 삭제했어요."
 
 #: redbot/cogs/mod/slowmode.py:28
 #, docstring
@@ -1076,13 +1233,28 @@ msgid "Changes thread's or text channel's slowmode setting.\n\n"
 "        Interval can be anything from 0 seconds to 6 hours.\n"
 "        Use without parameters to disable.\n"
 "        "
-msgstr ""
+msgstr "스레드 또는 텍스트 채널의 슬로우 모드 간격을 설정합니다.\n"
+"\n"
+"0초에서 6시간까지 지정할 수 있습니다. 인수 없이 실행하면 슬로우 모드를 끕니다.\n"
+"        "
 
 #: redbot/cogs/mod/slowmode.py:37
 msgid "Slowmode interval is now {interval}."
-msgstr ""
+msgstr "슬로우 모드 간격을 {interval}(으)로 설정했어요."
 
 #: redbot/cogs/mod/slowmode.py:42
 msgid "Slowmode has been disabled."
-msgstr ""
+msgstr "슬로우 모드를 껐어요."
+
+#: redbot/cogs/mod/kickban.py:689
+msgid "User is already tempbanned (ban expires {relative_time}), do you want to proceed?"
+msgstr "해당 사용자는 이미 임시 차단 상태예요(만료: {relative_time}). 계속할까요?"
+
+#: redbot/cogs/mod/kickban.py:693
+msgid "This will downgrade the ban to a tempban, do you want to proceed?"
+msgstr "영구 차단을 임시 차단으로 변경할까요?"
+
+#: redbot/cogs/mod/kickban.py:699
+msgid "Okay, I will not be doing that then."
+msgstr "차단 설정을 변경하지 않았어요."
 

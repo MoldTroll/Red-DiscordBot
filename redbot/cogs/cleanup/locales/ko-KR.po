@@ -23,15 +23,18 @@ msgid "This cog contains commands used for \"cleaning up\" (deleting) messages.\
 "    Messages older than two weeks cannot be mass deleted.\n"
 "    This is a limitation of the API.\n"
 "    "
-msgstr ""
+msgstr "운영진이 메시지를 정리할 때 사용하는 명령어입니다.\n"
+"\n"
+"모든 정리 명령은 실행한 채널에만 적용됩니다. Discord API 제한으로 2주가 지난 메시지는 일괄 삭제할 수 없습니다.\n"
+"    "
 
 #: redbot/cogs/cleanup/cleanup.py:58
 msgid "Try a smaller number instead."
-msgstr ""
+msgstr "더 작은 수를 입력해 주세요."
 
 #: redbot/cogs/cleanup/cleanup.py:61
 msgid "Are you sure you want to delete {number} messages?"
-msgstr ""
+msgstr "메시지 {number}개를 삭제할까요?"
 
 #: redbot/cogs/cleanup/cleanup.py:75
 msgid "Cancelled."
@@ -39,16 +42,16 @@ msgstr "취소되었어요."
 
 #: redbot/cogs/cleanup/cleanup.py:158
 msgid "1 message was deleted."
-msgstr ""
+msgstr "메시지 1개를 삭제했어요."
 
 #: redbot/cogs/cleanup/cleanup.py:161
 msgid "{num} messages were deleted."
-msgstr ""
+msgstr "메시지 {num}개를 삭제했어요."
 
 #: redbot/cogs/cleanup/cleanup.py:187
 #, docstring
 msgid "Base command for deleting messages."
-msgstr ""
+msgstr "메시지 삭제 명령을 관리합니다."
 
 #: redbot/cogs/cleanup/cleanup.py:197
 #, docstring
@@ -60,7 +63,18 @@ msgid "Delete the last X messages matching the specified text in the current cha
 "        - `<number>` The max number of messages to cleanup. Must be a positive integer.\n"
 "        - `<delete_pinned>` Whether to delete pinned messages or not. Defaults to False\n"
 "        "
-msgstr ""
+msgstr "현재 채널에서 지정한 텍스트가 포함된 최근 메시지를 삭제합니다.\n"
+"\n"
+"예시:\n"
+"- `[p]cleanup text \"test\" 5`\n"
+"\n"
+"텍스트를 큰따옴표로 묶어 주세요.\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<number>`: 삭제할 최대 메시지 수입니다. 양의 정수를 입력하세요.\n"
+"- `<delete_pinned>`: 고정된 메시지도 삭제할지 지정합니다. 기본값은 False입니다.\n"
+"        "
 
 #: redbot/cogs/cleanup/cleanup.py:257
 #, docstring
@@ -73,7 +87,18 @@ msgid "Delete the last X messages from a specified user in the current channel.\
 "        - `<number>` The max number of messages to cleanup. Must be a positive integer.\n"
 "        - `<delete_pinned>` Whether to delete pinned messages or not. Defaults to False\n"
 "        "
-msgstr ""
+msgstr "현재 채널에서 지정한 사용자가 보낸 최근 메시지를 삭제합니다.\n"
+"\n"
+"예시:\n"
+"- `[p]cleanup user @Twentysix 2`\n"
+"- `[p]cleanup user Red 6`\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<user>`: 메시지를 삭제할 대상 사용자입니다.\n"
+"- `<number>`: 삭제할 최대 메시지 수입니다. 양의 정수를 입력하세요.\n"
+"- `<delete_pinned>`: 고정된 메시지도 삭제할지 지정합니다. 기본값은 False입니다.\n"
+"        "
 
 #: redbot/cogs/cleanup/cleanup.py:327
 #, docstring
@@ -86,11 +111,19 @@ msgid "Delete all messages after a specified message.\n\n"
 "        - `<message_id>` The id of the message to cleanup after. This message won't be deleted.\n"
 "        - `<delete_pinned>` Whether to delete pinned messages or not. Defaults to False\n"
 "        "
-msgstr ""
+msgstr "지정한 메시지 이후의 메시지를 모두 삭제합니다.\n"
+"\n"
+"Discord 설정에서 개발자 모드를 켠 뒤 메시지를 우클릭하면 ID를 복사할 수 있습니다. 메시지에 답장하면서 실행하면 해당 메시지 이후의 메시지를 삭제합니다.\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<message_id>`: 기준이 되는 메시지의 ID입니다. 이 메시지는 삭제하지 않습니다.\n"
+"- `<delete_pinned>`: 고정된 메시지도 삭제할지 지정합니다. 기본값은 False입니다.\n"
+"        "
 
 #: redbot/cogs/cleanup/cleanup.py:348 redbot/cogs/cleanup/cleanup.py:403
 msgid "Message not found."
-msgstr "메세지를 찾을 수 없어요."
+msgstr "메시지를 찾을 수 없어요."
 
 #: redbot/cogs/cleanup/cleanup.py:381
 #, docstring
@@ -104,7 +137,16 @@ msgid "Deletes X messages before the specified message.\n\n"
 "        - `<number>` The max number of messages to cleanup. Must be a positive integer.\n"
 "        - `<delete_pinned>` Whether to delete pinned messages or not. Defaults to False\n"
 "        "
-msgstr ""
+msgstr "지정한 메시지 이전의 메시지를 지정한 수만큼 삭제합니다.\n"
+"\n"
+"Discord 설정에서 개발자 모드를 켠 뒤 메시지를 우클릭하면 ID를 복사할 수 있습니다. 메시지에 답장하면서 실행하면 해당 메시지 이전의 메시지를 삭제합니다.\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<message_id>`: 기준이 되는 메시지의 ID입니다. 이 메시지는 삭제하지 않습니다.\n"
+"- `<number>`: 삭제할 최대 메시지 수입니다. 양의 정수를 입력하세요.\n"
+"- `<delete_pinned>`: 고정된 메시지도 삭제할지 지정합니다. 기본값은 False입니다.\n"
+"        "
 
 #: redbot/cogs/cleanup/cleanup.py:437
 #, docstring
@@ -117,7 +159,19 @@ msgid "Delete the messages between Message One and Message Two, providing the me
 "        - `<two>` The id of the message to cleanup before. This message won't be deleted.\n"
 "        - `<delete_pinned>` Whether to delete pinned messages or not. Defaults to False\n"
 "        "
-msgstr ""
+msgstr "두 메시지 사이에 있는 메시지를 삭제합니다.\n"
+"\n"
+"먼저 보낸 메시지의 ID를 앞에, 나중에 보낸 메시지의 ID를 뒤에 입력하세요.\n"
+"\n"
+"예시:\n"
+"- `[p]cleanup between 123456789123456789 987654321987654321`\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<one>`: 시작 메시지의 ID입니다. 이 메시지는 삭제하지 않습니다.\n"
+"- `<two>`: 끝 메시지의 ID입니다. 이 메시지는 삭제하지 않습니다.\n"
+"- `<delete_pinned>`: 고정된 메시지도 삭제할지 지정합니다. 기본값은 False입니다.\n"
+"        "
 
 #: redbot/cogs/cleanup/cleanup.py:486
 #, docstring
@@ -128,7 +182,16 @@ msgid "Delete the last X messages in the current channel.\n\n"
 "        - `<number>` The max number of messages to cleanup. Must be a positive integer.\n"
 "        - `<delete_pinned>` Whether to delete pinned messages or not. Defaults to False\n"
 "        "
-msgstr ""
+msgstr "현재 채널의 최근 메시지를 지정한 수만큼 삭제합니다.\n"
+"\n"
+"예시:\n"
+"- `[p]cleanup messages 26`\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<number>`: 삭제할 최대 메시지 수입니다. 양의 정수를 입력하세요.\n"
+"- `<delete_pinned>`: 고정된 메시지도 삭제할지 지정합니다. 기본값은 False입니다.\n"
+"        "
 
 #: redbot/cogs/cleanup/cleanup.py:525
 #, docstring
@@ -138,7 +201,15 @@ msgid "Clean up command messages and messages from the bot in the current channe
 "        - `<number>` The max number of messages to cleanup. Must be a positive integer.\n"
 "        - `<delete_pinned>` Whether to delete pinned messages or not. Defaults to False\n"
 "        "
-msgstr ""
+msgstr "현재 채널에서 명령어 메시지와 봇이 보낸 메시지를 삭제합니다.\n"
+"\n"
+"사용자 지정 명령어와 별칭 명령어는 해당 모듈이 로드된 경우에만 정리합니다.\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<number>`: 삭제할 최대 메시지 수입니다. 양의 정수를 입력하세요.\n"
+"- `<delete_pinned>`: 고정된 메시지도 삭제할지 지정합니다. 기본값은 False입니다.\n"
+"        "
 
 #: redbot/cogs/cleanup/cleanup.py:614
 #, docstring
@@ -154,7 +225,21 @@ msgid "Clean up messages owned by the bot in the current channel.\n\n"
 "        - `<match_pattern>` The text that messages must contain to be deleted. Use \"\" to skip this.\n"
 "        - `<delete_pinned>` Whether to delete pinned messages or not. Defaults to False\n"
 "        "
-msgstr ""
+msgstr "현재 채널에서 봇이 보낸 메시지를 삭제합니다.\n"
+"\n"
+"기본적으로 모든 메시지가 대상입니다. 두 번째 인수를 지정하면 해당 텍스트가 포함된 메시지만 삭제합니다.\n"
+"\n"
+"예시:\n"
+"- `[p]cleanup self 6`\n"
+"- `[p]cleanup self 10 Pong`\n"
+"- `[p]cleanup self 7 \"\" True`\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<number>`: 삭제할 최대 메시지 수입니다. 양의 정수를 입력하세요.\n"
+"- `<match_pattern>`: 삭제할 메시지에 포함되어야 하는 텍스트입니다. 건너뛰려면 \"\"를 입력하세요.\n"
+"- `<delete_pinned>`: 고정된 메시지도 삭제할지 지정합니다. 기본값은 False입니다.\n"
+"        "
 
 #: redbot/cogs/cleanup/cleanup.py:697
 #, docstring
@@ -163,12 +248,19 @@ msgid "Deletes duplicate messages in the channel from the last X messages and ke
 "        **Arguments:**\n\n"
 "        - `<number>` The number of messages to check for duplicates. Must be a positive integer.\n"
 "        "
-msgstr ""
+msgstr "채널의 최근 메시지 중 중복된 메시지를 하나만 남기고 삭제합니다.\n"
+"\n"
+"기본적으로 최근 50개를 확인합니다.\n"
+"\n"
+"**인수:**\n"
+"\n"
+"- `<number>`: 중복 여부를 확인할 메시지 수입니다. 양의 정수를 입력하세요.\n"
+"        "
 
 #: redbot/cogs/cleanup/cleanup.py:757
 #, docstring
 msgid "Manage the settings for the cleanup command."
-msgstr ""
+msgstr "메시지 정리 명령어의 설정을 관리합니다."
 
 #: redbot/cogs/cleanup/cleanup.py:763
 #, docstring
@@ -176,17 +268,24 @@ msgid "Toggle clean up notification settings.\n\n"
 "        When enabled, a message will be sent per cleanup, showing how many messages were deleted.\n"
 "        This message will be deleted after 5 seconds.\n"
 "        "
-msgstr ""
+msgstr "메시지 정리 알림을 켜거나 끕니다.\n"
+"\n"
+"켜면 정리할 때마다 삭제한 메시지 수를 알립니다. 알림은 5초 후에 삭제됩니다.\n"
+"        "
 
 #: redbot/cogs/cleanup/cleanup.py:771
 msgid "I will no longer notify of message deletions."
-msgstr ""
+msgstr "이제 메시지 삭제 알림을 보내지 않아요."
 
 #: redbot/cogs/cleanup/cleanup.py:774
 msgid "I will now notify of message deletions."
-msgstr ""
+msgstr "이제 메시지를 삭제하면 알려 드려요."
 
 #: redbot/cogs/cleanup/converters.py:14
 msgid "{} doesn't look like a valid message ID."
-msgstr ""
+msgstr "{}은(는) 올바른 메시지 ID가 아니에요."
+
+#: redbot/cogs/cleanup/cleanup.py:457 redbot/cogs/cleanup/cleanup.py:463
+msgid "Could not find a message with the ID of {id}."
+msgstr "ID가 {id}인 메시지를 찾을 수 없어요."
 

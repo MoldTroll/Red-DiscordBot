@@ -25,11 +25,11 @@ msgstr "년"
 
 #: redbot/core/utils/chat_formatting.py:655
 msgid "month"
-msgstr "월"
+msgstr "개월"
 
 #: redbot/core/utils/chat_formatting.py:655
 msgid "months"
-msgstr "월"
+msgstr "개월"
 
 #: redbot/core/utils/chat_formatting.py:656
 msgid "day"
@@ -37,11 +37,11 @@ msgstr "일"
 
 #: redbot/core/utils/chat_formatting.py:656
 msgid "days"
-msgstr "날"
+msgstr "일"
 
 #: redbot/core/utils/chat_formatting.py:657
 msgid "hour"
-msgstr "시"
+msgstr "시간"
 
 #: redbot/core/utils/chat_formatting.py:657
 msgid "hours"
@@ -65,50 +65,63 @@ msgstr "초"
 
 #: redbot/core/utils/chat_formatting.py:667
 msgid "negative"
-msgstr ""
+msgstr "마이너스"
 
 #: redbot/core/utils/views.py:34
 msgid "Select a Page"
-msgstr ""
+msgstr "페이지 선택"
 
 #: redbot/core/utils/views.py:183
 msgid "Page {num}"
-msgstr ""
+msgstr "{num}페이지"
 
 #: redbot/core/utils/views.py:338 redbot/core/utils/views.py:702
 msgid "You are not authorized to interact with this."
-msgstr ""
+msgstr "이 메뉴를 사용할 권한이 없어요."
 
 #: redbot/core/utils/views.py:380
 msgid "Set API Keys"
-msgstr ""
+msgstr "API 키 설정"
 
 #: redbot/core/utils/views.py:381
 msgid "Keys and tokens"
-msgstr ""
+msgstr "키와 토큰"
 
 #: redbot/core/utils/views.py:388
 msgid "Keys and tokens for {service}"
-msgstr ""
+msgstr "{service} 키와 토큰"
 
 #: redbot/core/utils/views.py:397
 msgid "Service"
-msgstr ""
+msgstr "서비스"
 
 #: redbot/core/utils/views.py:438
 msgid "This modal is for bot owners only. Whoops!"
-msgstr ""
+msgstr "봇 소유자만 이 입력 창을 사용할 수 있어요."
 
 #: redbot/core/utils/views.py:451
 msgid "{error_message}\n"
 "Please try again."
-msgstr ""
+msgstr "{error_message}\n"
+"다시 시도해 주세요."
 
 #: redbot/core/utils/views.py:458 redbot/core/utils/views.py:465
 msgid "`{service}` API tokens have been set."
-msgstr ""
+msgstr "`{service}` API 토큰을 설정했어요."
 
 #: redbot/core/utils/views.py:501
 msgid "This button is for bot owners only, oh well."
-msgstr ""
+msgstr "봇 소유자만 이 버튼을 사용할 수 있어요."
+
+#: redbot/core/utils/views.py:498
+msgid "Set API token"
+msgstr "API 토큰 설정"
+
+#: redbot/core/utils/views.py:581
+msgid "Yes"
+msgstr "예"
+
+#: redbot/core/utils/views.py:583
+msgid "No"
+msgstr "아니요"
 

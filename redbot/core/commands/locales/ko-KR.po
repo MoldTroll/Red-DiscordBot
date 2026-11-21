@@ -17,51 +17,51 @@ msgstr ""
 
 #: redbot/core/commands/converter.py:90
 msgid "`{unit}` is not a valid unit of time for this command"
-msgstr ""
+msgstr "이 명령에서는 `{unit}` 시간 단위를 사용할 수 없어요."
 
 #: redbot/core/commands/converter.py:151 redbot/core/commands/converter.py:219
 msgid "The time set is way too high, consider setting something reasonable."
-msgstr ""
+msgstr "지정한 기간이 너무 길어요. 더 짧은 기간을 입력해 주세요."
 
 #: redbot/core/commands/converter.py:155
 msgid "This amount of time is too large for this command. (Maximum: {maximum})"
-msgstr ""
+msgstr "이 명령에 지정한 기간이 너무 길어요. 최대 기간: {maximum}"
 
 #: redbot/core/commands/converter.py:159 redbot/core/commands/converter.py:168
 msgid "0 seconds"
-msgstr ""
+msgstr "0초"
 
 #: redbot/core/commands/converter.py:164
 msgid "This amount of time is too small for this command. (Minimum: {minimum})"
-msgstr ""
+msgstr "이 명령에 지정한 기간이 너무 짧아요. 최소 기간: {minimum}"
 
 #: redbot/core/commands/converter.py:256
 msgid "'{input}' doesn't look like a valid user ID."
-msgstr ""
+msgstr "'{input}'은(는) 올바른 사용자 ID가 아니에요."
 
 #: redbot/core/commands/converter.py:279
 msgid "`{arg}` is not a number."
-msgstr ""
+msgstr "`{arg}`은(는) 숫자가 아니에요."
 
 #: redbot/core/commands/converter.py:281
 msgid "`{arg}` is not a finite number."
-msgstr ""
+msgstr "`{arg}`은(는) 유한한 수가 아니에요."
 
 #: redbot/core/commands/converter.py:304
 msgid "Missing a key or value."
-msgstr ""
+msgstr "키 또는 값이 빠졌어요."
 
 #: redbot/core/commands/converter.py:310
 msgid "Unexpected key `{key}`."
-msgstr ""
+msgstr "사용할 수 없는 키예요: `{key}`."
 
 #: redbot/core/commands/converter.py:544
 msgid "Command \"{arg}\" not found."
-msgstr ""
+msgstr "\"{arg}\" 명령어를 찾을 수 없어요."
 
 #: redbot/core/commands/converter.py:554
 msgid "Cog \"{arg}\" not found."
-msgstr ""
+msgstr "\"{arg}\" 모듈을 찾을 수 없어요."
 
 #: redbot/core/commands/help.py:125 redbot/core/commands/help.py:144
 msgid "No"
@@ -69,7 +69,7 @@ msgstr "아니요"
 
 #: redbot/core/commands/help.py:127
 msgid "Yes"
-msgstr "그래요!"
+msgstr "예"
 
 #: redbot/core/commands/help.py:133
 msgid "Disabled"
@@ -78,23 +78,24 @@ msgstr "비활성화됨"
 #: redbot/core/commands/help.py:138
 msgid "\n"
 "Custom Tagline: {tag}"
-msgstr ""
+msgstr "\n"
+"사용자 지정 안내 문구: {tag}"
 
 #: redbot/core/commands/help.py:145
 msgid "Yes, reactions"
-msgstr ""
+msgstr "예, 반응 사용"
 
 #: redbot/core/commands/help.py:146
 msgid "Yes, buttons"
-msgstr ""
+msgstr "예, 버튼 사용"
 
 #: redbot/core/commands/help.py:147
 msgid "Yes, buttons with select menu"
-msgstr ""
+msgstr "예, 버튼과 선택 메뉴 사용"
 
 #: redbot/core/commands/help.py:148
 msgid "Yes, select menu only"
-msgstr ""
+msgstr "예, 선택 메뉴만 사용"
 
 #: redbot/core/commands/help.py:152
 msgid "Maximum characters per page: {page_char_limit}\n"
@@ -107,40 +108,49 @@ msgid "Maximum characters per page: {page_char_limit}\n"
 "Delete delay: {delete_delay}\n"
 "React with a checkmark when help is sent via DM: {use_tick}\n"
 "Reaction timeout (only used if menus are used): {react_timeout} seconds{tagline_info}"
-msgstr ""
+msgstr "페이지당 최대 글자 수: {page_char_limit}\n"
+"서버에 보낼 최대 페이지 수(메뉴 미사용 시): {max_pages_in_guild}\n"
+"도움말 메뉴 사용: {use_menus}\n"
+"숨겨진 명령어 표시: {show_hidden}\n"
+"명령어 별칭 표시: {show_aliases}\n"
+"실행할 수 있는 명령어만 표시: {verify_checks}\n"
+"직접 조회하면 실행할 수 없는 명령어도 표시: {verify_exists}\n"
+"삭제 지연 시간: {delete_delay}\n"
+"도움말을 DM으로 보내면 확인 표시 추가: {use_tick}\n"
+"반응 대기 시간(메뉴 사용 시): {react_timeout}초{tagline_info}"
 
 #: redbot/core/commands/help.py:303
 msgid "Type {command1} for more info on a command. You can also type {command2} for more info on a category."
-msgstr ""
+msgstr "명령어의 자세한 사용법은 {command1} 명령으로 확인하세요. 카테고리별 도움말은 {command2} 명령으로 확인할 수 있어요."
 
 #: redbot/core/commands/help.py:358
 msgid "Syntax:\n"
-msgstr ""
+msgstr "사용법:\n"
 
 #: redbot/core/commands/help.py:360
 msgid "Aliases"
-msgstr ""
+msgstr "별칭"
 
 #: redbot/core/commands/help.py:360
 msgid "Alias"
-msgstr ""
+msgstr "별칭"
 
 #: redbot/core/commands/help.py:381
 msgid "{aliases} and {number} more aliases."
-msgstr ""
+msgstr "{aliases} 외 별칭 {number}개"
 
 #: redbot/core/commands/help.py:385
 msgid "{aliases} and one more alias."
-msgstr ""
+msgstr "{aliases} 외 별칭 1개"
 
 #: redbot/core/commands/help.py:432 redbot/core/commands/help.py:434
 #: redbot/core/commands/help.py:446
 msgid "Subcommands:"
-msgstr "하부 명령어:"
+msgstr "하위 명령어:"
 
 #: redbot/core/commands/help.py:434 redbot/core/commands/help.py:612
 msgid " (continued)"
-msgstr ""
+msgstr " (계속)"
 
 #: redbot/core/commands/help.py:508 redbot/core/commands/help.py:768
 #: redbot/core/commands/help.py:783 redbot/core/commands/help.py:804
@@ -150,7 +160,8 @@ msgstr "{ctx.me.display_name} 도움말"
 #: redbot/core/commands/help.py:555
 msgid "*Page {page_num} of {page_count}*\n"
 "{content_description}"
-msgstr ""
+msgstr "*{page_count}페이지 중 {page_num}페이지*\n"
+"{content_description}"
 
 #: redbot/core/commands/help.py:610 redbot/core/commands/help.py:612
 #: redbot/core/commands/help.py:624
@@ -160,23 +171,27 @@ msgstr "명령어:"
 #: redbot/core/commands/help.py:663 redbot/core/commands/help.py:692
 #: redbot/core/commands/help.py:705
 msgid "No Category:"
-msgstr "카테고리 없음"
+msgstr "카테고리 없음:"
 
 #: redbot/core/commands/help.py:676
 msgid "{title} (continued)"
-msgstr ""
+msgstr "{title} (계속)"
 
 #: redbot/core/commands/help.py:779
 msgid "Help topic for {command_name} not found."
-msgstr "{command_name}에 대한 설명서를 찾지 못했어요..."
+msgstr "{command_name}에 대한 도움말을 찾을 수 없어요."
 
 #: redbot/core/commands/help.py:798
 msgid "Command {command_name} has no subcommand named {not_found}."
-msgstr ""
+msgstr "{command_name} 명령어에는 {not_found} 하위 명령어가 없어요."
 
 #: redbot/core/commands/help.py:903
 msgid "I couldn't send the help message to you in DM. Either you blocked me or you disabled DMs in this server."
-msgstr "DM으로 보내드리려고 하는데... 혹시 이 서버에서의 DM을 비활성화하셨거나, 저를 차단하셨는지 확인 부탁드려도 될까요?"
+msgstr "DM으로 도움말을 보내지 못했어요. 봇을 차단했거나 이 서버의 DM을 껐는지 확인해 주세요."
+
+#: redbot/core/commands/help.py:914
+msgid "I have sent the help message to your DMs."
+msgstr "도움말을 DM으로 보냈어요."
 
 #: redbot/core/commands/help.py:939
 #, docstring
@@ -186,5 +201,10 @@ msgid "\n"
 "    (Help) you know I need someone\n"
 "    (Help!)\n"
 "    "
-msgstr ""
+msgstr "\n"
+"누군가의 도움이 필요해요\n"
+"(도와줘요) 아무나 되는 건 아니에요\n"
+"(도와줘요) 내게 누군가 필요하다는 걸 알잖아요\n"
+"(도와줘요!)\n"
+"    "
 
