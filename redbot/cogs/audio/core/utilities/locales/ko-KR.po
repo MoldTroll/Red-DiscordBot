@@ -17,7 +17,7 @@ msgstr ""
 
 #: redbot/cogs/audio/core/utilities/formatting.py:74
 msgid "tracks"
-msgstr "트랙"
+msgstr "곡"
 
 #: redbot/cogs/audio/core/utilities/formatting.py:84
 #: redbot/cogs/audio/core/utilities/formatting.py:272
@@ -27,43 +27,43 @@ msgstr "{page_num}/{total_pages} 페이지"
 #: redbot/cogs/audio/core/utilities/formatting.py:95
 #: redbot/cogs/audio/core/utilities/playlists.py:526
 msgid "Connection to Lavalink node has failed"
-msgstr ""
+msgstr "Lavalink 노드에 연결할 수 없음"
 
 #: redbot/cogs/audio/core/utilities/formatting.py:98
 #: redbot/cogs/audio/core/utilities/player.py:591
 #: redbot/cogs/audio/core/utilities/playlists.py:529
 msgid "Please check your console or logs for details."
-msgstr "관리자에게 문의해주세요"
+msgstr "자세한 내용은 콘솔이나 로그에서 확인하세요."
 
 #: redbot/cogs/audio/core/utilities/formatting.py:106
 #: redbot/cogs/audio/core/utilities/playlists.py:561
 msgid "Connect to a voice channel first."
-msgstr "먼저 음성체널에 연결하세요."
+msgstr "먼저 음성 채널에 들어가 주세요."
 
 #: redbot/cogs/audio/core/utilities/formatting.py:109
 #: redbot/cogs/audio/core/utilities/playlists.py:554
 msgid "Connection to Lavalink node has not yet been established."
-msgstr ""
+msgstr "아직 Lavalink 노드에 연결되지 않았습니다."
 
 #: redbot/cogs/audio/core/utilities/formatting.py:116
 msgid "Unable To Play Tracks"
-msgstr "트랙을 재생할수 없습니다"
+msgstr "곡을 재생할 수 없음"
 
 #: redbot/cogs/audio/core/utilities/formatting.py:116
 #: redbot/cogs/audio/core/utilities/player.py:442
 #: redbot/cogs/audio/core/utilities/player.py:524
 msgid "Queue size limit reached."
-msgstr "큐 최대 제한에 도달했습니다."
+msgstr "대기열이 가득 찼습니다."
 
 #: redbot/cogs/audio/core/utilities/formatting.py:154
 #: redbot/cogs/audio/core/utilities/player.py:599
 msgid "Track Enqueued"
-msgstr "트랙 추가됨"
+msgstr "대기열에 곡 추가됨"
 
 #: redbot/cogs/audio/core/utilities/formatting.py:168
 #: redbot/cogs/audio/core/utilities/player.py:548
 msgid "This track is not allowed in this server."
-msgstr "이 서버에서는이 트랙을 사용할 수 없습니다."
+msgstr "이 서버에서는 해당 곡을 재생할 수 없습니다."
 
 #: redbot/cogs/audio/core/utilities/formatting.py:185
 #: redbot/cogs/audio/core/utilities/player.py:570
@@ -73,11 +73,11 @@ msgstr "트랙이 최대 길이를 초과했습니다."
 #: redbot/cogs/audio/core/utilities/formatting.py:200
 #: redbot/cogs/audio/core/utilities/player.py:602
 msgid "{time} until track playback: #{position} in queue"
-msgstr "트랙이 재생될때까지 {time}: 대기열의 #{position}"
+msgstr "대기열 {position}번째 곡입니다. 재생까지 {time} 남았습니다."
 
 #: redbot/cogs/audio/core/utilities/formatting.py:260
 msgid "Tracks Found:"
-msgstr "트랙 검색됨"
+msgstr "찾은 곡:"
 
 #: redbot/cogs/audio/core/utilities/formatting.py:261
 msgid "search results"
@@ -85,7 +85,7 @@ msgstr "검색 결과"
 
 #: redbot/cogs/audio/core/utilities/formatting.py:263
 msgid "Folders Found:"
-msgstr "폴더를 찾았습니다:"
+msgstr "찾은 폴더:"
 
 #: redbot/cogs/audio/core/utilities/formatting.py:264
 msgid "local folders"
@@ -93,11 +93,11 @@ msgstr "로컬 폴더"
 
 #: redbot/cogs/audio/core/utilities/formatting.py:266
 msgid "Files Found:"
-msgstr "파일을 찾았습니다:"
+msgstr "찾은 파일:"
 
 #: redbot/cogs/audio/core/utilities/formatting.py:267
 msgid "local tracks"
-msgstr "로컬 트랙"
+msgstr "로컬 곡"
 
 #: redbot/cogs/audio/core/utilities/formatting.py:379
 #: redbot/cogs/audio/core/utilities/playlists.py:240
@@ -110,7 +110,12 @@ msgid " - Name:   <{pname}>\n"
 " - ID:     < {pid} >\n"
 " - Tracks: < {ptracks} >\n"
 " - Author: < {author} >\n\n"
-msgstr ""
+msgstr " - 이름:   <{pname}>\n"
+" - 범위:   < {scope} >\n"
+" - ID:     < {pid} >\n"
+" - 곡 수:  < {ptracks} >\n"
+" - 작성자: < {author} >\n"
+"\n"
 
 #: redbot/cogs/audio/core/utilities/local_tracks.py:109
 #: redbot/cogs/audio/core/utilities/player.py:234
@@ -118,11 +123,11 @@ msgstr ""
 #: redbot/cogs/audio/core/utilities/player.py:326
 #: redbot/cogs/audio/core/utilities/player.py:650
 msgid "Invalid Environment"
-msgstr "잘못된 환경입니다."
+msgstr "올바르지 않은 환경"
 
 #: redbot/cogs/audio/core/utilities/local_tracks.py:109
 msgid "No localtracks folder."
-msgstr "로컬트랙 폴더가 없어요."
+msgstr "localtracks 폴더가 없습니다."
 
 #: redbot/cogs/audio/core/utilities/miscellaneous.py:50
 msgid "Not enough {currency}"
@@ -130,11 +135,11 @@ msgstr "{currency} 부족"
 
 #: redbot/cogs/audio/core/utilities/miscellaneous.py:51
 msgid "{required_credits} {currency} required, but you have {bal}."
-msgstr ""
+msgstr "{required_credits} {currency} 필요합니다. 현재 잔액은 {bal}입니다."
 
 #: redbot/cogs/audio/core/utilities/player.py:78
 msgid "music in {} servers"
-msgstr "{} 서버들에 있는 음악"
+msgstr "서버 {}개에서 음악 재생 중"
 
 #: redbot/cogs/audio/core/utilities/player.py:135
 #: redbot/cogs/audio/core/utilities/player.py:139
@@ -144,52 +149,52 @@ msgstr "대기열에 아무것도 없습니다."
 
 #: redbot/cogs/audio/core/utilities/player.py:141
 msgid "Currently livestreaming {track}"
-msgstr "지금 라이브 스트리밍중인 {track}"
+msgstr "실시간 방송 중: {track}"
 
 #: redbot/cogs/audio/core/utilities/player.py:146
 msgid "{time} left on {track}"
-msgstr "{track} {time} 남음."
+msgstr "{track} 재생 종료까지 {time} 남음"
 
 #: redbot/cogs/audio/core/utilities/player.py:154
 #: redbot/cogs/audio/core/utilities/player.py:189
 msgid "Track Skipped"
-msgstr "트랙 스킵됨"
+msgstr "곡을 건너뛰었습니다"
 
 #: redbot/cogs/audio/core/utilities/player.py:167
 msgid "Track number must be equal to or greater than 1."
-msgstr "트랙 번호는 1 보다 크거나 같아야 합니다."
+msgstr "곡 번호는 1 이상이어야 합니다."
 
 #: redbot/cogs/audio/core/utilities/player.py:173
 msgid "There are only {queuelen} songs currently queued."
-msgstr "현재 대기열에 {queuelen} 곡들만 있습니다."
+msgstr "현재 대기열에는 곡이 {queuelen}개 있습니다."
 
 #: redbot/cogs/audio/core/utilities/player.py:179
 msgid "{skip_to_track} Tracks Skipped"
-msgstr "{skip_to_track} 트랙들 스킵됨"
+msgstr "곡 {skip_to_track}개를 건너뛰었습니다"
 
 #: redbot/cogs/audio/core/utilities/player.py:235
 msgid "The owner needs to set the Spotify client ID and Spotify client secret, before Spotify URLs or codes can be used. \n"
 "See `{prefix}audioset spotifyapi` for instructions."
-msgstr "봇 관리자가 Spotify URL 또는 코드를 사용하기 전에 Spotify 클라이언트 ID 및 암호를 설정해 주어야 합니다. \n"
-" `{prefix}audioset spotifyapi`을 참조하세요."
+msgstr "Spotify URL이나 코드를 사용하려면 봇 소유자가 Spotify 클라이언트 ID와 클라이언트 시크릿을 설정해야 합니다.\n"
+"설정 방법은 `{prefix}audioset spotifyapi`에서 확인하세요."
 
 #: redbot/cogs/audio/core/utilities/player.py:245
 msgid "The owner needs to set the YouTube API key before Spotify URLs or codes can be used.\n"
 "See `{prefix}audioset youtubeapi` for instructions."
-msgstr "봇 관리자가 Youtube URL 또는 코드를 사용하기 전에 Youtube API Key를 설정해 주어야 합니다. \n"
-" `{prefix}audioset youtubeapi`을 참조하세요."
+msgstr "Spotify URL이나 코드를 사용하려면 봇 소유자가 YouTube API 키를 설정해야 합니다.\n"
+"설정 방법은 `{prefix}audioset youtubeapi`에서 확인하세요."
 
 #: redbot/cogs/audio/core/utilities/player.py:254
 #: redbot/cogs/audio/core/utilities/player.py:363
 #: redbot/cogs/audio/core/utilities/playlists.py:594
 msgid "Unable To Get Tracks"
-msgstr "트랙을 가져올 수 없습니다."
+msgstr "곡을 불러올 수 없음"
 
 #: redbot/cogs/audio/core/utilities/player.py:255
 #: redbot/cogs/audio/core/utilities/player.py:364
 #: redbot/cogs/audio/core/utilities/playlists.py:595
 msgid "Wait until the playlist has finished loading."
-msgstr "플래이리스트 불러오기가 끝날때까지 기다려주세요."
+msgstr "재생 목록을 모두 불러올 때까지 기다려 주세요."
 
 #: redbot/cogs/audio/core/utilities/player.py:266
 #: redbot/cogs/audio/core/utilities/player.py:308
@@ -213,7 +218,7 @@ msgstr "재생할 수 없는 트랙입니다."
 #: redbot/cogs/audio/core/utilities/playlists.py:608
 #: redbot/cogs/audio/core/utilities/playlists.py:641
 msgid "**{suffix}** is not a fully supported format and some tracks may not play."
-msgstr "** {suffix} **는 완전히 지원되는 형식이 아니며 일부 트랙이 재생되지 않을 수 있습니다."
+msgstr "**{suffix}** 형식은 일부만 지원하므로 재생되지 않는 곡이 있을 수 있습니다."
 
 #: redbot/cogs/audio/core/utilities/player.py:300
 #: redbot/cogs/audio/core/utilities/player.py:393
@@ -222,45 +227,46 @@ msgstr "** {suffix} **는 완전히 지원되는 형식이 아니며 일부 트�
 #: redbot/cogs/audio/core/utilities/playlists.py:626
 #: redbot/cogs/audio/core/utilities/playlists.py:655
 msgid "Unable to Get Track"
-msgstr "트랙을 찾을수 없습니다"
+msgstr "곡을 불러올 수 없음"
 
 #: redbot/cogs/audio/core/utilities/player.py:301
 #: redbot/cogs/audio/core/utilities/playlists.py:426
 msgid "I'm unable to get a track from the Lavalink node at the moment, try again in a few minutes."
-msgstr ""
+msgstr "지금은 Lavalink 노드에서 곡을 불러올 수 없습니다. 몇 분 후에 다시 시도해 주세요."
 
 #: redbot/cogs/audio/core/utilities/player.py:327
 msgid "The Spotify API key or client secret has not been set properly. \n"
 "Use `{prefix}audioset spotifyapi` for instructions."
-msgstr "You deleted the translation \"Spotify API 키 또는 client secret이 올바르게 설정되지 않았습니다. \n"
-"`{prefix}audioset spotifyapi`를 사용하여 명령어들을 확인하세요.\""
+msgstr "Spotify API 키 또는 클라이언트 시크릿이 올바르게 설정되지 않았습니다.\n"
+"설정 방법은 `{prefix}audioset spotifyapi`로 확인하세요."
 
 #: redbot/cogs/audio/core/utilities/player.py:351
 msgid "Unable To Find Tracks"
-msgstr "해당 트랙을 찾을 수 없습니다"
+msgstr "곡을 찾을 수 없음"
 
 #: redbot/cogs/audio/core/utilities/player.py:352
 msgid "This doesn't seem to be a supported Spotify URL or code."
-msgstr "지원되는 Spotify URL 또는 코드가 아닌 것 같습니다."
+msgstr "지원하지 않는 Spotify URL 또는 코드입니다."
 
 #: redbot/cogs/audio/core/utilities/player.py:378
 msgid "{query} is not an allowed query."
-msgstr ""
+msgstr "허용되지 않는 검색어입니다: {query}"
 
 #: redbot/cogs/audio/core/utilities/player.py:394
 #: redbot/cogs/audio/core/utilities/playlists.py:627
 #: redbot/cogs/audio/core/utilities/playlists.py:656
 msgid "I'm unable to get a track from Lavalink node at the moment, try again in a few minutes."
-msgstr ""
+msgstr "지금은 Lavalink 노드에서 곡을 불러올 수 없습니다. 몇 분 후에 다시 시도해 주세요."
 
 #: redbot/cogs/audio/core/utilities/player.py:416
 msgid "Local tracks will not work if the `Lavalink.jar` cannot see the track.\n"
 "This may be due to permissions or because Lavalink.jar is being run in a different machine than the local tracks."
-msgstr ""
+msgstr "`Lavalink.jar`에서 파일에 접근할 수 없으면 로컬 곡을 재생할 수 없습니다.\n"
+"파일 권한을 확인하세요. Lavalink.jar를 로컬 음악 파일과 다른 컴퓨터에서 실행할 때도 이 문제가 발생할 수 있습니다."
 
 #: redbot/cogs/audio/core/utilities/player.py:486
 msgid " {bad_tracks} tracks cannot be queued."
-msgstr " {bad_tracks} 을 대기열에 추가할 수 없습니다."
+msgstr " 곡 {bad_tracks}개는 대기열에 추가할 수 없습니다."
 
 #: redbot/cogs/audio/core/utilities/player.py:492
 msgid "No Title"
@@ -268,19 +274,19 @@ msgstr "제목 없음"
 
 #: redbot/cogs/audio/core/utilities/player.py:494
 msgid "Playlist Enqueued"
-msgstr "대기중인 재생 목록"
+msgstr "재생 목록을 대기열에 추가했습니다"
 
 #: redbot/cogs/audio/core/utilities/player.py:494
 msgid "Album Enqueued"
-msgstr ""
+msgstr "앨범을 대기열에 추가했습니다"
 
 #: redbot/cogs/audio/core/utilities/player.py:502
 msgid "Added {num} tracks to the queue.{maxlength_msg}"
-msgstr "대기열에 {num} 개의 트랙이 추가되었습니다. {maxlength_msg}"
+msgstr "대기열에 곡 {num}개를 추가했습니다.{maxlength_msg}"
 
 #: redbot/cogs/audio/core/utilities/player.py:508
 msgid "{time} until start of playlist playback: starts at #{position} in queue"
-msgstr "재생 목록 재생이 시작될 때까지 {time} 남았습니다.: 대기열의 #{position} 에서 시작합니다."
+msgstr "재생 목록은 대기열 {position}번째에서 시작합니다. 재생까지 {time} 남았습니다."
 
 #: redbot/cogs/audio/core/utilities/player.py:588
 msgid "Nothing found"
@@ -288,57 +294,57 @@ msgstr "검색 결과 없음"
 
 #: redbot/cogs/audio/core/utilities/player.py:623
 msgid "Please wait, finding tracks..."
-msgstr "해당 트랙을 찾는 중입니다. 잠시만 기다려 주세요."
+msgstr "곡을 찾고 있습니다. 잠시 기다려 주세요."
 
 #: redbot/cogs/audio/core/utilities/player.py:629
 msgid "Getting track {num}/{total}..."
-msgstr "트랙 가져오는중 {num}/{total}..."
+msgstr "곡을 가져오는 중… {num}/{total}"
 
 #: redbot/cogs/audio/core/utilities/player.py:630
 msgid "Matching track {num}/{total}..."
-msgstr "일치하는 트랙 {num}/{total}..."
+msgstr "일치하는 곡을 찾는 중… {num}/{total}"
 
 #: redbot/cogs/audio/core/utilities/player.py:631
 #: redbot/cogs/audio/core/utilities/playlists.py:341
 #: redbot/cogs/audio/core/utilities/playlists.py:414
 msgid "Loading track {num}/{total}..."
-msgstr "트랙 불러오는중 {num}/{total}..."
+msgstr "곡을 불러오는 중… {num}/{total}"
 
 #: redbot/cogs/audio/core/utilities/player.py:632
 msgid "Approximate time remaining: {seconds}"
-msgstr "남은시간: {seconds}"
+msgstr "예상 남은 시간: {seconds}"
 
 #: redbot/cogs/audio/core/utilities/player.py:658
 msgid "I'm unable to get a track from Lavalink at the moment, try again in a few minutes."
-msgstr "지금은 라바링크를 통해 음악을 가져올 수 없습니다. 몇분 뒤에 다시 시도해주세요."
+msgstr "지금은 Lavalink에서 곡을 불러올 수 없습니다. 몇 분 후에 다시 시도해 주세요."
 
 #: redbot/cogs/audio/core/utilities/player.py:667
 msgid "The connection was reset while loading the playlist."
-msgstr "재생 목록을 로드하는 동안 연결이 재설정되었습니다."
+msgstr "재생 목록을 불러오는 중에 연결이 초기화되었습니다."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:83
 msgid "You do not have the permissions to manage {name} (`{id}`) [**{scope}**]."
-msgstr ""
+msgstr "{name} (`{id}`) [**{scope}**] 재생 목록을 관리할 권한이 없습니다."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:101
 msgid "You do not have the permissions to manage that playlist in {guild}."
-msgstr ""
+msgstr "{guild} 서버에서 해당 재생 목록을 관리할 권한이 없습니다."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:108
 msgid "You do not have the permissions to manage playlist owned by {user}."
-msgstr ""
+msgstr "{user} 님의 재생 목록을 관리할 권한이 없습니다."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:112
 msgid "You do not have the permissions to manage playlists in {scope} scope."
-msgstr ""
+msgstr "{scope} 범위의 재생 목록을 관리할 권한이 없습니다."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:116
 msgid "No access to playlist."
-msgstr ""
+msgstr "재생 목록에 접근할 수 없습니다."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:224
 msgid "{match_count} playlists match {original_input}: Please try to be more specific, or use the playlist ID."
-msgstr ""
+msgstr "{original_input}에 해당하는 재생 목록이 {match_count}개 있습니다. 더 구체적인 이름이나 재생 목록 ID를 입력해 주세요."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:241
 msgid "{number}.    <{playlist.name}>\n"
@@ -346,48 +352,53 @@ msgid "{number}.    <{playlist.name}>\n"
 " - ID:     < {playlist.id} >\n"
 " - Tracks: < {tracks} >\n"
 " - Author: < {author} >\n\n"
-msgstr ""
+msgstr "{number}.    <{playlist.name}>\n"
+" - 범위:   < {scope} >\n"
+" - ID:     < {playlist.id} >\n"
+" - 곡 수:  < {tracks} >\n"
+" - 작성자: < {author} >\n"
+"\n"
 
 #: redbot/cogs/audio/core/utilities/playlists.py:258
 msgid "{playlists} playlists found, which one would you like?"
-msgstr ""
+msgstr "재생 목록을 {playlists}개 찾았습니다. 어느 목록을 사용할까요?"
 
 #: redbot/cogs/audio/core/utilities/playlists.py:277
 #: redbot/cogs/audio/core/utilities/playlists.py:283
 msgid "Too many matches found and you did not select which one you wanted."
-msgstr ""
+msgstr "일치하는 재생 목록이 여러 개이지만 선택한 목록이 없습니다."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:308
 msgid "Playlists you can access in this server:"
-msgstr ""
+msgstr "이 서버에서 사용할 수 있는 재생 목록:"
 
 #: redbot/cogs/audio/core/utilities/playlists.py:314
 msgid "Playlists for {scope}:"
-msgstr ""
+msgstr "{scope} 범위의 재생 목록:"
 
 #: redbot/cogs/audio/core/utilities/playlists.py:318
 msgid "Page {page_num}/{total_pages} | {num} playlists."
-msgstr ""
+msgstr "{page_num}/{total_pages}페이지 | 재생 목록 {num}개"
 
 #: redbot/cogs/audio/core/utilities/playlists.py:334
 #: redbot/cogs/audio/core/utilities/playlists.py:412
 msgid "Please wait, adding tracks..."
-msgstr "트랙을 추가하는 중입니다. 잠시만 기다려 주세요."
+msgstr "곡을 추가하고 있습니다. 잠시 기다려 주세요."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:361
 #: redbot/cogs/audio/core/utilities/playlists.py:464
 msgid "Empty playlist {name} (`{id}`) [**{scope}**] created."
-msgstr ""
+msgstr "빈 재생 목록 {name} (`{id}`) [**{scope}**]을 만들었습니다."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:366
 #: redbot/cogs/audio/core/utilities/playlists.py:469
 msgid "Added {num} tracks from the {playlist_name} playlist. {num_bad} track(s) could not be loaded."
-msgstr ""
+msgstr "{playlist_name} 재생 목록에서 곡 {num}개를 추가했습니다. 곡 {num_bad}개는 불러올 수 없었습니다."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:371
 #: redbot/cogs/audio/core/utilities/playlists.py:474
 msgid "Added {num} tracks from the {playlist_name} playlist."
-msgstr ""
+msgstr "{playlist_name} 재생 목록에서 곡 {num}개를 추가했습니다."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:375
 #: redbot/cogs/audio/core/utilities/playlists.py:478
@@ -399,19 +410,19 @@ msgstr "재생 목록 저장됨"
 #: redbot/cogs/audio/core/utilities/playlists.py:560
 #: redbot/cogs/audio/core/utilities/playlists.py:571
 msgid "Unable To Get Playlists"
-msgstr "재생 목록을 가져올 수 없습니다."
+msgstr "재생 목록을 불러올 수 없음"
 
 #: redbot/cogs/audio/core/utilities/playlists.py:541
 msgid "I don't have permission to connect and speak in your channel."
-msgstr ""
+msgstr "이 음성 채널에 연결하고 말할 권한이 없습니다."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:572
 msgid "You must be in the voice channel to use the playlist command."
-msgstr "음성체널에 있어야 플래이리스트 명령어를 사용할수 있습니다."
+msgstr "playlist 명령어를 사용하려면 음성 채널에 있어야 합니다."
 
 #: redbot/cogs/audio/core/utilities/playlists.py:680
 msgid "the Global"
-msgstr ""
+msgstr "전체 범위"
 
 #: redbot/cogs/audio/core/utilities/playlists.py:680
 msgid "Global"
@@ -435,11 +446,12 @@ msgstr "사용자"
 
 #: redbot/cogs/audio/core/utilities/queue.py:40
 msgid "__Too many songs in the queue, only showing the first 500__.\n\n"
-msgstr "__너무나 많은 음악이 대기열에 있습니다, 앞에서부터 500개만 표시됩니다__.\n\n"
+msgstr "__대기열에 곡이 많아 처음 500곡만 표시합니다.__\n"
+"\n"
 
 #: redbot/cogs/audio/core/utilities/queue.py:57
 msgid "**Currently livestreaming:**\n"
-msgstr "**현재 라이브 스트리밍중.**\n"
+msgstr "**현재 실시간 방송 중:**\n"
 
 #: redbot/cogs/audio/core/utilities/queue.py:59
 #: redbot/cogs/audio/core/utilities/queue.py:64
@@ -456,11 +468,11 @@ msgstr "신청자: **{user}**\n"
 
 #: redbot/cogs/audio/core/utilities/queue.py:80
 msgid "Queue for __{guild_name}__"
-msgstr ""
+msgstr "__{guild_name}__ 서버의 대기열"
 
 #: redbot/cogs/audio/core/utilities/queue.py:88
 msgid "Page {page_num}/{total_pages} | {num_tracks} tracks, {num_remaining} remaining\n"
-msgstr "{page_num}/{total_pages} 페이지 | {num_tracks}곡 , {num_remaining} 남음\n"
+msgstr "{page_num}/{total_pages}페이지 | 곡 {num_tracks}개, 남은 시간 {num_remaining}\n"
 
 #: redbot/cogs/audio/core/utilities/queue.py:97
 msgid "Auto-Play"
@@ -468,7 +480,7 @@ msgstr "자동 재생"
 
 #: redbot/cogs/audio/core/utilities/queue.py:103
 msgid "Shuffle"
-msgstr "곡 섞기"
+msgstr "무작위 재생"
 
 #: redbot/cogs/audio/core/utilities/queue.py:109
 msgid "Repeat"
@@ -476,9 +488,29 @@ msgstr "반복"
 
 #: redbot/cogs/audio/core/utilities/queue.py:161
 msgid "Matching Tracks:"
-msgstr "일치하는 트랙들:"
+msgstr "일치하는 곡:"
 
 #: redbot/cogs/audio/core/utilities/queue.py:164
 msgid "Page {page_num}/{total_pages} | {num_tracks} tracks"
-msgstr ""
+msgstr "{page_num}/{total_pages}페이지 | 곡 {num_tracks}개"
+
+#: redbot/cogs/audio/core/utilities/miscellaneous.py:251
+msgid "{0}d {1}h"
+msgstr "{0}일 {1}시간"
+
+#: redbot/cogs/audio/core/utilities/miscellaneous.py:253
+msgid "{1}h {2}m"
+msgstr "{1}시간 {2}분"
+
+#: redbot/cogs/audio/core/utilities/miscellaneous.py:255
+msgid "{2}m {3}s"
+msgstr "{2}분 {3}초"
+
+#: redbot/cogs/audio/core/utilities/miscellaneous.py:257
+msgid "{3}s"
+msgstr "{3}초"
+
+#: redbot/cogs/audio/core/utilities/queue.py:48
+msgid "LIVE"
+msgstr "실시간"
 

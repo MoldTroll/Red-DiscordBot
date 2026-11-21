@@ -17,302 +17,310 @@ msgstr ""
 
 #: redbot/cogs/trivia/checks.py:13 redbot/cogs/trivia/trivia.py:386
 msgid "There is no ongoing trivia session in this channel."
-msgstr ""
+msgstr "이 채널에서는 진행 중인 퀴즈가 없어요."
 
 #: redbot/cogs/trivia/converters.py:18
 msgid "`{arg}` is not a number."
-msgstr ""
+msgstr "`{arg}`은 숫자가 아니에요."
 
 #: redbot/cogs/trivia/converters.py:20
 msgid "`{arg}` is not a finite number."
-msgstr ""
+msgstr "`{arg}`은 유한한 수가 아니에요."
 
 #: redbot/cogs/trivia/schema.py:34
 msgid "The trivia list does not contain any questions."
-msgstr ""
+msgstr "퀴즈 목록에 등록된 문제가 하나도 없어요."
 
 #: redbot/cogs/trivia/schema.py:39
 msgid "{key} key must be a text value."
-msgstr ""
+msgstr "{key} 키의 값은 문자열이어야 해요."
 
 #: redbot/cogs/trivia/schema.py:43
 msgid "{key} key must be a text value not longer than 1000 characters."
-msgstr ""
+msgstr "{key} 키의 값은 1,000자 이하의 문자열이어야 해요."
 
 #: redbot/cogs/trivia/schema.py:48
 msgid "{key} key must be a text value not longer than 200 characters."
-msgstr ""
+msgstr "{key} 키의 값은 200자 이하의 문자열이어야 해요."
 
 #: redbot/cogs/trivia/schema.py:55
 msgid "{key} key in {parent_key} must be a positive integer."
-msgstr ""
+msgstr "{parent_key}의 {key} 값은 양의 정수여야 해요."
 
 #: redbot/cogs/trivia/schema.py:60
 msgid "{key} key in {parent_key} must be a positive number."
-msgstr ""
+msgstr "{parent_key}의 {key} 값은 양수여야 해요."
 
 #: redbot/cogs/trivia/schema.py:65
 msgid "{key} key in {parent_key} must be a positive number greater than or equal to 4."
-msgstr ""
+msgstr "{parent_key}의 {key} 값은 4 이상이어야 해요."
 
 #: redbot/cogs/trivia/schema.py:71 redbot/cogs/trivia/schema.py:74
 #: redbot/cogs/trivia/schema.py:82
 msgid "{key} key in {parent_key} must be either true or false."
-msgstr ""
+msgstr "{parent_key}의 {key} 값은 true 또는 false여야 해요."
 
 #: redbot/cogs/trivia/schema.py:79
 msgid "{key} key in {parent_key} must be a non-negative number."
-msgstr ""
+msgstr "{parent_key}의 {key} 값은 0 이상이어야 해요."
 
 #: redbot/cogs/trivia/schema.py:88
 msgid "{key} is not a key that can be specified in {parent_key}."
-msgstr ""
+msgstr "{parent_key}에는 {key} 키를 지정할 수 없어요."
 
 #: redbot/cogs/trivia/schema.py:91
 msgid "{key} should be a 'key: value' mapping."
-msgstr ""
+msgstr "{key} 항목은 '키: 값' 형식이어야 해요."
 
 #: redbot/cogs/trivia/schema.py:95
 msgid "Value of question {key} is not a list of text values (answers)."
-msgstr ""
+msgstr "문제 {key}의 값은 정답 문자열의 목록이어야 해요."
 
 #: redbot/cogs/trivia/schema.py:101
 msgid "A key of question {key} is not a text value."
-msgstr ""
+msgstr "문제 {key}의 키는 문자열이어야 해요."
 
 #: redbot/cogs/trivia/schema.py:104
 msgid "A trivia list should be a 'key: value' mapping."
-msgstr ""
+msgstr "퀴즈 목록은 '키: 값' 형식이어야 해요."
 
 #: redbot/cogs/trivia/session.py:21
 msgid "I know this one! {answer}!"
-msgstr ""
+msgstr "이건 알아요! 정답은 {answer}!"
 
 #: redbot/cogs/trivia/session.py:22
 msgid "Easy: {answer}."
-msgstr ""
+msgstr "쉽네요! 정답은 {answer}!"
 
 #: redbot/cogs/trivia/session.py:23
 msgid "Oh really? It's {answer} of course."
-msgstr ""
+msgstr "정말요? 정답은 당연히 {answer}죠!"
 
 #: redbot/cogs/trivia/session.py:27
 msgid "I know this one! ||{answer}!||"
-msgstr ""
+msgstr "이건 알아요! 정답은 ||{answer}!||"
 
 #: redbot/cogs/trivia/session.py:28
 msgid "Easy: ||{answer}.||"
-msgstr ""
+msgstr "쉽네요! 정답은 ||{answer}예요.||"
 
 #: redbot/cogs/trivia/session.py:29
 msgid "Oh really? It's ||{answer}|| of course."
-msgstr ""
+msgstr "정말요? 정답은 당연히 ||{answer}||죠!"
 
 #: redbot/cogs/trivia/session.py:33
 msgid "To the next one I guess..."
-msgstr ""
+msgstr "그럼 다음 문제로 넘어갈까요?"
 
 #: redbot/cogs/trivia/session.py:34
 msgid "Moving on..."
-msgstr ""
+msgstr "다음 문제예요!"
 
 #: redbot/cogs/trivia/session.py:35
 msgid "I'm sure you'll know the answer of the next one."
-msgstr ""
+msgstr "다음 문제는 맞힐 수 있을 거예요."
 
 #: redbot/cogs/trivia/session.py:36
 msgid "😔 Next one."
-msgstr ""
+msgstr "😔 다음 문제로 넘어갈게요."
 
 #: redbot/cogs/trivia/session.py:122
 msgid "An unexpected error occurred in the trivia session."
-msgstr ""
+msgstr "퀴즈 진행 중 예기치 않은 오류가 발생했어요."
 
 #: redbot/cogs/trivia/session.py:124
 msgid "An unexpected error occurred in the trivia session.\n"
 "Check your console or logs for details."
-msgstr ""
+msgstr "퀴즈 진행 중 예기치 않은 오류가 발생했어요.\n"
+"자세한 내용은 콘솔이나 로그를 확인해 주세요."
 
 #: redbot/cogs/trivia/session.py:144
 msgid "Question number {num}!"
-msgstr ""
+msgstr "{num}번 문제!"
 
 #: redbot/cogs/trivia/session.py:153
 msgid "There are no more questions!"
-msgstr ""
+msgstr "준비한 문제를 모두 풀었어요!"
 
 #: redbot/cogs/trivia/session.py:161
 msgid "{trivia_list} (by {author})"
-msgstr ""
+msgstr "{trivia_list} (출제: {author})"
 
 #: redbot/cogs/trivia/session.py:166
 msgid "Starting Trivia: {list_names}"
-msgstr ""
+msgstr "퀴즈 시작: {list_names}"
 
 #: redbot/cogs/trivia/session.py:212
 msgid "Guys...? Well, I guess I'll stop then."
-msgstr ""
+msgstr "다들 계세요? 그럼 퀴즈는 여기서 마칠게요."
 
 #: redbot/cogs/trivia/session.py:223
 msgid " **+1** for me!"
-msgstr ""
+msgstr " 제가 **1점** 획득!"
 
 #: redbot/cogs/trivia/session.py:228
 msgid "You got it {user}! **+1** to you!"
-msgstr ""
+msgstr "{user} 님, 정답이에요! **1점** 획득!"
 
 #: redbot/cogs/trivia/session.py:334
 msgid "Congratulations {users}! You have each received {num} {currency} for winning!"
-msgstr ""
+msgstr "{users} 님, 축하해요! 우승 상금으로 각각 {num} {currency}를 받았어요!"
 
 #: redbot/cogs/trivia/session.py:342
 msgid "Congratulations {user}! You have received {num} {currency} for winning!"
-msgstr ""
+msgstr "{user} 님, 축하해요! 우승 상금으로 {num} {currency}를 받았어요!"
 
 #: redbot/cogs/trivia/trivia.py:44
 msgid "Yes"
-msgstr "그래요!"
+msgstr "예"
 
 #: redbot/cogs/trivia/trivia.py:46
 msgid "No"
-msgstr ""
+msgstr "아니요"
 
 #: redbot/cogs/trivia/trivia.py:50
 msgid "{seconds} seconds"
-msgstr ""
+msgstr "{seconds}초"
 
 #: redbot/cogs/trivia/trivia.py:56
 msgid "Bot gains points"
-msgstr ""
+msgstr "봇 점수 획득"
 
 #: redbot/cogs/trivia/trivia.py:57
 msgid "Answer time limit"
-msgstr ""
+msgstr "문제당 제한 시간"
 
 #: redbot/cogs/trivia/trivia.py:58
 msgid "Lack of response timeout"
-msgstr ""
+msgstr "응답이 없을 때 종료까지의 시간"
 
 #: redbot/cogs/trivia/trivia.py:59
 msgid "Points to win"
-msgstr ""
+msgstr "우승에 필요한 점수"
 
 #: redbot/cogs/trivia/trivia.py:60
 msgid "Answers are revealed on timeout"
-msgstr ""
+msgstr "시간 초과 시 정답 공개"
 
 #: redbot/cogs/trivia/trivia.py:61
 msgid "Payout multiplier"
-msgstr ""
+msgstr "상금 배율"
 
 #: redbot/cogs/trivia/trivia.py:62
 msgid "Lists are allowed to override settings"
-msgstr ""
+msgstr "문제 목록의 설정 우선 적용"
 
 #: redbot/cogs/trivia/trivia.py:63
 msgid "Answers use spoilers"
-msgstr ""
+msgstr "정답에 스포일러 표시"
 
 #: redbot/cogs/trivia/trivia.py:75
 #, docstring
 msgid "Play trivia with friends!"
-msgstr ""
+msgstr "친구들과 퀴즈를 즐겨 보세요!"
 
 #: redbot/cogs/trivia/trivia.py:115
 #, docstring
 msgid "Manage Trivia settings."
-msgstr ""
+msgstr "퀴즈 설정을 관리합니다."
 
 #: redbot/cogs/trivia/trivia.py:119
 #, docstring
 msgid "Show the current trivia settings."
-msgstr ""
+msgstr "현재 퀴즈 설정을 표시합니다."
 
 #: redbot/cogs/trivia/trivia.py:121
 msgid "Current settings:\n\n"
-msgstr ""
+msgstr "현재 설정:\n"
+"\n"
 
 #: redbot/cogs/trivia/trivia.py:126
 #, docstring
 msgid "Set the total points required to win."
-msgstr ""
+msgstr "우승에 필요한 총점을 설정합니다."
 
 #: redbot/cogs/trivia/trivia.py:128
 msgid "Score must be greater than 0."
-msgstr ""
+msgstr "우승 점수는 0보다 커야 해요."
 
 #: redbot/cogs/trivia/trivia.py:132
 msgid "Done. Points required to win set to {num}."
-msgstr ""
+msgstr "우승에 필요한 점수를 {num}점으로 설정했어요."
 
 #: redbot/cogs/trivia/trivia.py:136
 #, docstring
 msgid "Set the maximum seconds permitted to answer a question."
-msgstr ""
+msgstr "문제당 답변 제한 시간을 초 단위로 설정합니다."
 
 #: redbot/cogs/trivia/trivia.py:138
 msgid "Must be at least 4 seconds."
-msgstr ""
+msgstr "제한 시간은 4초 이상이어야 해요."
 
 #: redbot/cogs/trivia/trivia.py:142
 msgid "Done. Maximum seconds to answer set to {num}."
-msgstr ""
+msgstr "문제당 답변 제한 시간을 {num}초로 설정했어요."
 
 #: redbot/cogs/trivia/trivia.py:146
 #, docstring
 msgid "Set how long until trivia stops due to no response."
-msgstr ""
+msgstr "응답이 없을 때 퀴즈를 종료하기까지 기다릴 시간을 설정합니다."
 
 #: redbot/cogs/trivia/trivia.py:149
 msgid "Must be larger than the answer time limit."
-msgstr ""
+msgstr "문제당 답변 제한 시간보다 길어야 해요."
 
 #: redbot/cogs/trivia/trivia.py:153
 msgid "Done. Trivia sessions will now time out after {num} seconds of no responses."
-msgstr ""
+msgstr "이제 {num}초 동안 아무도 응답하지 않으면 퀴즈를 종료해요."
 
 #: redbot/cogs/trivia/trivia.py:160
 #, docstring
 msgid "Allow/disallow trivia lists to override settings."
-msgstr ""
+msgstr "문제 목록의 설정이 서버 설정을 덮어쓸 수 있도록 허용하거나 차단합니다."
 
 #: redbot/cogs/trivia/trivia.py:165
 msgid "Done. Trivia lists can now override the trivia settings for this server."
-msgstr ""
+msgstr "이제 문제 목록의 설정을 서버의 퀴즈 설정보다 우선 적용해요."
 
 #: redbot/cogs/trivia/trivia.py:169
 msgid "Done. Trivia lists can no longer override the trivia settings for this server."
-msgstr ""
+msgstr "이제 문제 목록에서 이 서버의 퀴즈 설정을 변경할 수 없어요."
 
 #: redbot/cogs/trivia/trivia.py:177
 #, docstring
 msgid "Set if bot will display the answers in spoilers.\n\n"
 "        If enabled, the bot will use spoilers to hide answers.\n"
 "        "
-msgstr ""
+msgstr "정답에 스포일러 표시를 적용할지 설정합니다.\n"
+"\n"
+"        켜면 정답을 눌러야 내용이 보입니다.\n"
+"        "
 
 #: redbot/cogs/trivia/trivia.py:184
 msgid "Done. I'll put the answers in spoilers next time."
-msgstr ""
+msgstr "다음부터 스포일러 표시로 정답을 가릴게요."
 
 #: redbot/cogs/trivia/trivia.py:186
 msgid "Alright, I won't use spoilers to hide answers anymore."
-msgstr ""
+msgstr "이제 정답에 스포일러 표시를 사용하지 않아요."
 
 #: redbot/cogs/trivia/trivia.py:190
 #, docstring
 msgid "Set whether or not the bot gains points.\n\n"
 "        If enabled, the bot will gain a point if no one guesses correctly.\n"
 "        "
-msgstr ""
+msgstr "봇이 점수를 얻을 수 있는지 설정합니다.\n"
+"\n"
+"        켜면 아무도 정답을 맞히지 못했을 때 봇이 1점을 얻습니다.\n"
+"        "
 
 #: redbot/cogs/trivia/trivia.py:197
 msgid "Done. I'll now gain a point if users don't answer in time."
-msgstr ""
+msgstr "이제 제한 시간 안에 정답이 나오지 않으면 제가 1점을 얻어요."
 
 #: redbot/cogs/trivia/trivia.py:199
 msgid "Alright, I won't embarrass you at trivia anymore."
-msgstr ""
+msgstr "좋아요, 이제 퀴즈에서 저랑 점수 경쟁을 하지 않아도 돼요."
 
 #: redbot/cogs/trivia/trivia.py:203
 #, docstring
@@ -320,15 +328,18 @@ msgid "Set whether or not the answer is revealed.\n\n"
 "        If enabled, the bot will reveal the answer if no one guesses correctly\n"
 "        in time.\n"
 "        "
-msgstr ""
+msgstr "시간 초과 시 정답을 공개할지 설정합니다.\n"
+"\n"
+"        켜면 제한 시간 안에 아무도 맞히지 못한 문제의 정답을 공개합니다.\n"
+"        "
 
 #: redbot/cogs/trivia/trivia.py:211
 msgid "Done. I'll reveal the answer if no one knows it."
-msgstr ""
+msgstr "이제 아무도 맞히지 못하면 정답을 알려 드릴게요."
 
 #: redbot/cogs/trivia/trivia.py:213
 msgid "Alright, I won't reveal the answer to the questions anymore."
-msgstr ""
+msgstr "이제 정답을 공개하지 않아요."
 
 #: redbot/cogs/trivia/trivia.py:219
 #, docstring
@@ -339,80 +350,86 @@ msgid "Set the payout multiplier.\n\n"
 "        The number of credits is determined by multiplying their total score by\n"
 "        this multiplier.\n"
 "        "
-msgstr ""
+msgstr "상금 배율을 설정합니다.\n"
+"\n"
+"        양의 소수를 사용할 수 있습니다. 참가자가 3명 이상이면 우승자가 상금을 받습니다. 0으로 설정하면 상금이 지급되지 않습니다.\n"
+"\n"
+"        상금은 우승자의 총점에 배율을 곱한 금액입니다.\n"
+"        "
 
 #: redbot/cogs/trivia/trivia.py:230
 msgid "Multiplier must be at least 0."
-msgstr ""
+msgstr "배율은 0 이상이어야 해요."
 
 #: redbot/cogs/trivia/trivia.py:234
 msgid "Done. Payout multiplier set to {num}."
-msgstr ""
+msgstr "상금 배율을 {num}으로 설정했어요."
 
 #: redbot/cogs/trivia/trivia.py:236
 msgid "Done. I will no longer reward the winner with a payout."
-msgstr ""
+msgstr "이제 우승 상금을 지급하지 않아요."
 
 #: redbot/cogs/trivia/trivia.py:241
 #, docstring
 msgid "Manage Custom Trivia lists."
-msgstr ""
+msgstr "사용자 지정 퀴즈 목록을 관리합니다."
 
 #: redbot/cogs/trivia/trivia.py:246
 #, docstring
 msgid "List uploaded custom trivia."
-msgstr ""
+msgstr "업로드한 사용자 지정 퀴즈 목록을 표시합니다."
 
 #: redbot/cogs/trivia/trivia.py:248
 msgid "No custom Trivia lists uploaded."
-msgstr ""
+msgstr "업로드한 사용자 지정 퀴즈 목록이 없어요."
 
 #: redbot/cogs/trivia/trivia.py:264 redbot/cogs/trivia/trivia.py:271
 msgid "Uploaded trivia lists"
-msgstr ""
+msgstr "업로드한 퀴즈 목록"
 
 #: redbot/cogs/trivia/trivia.py:281
 #, docstring
 msgid "Upload a trivia file."
-msgstr ""
+msgstr "퀴즈 파일을 업로드합니다."
 
 #: redbot/cogs/trivia/trivia.py:283
 msgid "Supply a file with next message or type anything to cancel."
-msgstr ""
+msgstr "다음 메시지에 파일을 첨부해 주세요. 취소하려면 파일 없이 아무 내용이나 보내세요."
 
 #: redbot/cogs/trivia/trivia.py:289
 msgid "You took too long to upload a list."
-msgstr ""
+msgstr "목록 업로드 시간이 지났어요."
 
 #: redbot/cogs/trivia/trivia.py:292
 msgid "You have cancelled the upload process."
-msgstr ""
+msgstr "업로드를 취소했어요."
 
 #: redbot/cogs/trivia/trivia.py:300
 msgid "Invalid syntax:\n"
-msgstr ""
+msgstr "잘못된 문법:\n"
 
 #: redbot/cogs/trivia/trivia.py:303
 msgid "There was an error parsing the trivia list. See logs for more info."
-msgstr ""
+msgstr "퀴즈 목록을 읽는 중 오류가 발생했어요. 자세한 내용은 로그를 확인해 주세요."
 
 #: redbot/cogs/trivia/trivia.py:308
 msgid "The custom trivia list was not saved. The file does not follow the proper data format.\n"
 "{schema_error}"
-msgstr ""
+msgstr "파일 형식이 맞지 않아 사용자 지정 퀴즈 목록을 저장하지 못했어요.\n"
+"{schema_error}"
 
 #: redbot/cogs/trivia/trivia.py:317
 #, docstring
 msgid "Delete a trivia file."
-msgstr ""
+msgstr "퀴즈 파일을 삭제합니다."
 
 #: redbot/cogs/trivia/trivia.py:321
 msgid "Trivia {filename} was deleted."
-msgstr ""
+msgstr "퀴즈 파일 {filename}을 삭제했어요."
 
 #: redbot/cogs/trivia/trivia.py:323
 msgid "Trivia file was not found."
-msgstr ""
+msgstr "퀴즈 파일을 찾을 수 없어요."
 
 #: redbot/cogs/trivia/trivia.py:328
 #, docstring
@@ -420,86 +437,89 @@ msgid "Start trivia session on the specified category.\n\n"
 "        You may list multiple categories, in which case the trivia will involve\n"
 "        questions from all of them.\n"
 "        "
-msgstr ""
+msgstr "지정한 분야의 퀴즈를 시작합니다.\n"
+"\n"
+"        분야를 여러 개 입력하면 해당 분야의 문제가 함께 출제됩니다.\n"
+"        "
 
 #: redbot/cogs/trivia/trivia.py:336
 msgid "There is already an ongoing trivia session in this channel."
-msgstr ""
+msgstr "이 채널에서 이미 퀴즈를 진행하고 있어요."
 
 #: redbot/cogs/trivia/trivia.py:347
 msgid "Invalid category `{name}`. See `{prefix}trivia list` for a list of trivia categories."
-msgstr ""
+msgstr "`{name}` 분야를 찾지 못했어요. 분야 목록은 `{prefix}trivia list`로 확인해 주세요."
 
 #: redbot/cogs/trivia/trivia.py:354
 msgid "There was an error parsing the trivia list for the `{name}` category. It may be formatted incorrectly."
-msgstr ""
+msgstr "`{name}` 분야의 퀴즈 목록을 읽지 못했어요. 파일 형식을 확인해 주세요."
 
 #: redbot/cogs/trivia/trivia.py:369
 msgid "The trivia list was parsed successfully, however it appears to be empty!"
-msgstr ""
+msgstr "퀴즈 목록을 읽었지만 문제가 하나도 없어요!"
 
 #: redbot/cogs/trivia/trivia.py:383
 #, docstring
 msgid "Stop an ongoing trivia session."
-msgstr ""
+msgstr "진행 중인 퀴즈를 종료합니다."
 
 #: redbot/cogs/trivia/trivia.py:390
 msgid "Trivia stopped."
-msgstr ""
+msgstr "퀴즈를 종료했어요."
 
 #: redbot/cogs/trivia/trivia.py:394
 #, docstring
 msgid "List available trivia categories."
-msgstr ""
+msgstr "사용할 수 있는 퀴즈 분야를 표시합니다."
 
 #: redbot/cogs/trivia/trivia.py:399 redbot/cogs/trivia/trivia.py:405
 msgid "Available trivia lists"
-msgstr ""
+msgstr "사용할 수 있는 퀴즈 목록"
 
 #: redbot/cogs/trivia/trivia.py:413
 #, docstring
 msgid "Get information about a trivia category."
-msgstr ""
+msgstr "퀴즈 분야의 정보를 표시합니다."
 
 #: redbot/cogs/trivia/trivia.py:418
 msgid "Category {name} does not exist. See {command} for the list of available trivia categories."
-msgstr ""
+msgstr "{name} 분야가 없어요. 사용 가능한 분야는 {command} 명령어로 확인해 주세요."
 
 #: redbot/cogs/trivia/trivia.py:425
 msgid "There was an error parsing the trivia list for the {name} category. It may be formatted incorrectly."
-msgstr ""
+msgstr "{name} 분야의 퀴즈 목록을 읽지 못했어요. 파일 형식을 확인해 주세요."
 
 #: redbot/cogs/trivia/trivia.py:434
 msgid "\"{category}\" Category Details"
-msgstr ""
+msgstr "\"{category}\" 분야 정보"
 
 #: redbot/cogs/trivia/trivia.py:438
 msgid "Authors"
-msgstr ""
+msgstr "출제자"
 
 #: redbot/cogs/trivia/trivia.py:438
 msgid "Not provided."
-msgstr ""
+msgstr "제공되지 않음"
 
 #: redbot/cogs/trivia/trivia.py:440
 msgid "Question count"
-msgstr ""
+msgstr "문제 수"
 
 #: redbot/cogs/trivia/trivia.py:442
 msgid "Custom"
-msgstr ""
+msgstr "사용자 지정"
 
 #: redbot/cogs/trivia/trivia.py:448
 msgid "Description"
-msgstr ""
+msgstr "설명"
 
 #: redbot/cogs/trivia/trivia.py:451
 msgid "No description provided for this category."
-msgstr ""
+msgstr "이 분야에는 설명이 없어요."
 
 #: redbot/cogs/trivia/trivia.py:458
 msgid "Config"
-msgstr ""
+msgstr "설정"
 
 #: redbot/cogs/trivia/trivia.py:468
 #, docstring
@@ -507,7 +527,10 @@ msgid "Leaderboard for trivia.\n\n"
 "        Defaults to the top 10 of this server, sorted by total wins. Use\n"
 "        subcommands for a more customised leaderboard.\n"
 "        "
-msgstr ""
+msgstr "퀴즈 순위를 표시합니다.\n"
+"\n"
+"        기본값은 이 서버의 누적 우승 횟수 상위 10명입니다. 하위 명령어로 범위와 정렬 기준을 바꿀 수 있습니다.\n"
+"        "
 
 #: redbot/cogs/trivia/trivia.py:483
 #, docstring
@@ -519,11 +542,20 @@ msgid "Leaderboard for this server.\n\n"
 "         - `games` : total games played\n\n"
 "        `<top>` is the number of ranks to show on the leaderboard.\n"
 "        "
-msgstr ""
+msgstr "이 서버의 퀴즈 순위를 표시합니다.\n"
+"\n"
+"        `<sort_by>`에 다음 정렬 기준 중 하나를 입력하세요.\n"
+"        - `wins`: 누적 우승 횟수\n"
+"        - `avg`: 평균 점수\n"
+"        - `total`: 누적 정답 수\n"
+"        - `games`: 참가 횟수\n"
+"\n"
+"        `<top>`은 표시할 순위 수입니다.\n"
+"        "
 
 #: redbot/cogs/trivia/trivia.py:496 redbot/cogs/trivia/trivia.py:525
 msgid "Unknown field `{field_name}`, see `{prefix}help trivia leaderboard server` for valid fields to sort by."
-msgstr ""
+msgstr "정렬 기준 `{field_name}`을 찾지 못했어요. 사용 가능한 기준은 `{prefix}help trivia leaderboard server`로 확인해 주세요."
 
 #: redbot/cogs/trivia/trivia.py:512
 #, docstring
@@ -535,59 +567,70 @@ msgid "Global trivia leaderboard.\n\n"
 "         - `games` : total games played\n\n"
 "        `<top>` is the number of ranks to show on the leaderboard.\n"
 "        "
-msgstr ""
+msgstr "모든 서버의 퀴즈 순위를 표시합니다.\n"
+"\n"
+"        `<sort_by>`에 다음 정렬 기준 중 하나를 입력하세요.\n"
+"        - `wins`: 누적 우승 횟수\n"
+"        - `avg`: 평균 점수\n"
+"        - `total`: 모든 게임의 누적 정답 수\n"
+"        - `games`: 참가 횟수\n"
+"\n"
+"        `<top>`은 표시할 순위 수입니다.\n"
+"        "
 
 #: redbot/cogs/trivia/trivia.py:580
 msgid "There are no scores on record!"
-msgstr ""
+msgstr "아직 기록된 점수가 없어요!"
 
 #: redbot/cogs/trivia/trivia.py:610
 msgid "Rank"
-msgstr ""
+msgstr "순위"
 
 #: redbot/cogs/trivia/trivia.py:611
 msgid "Member"
-msgstr ""
+msgstr "멤버"
 
 #: redbot/cogs/trivia/trivia.py:612
 msgid "Wins"
-msgstr ""
+msgstr "우승 횟수"
 
 #: redbot/cogs/trivia/trivia.py:613
 msgid "Games Played"
-msgstr ""
+msgstr "참가 횟수"
 
 #: redbot/cogs/trivia/trivia.py:614
 msgid "Total Score"
-msgstr ""
+msgstr "총점"
 
 #: redbot/cogs/trivia/trivia.py:615
 msgid "Average Score"
-msgstr ""
+msgstr "평균 점수"
 
 #: redbot/cogs/trivia/trivia.py:724
 msgid "{filename} is a reserved trivia name and cannot be replaced.\n"
 "Choose another name."
-msgstr ""
+msgstr "{filename}은 기본 퀴즈 목록 이름이라 덮어쓸 수 없어요.\n"
+"다른 이름을 선택해 주세요."
 
 #: redbot/cogs/trivia/trivia.py:733
 msgid "{filename} already exists. Do you wish to overwrite?"
-msgstr ""
+msgstr "{filename} 파일이 이미 있어요. 덮어쓸까요?"
 
 #: redbot/cogs/trivia/trivia.py:755
 msgid "You took too long answering."
-msgstr ""
+msgstr "응답 시간이 지났어요."
 
 #: redbot/cogs/trivia/trivia.py:759
 msgid "I am not replacing the existing file."
-msgstr ""
+msgstr "기존 파일을 그대로 둘게요."
 
 #: redbot/cogs/trivia/trivia.py:772
 msgid "There was an error saving the file.\n"
 "Please check the filename and try again, as it could be longer than your system supports."
-msgstr ""
+msgstr "파일을 저장하는 중 오류가 발생했어요.\n"
+"파일 이름이 시스템의 길이 제한을 넘었을 수 있어요. 이름을 확인한 뒤 다시 시도해 주세요."
 
 #: redbot/cogs/trivia/trivia.py:779
 msgid "Saved Trivia list as {filename}."
-msgstr ""
+msgstr "퀴즈 목록을 {filename} 파일로 저장했어요."
 

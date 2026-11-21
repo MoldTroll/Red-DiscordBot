@@ -18,51 +18,51 @@ msgstr ""
 #: redbot/cogs/general/general.py:49
 #, docstring
 msgid "General commands."
-msgstr ""
+msgstr "일반 명령어 모음입니다."
 
 #: redbot/cogs/general/general.py:54
 msgid "As I see it, yes"
-msgstr "내가 보기엔 그렇지!"
+msgstr "제가 보기엔 그래요."
 
 #: redbot/cogs/general/general.py:55
 msgid "It is certain"
-msgstr "틀림없어요!"
+msgstr "틀림없어요."
 
 #: redbot/cogs/general/general.py:56
 msgid "It is decidedly so"
-msgstr "그건 확실히 그렇지!"
+msgstr "분명히 그래요."
 
 #: redbot/cogs/general/general.py:57
 msgid "Most likely"
-msgstr "아마도 그럴걸?"
+msgstr "그럴 가능성이 높아요."
 
 #: redbot/cogs/general/general.py:58
 msgid "Outlook good"
-msgstr "오늘은 전망이 좋네요."
+msgstr "전망이 좋아요."
 
 #: redbot/cogs/general/general.py:59
 msgid "Signs point to yes"
-msgstr "소라고둥이 말씀하셨다! \"그래\""
+msgstr "여러모로 봐서 그럴 것 같아요."
 
 #: redbot/cogs/general/general.py:60
 msgid "Without a doubt"
-msgstr "틀림없어!"
+msgstr "의심할 여지가 없어요."
 
 #: redbot/cogs/general/general.py:61
 msgid "Yes"
-msgstr "그래요!"
+msgstr "그래요."
 
 #: redbot/cogs/general/general.py:62
 msgid "Yes – definitely"
-msgstr "그래요, 물론이죠!"
+msgstr "네, 확실해요!"
 
 #: redbot/cogs/general/general.py:63
 msgid "You may rely on it"
-msgstr "그걸 믿어도 좋아요!"
+msgstr "믿어도 좋아요."
 
 #: redbot/cogs/general/general.py:64
 msgid "Reply hazy, try again"
-msgstr "의미심장하네요, 다시 시도해보세요."
+msgstr "답이 흐릿하네요. 다시 물어보세요."
 
 #: redbot/cogs/general/general.py:65
 msgid "Ask again later"
@@ -70,11 +70,11 @@ msgstr "나중에 다시 물어보세요!"
 
 #: redbot/cogs/general/general.py:66
 msgid "Better not tell you now"
-msgstr "지금은 말해주지 않는게 좋겠어요."
+msgstr "지금은 말하지 않는 게 좋겠어요."
 
 #: redbot/cogs/general/general.py:67
 msgid "Cannot predict now"
-msgstr "지금은 예측할 수 없죠."
+msgstr "지금은 알 수 없어요."
 
 #: redbot/cogs/general/general.py:68
 msgid "Concentrate and ask again"
@@ -82,23 +82,23 @@ msgstr "집중해서 다시 물어보세요."
 
 #: redbot/cogs/general/general.py:69
 msgid "Don't count on it"
-msgstr "그렇지 않을거예요."
+msgstr "기대하지 않는 게 좋겠어요."
 
 #: redbot/cogs/general/general.py:70
 msgid "My reply is no"
-msgstr "제 대답은 \"아뇨\"예요."
+msgstr "제 대답은 \"아니요\"예요."
 
 #: redbot/cogs/general/general.py:71
 msgid "My sources say no"
-msgstr "제 진심이 말하길 \"아뇨\""
+msgstr "제가 들은 바로는 아니에요."
 
 #: redbot/cogs/general/general.py:72
 msgid "Outlook not so good"
-msgstr "오늘은 전망이 별로 좋지 않네요."
+msgstr "전망이 그리 좋지 않아요."
 
 #: redbot/cogs/general/general.py:73
 msgid "Very doubtful"
-msgstr "동작 그만, 밑장빼기냐?"
+msgstr "그럴 가능성은 희박해요."
 
 #: redbot/cogs/general/general.py:88
 #, docstring
@@ -107,11 +107,14 @@ msgid "Choose between multiple options.\n\n"
 "        Options are separated by spaces.\n\n"
 "        To denote options which include whitespace, you should enclose the options in double quotes.\n"
 "        "
-msgstr ""
+msgstr "여러 선택지 중 하나를 무작위로 고릅니다.\n"
+"\n"
+"        선택지를 두 개 이상 입력하고 공백으로 구분하세요. 선택지 자체에 공백이 있다면 큰따옴표로 묶으세요.\n"
+"        "
 
 #: redbot/cogs/general/general.py:97
 msgid "Not enough options to pick from."
-msgstr ""
+msgstr "선택지를 두 개 이상 입력해 주세요."
 
 #: redbot/cogs/general/general.py:103
 #, docstring
@@ -119,96 +122,112 @@ msgid "Roll a random number.\n\n"
 "        The result will be between 1 and `<number>`.\n\n"
 "        `<number>` defaults to 100.\n"
 "        "
-msgstr ""
+msgstr "무작위로 숫자 하나를 뽑습니다.\n"
+"\n"
+"        1부터 `<number>`까지의 숫자가 나옵니다.\n"
+"\n"
+"        `<number>`의 기본값은 100입니다.\n"
+"        "
 
 #: redbot/cogs/general/general.py:118
 msgid "{author.mention} Maybe higher than 1? ;P"
-msgstr ""
+msgstr "{author.mention} 1보다 큰 숫자는 어때요? ;P"
 
 #: redbot/cogs/general/general.py:121
 msgid "{author.mention} Max allowed number is {maxamount}."
-msgstr ""
+msgstr "{author.mention} 입력할 수 있는 최댓값은 {maxamount}예요."
 
 #: redbot/cogs/general/general.py:128
 #, docstring
 msgid "Flip a coin... or a user.\n\n"
 "        Defaults to a coin.\n"
 "        "
-msgstr ""
+msgstr "동전을 던지거나 사용자의 이름을 뒤집습니다.\n"
+"\n"
+"        사용자를 지정하지 않으면 동전을 던집니다.\n"
+"        "
 
 #: redbot/cogs/general/general.py:136
 msgid "Nice try. You think this is funny?\n"
 " How about *this* instead:\n\n"
-msgstr ""
+msgstr "절 뒤집으려고요?\n"
+" 그럼 *이건* 어때요?\n"
+"\n"
 
 #: redbot/cogs/general/general.py:147
 msgid "*flips a coin and... "
-msgstr "*동전을 던지며..."
+msgstr "*동전을 던집니다… "
 
 #: redbot/cogs/general/general.py:147
 msgid "HEADS!*"
-msgstr "앞면!*"
+msgstr "앞면이에요!*"
 
 #: redbot/cogs/general/general.py:147
 msgid "TAILS!*"
-msgstr "뒷면!*"
+msgstr "뒷면이에요!*"
 
 #: redbot/cogs/general/general.py:151
 #, docstring
 msgid "Play Rock Paper Scissors."
-msgstr ""
+msgstr "가위바위보를 합니다."
 
 #: redbot/cogs/general/general.py:156
 msgid "This isn't a valid option. Try {r}, {p}, or {s}."
-msgstr ""
+msgstr "사용할 수 없는 선택지예요. {r}, {p}, {s} 중 하나를 골라 주세요."
 
 #: redbot/cogs/general/general.py:177
 msgid "{choice} You win {author.mention}!"
-msgstr ""
+msgstr "{choice} {author.mention} 승리!"
 
 #: redbot/cogs/general/general.py:183
 msgid "{choice} You lose {author.mention}!"
-msgstr ""
+msgstr "{choice} {author.mention} 패배!"
 
 #: redbot/cogs/general/general.py:189
 msgid "{choice} We're square {author.mention}!"
-msgstr ""
+msgstr "{choice} {author.mention} 무승부예요!"
 
 #: redbot/cogs/general/general.py:196
 #, docstring
 msgid "Ask 8 ball a question.\n\n"
 "        Question must end with a question mark.\n"
 "        "
-msgstr ""
+msgstr "마법의 8번 공에게 질문합니다.\n"
+"\n"
+"        질문 끝에 물음표를 붙이세요.\n"
+"        "
 
 #: redbot/cogs/general/general.py:203
 msgid "That doesn't look like a question."
-msgstr "그건 질문으로 보이지 않아요."
+msgstr "질문 끝에 물음표를 붙여 주세요."
 
 #: redbot/cogs/general/general.py:207
 #, docstring
 msgid "Start or stop the stopwatch."
-msgstr ""
+msgstr "스톱워치를 시작하거나 멈춥니다."
 
 #: redbot/cogs/general/general.py:211
 msgid " Stopwatch started!"
-msgstr "스톱워치가 시작됐어요!"
+msgstr " 스톱워치를 시작했어요!"
 
 #: redbot/cogs/general/general.py:216
 msgid " Stopwatch stopped! Time: **{seconds}**"
-msgstr ""
+msgstr " 스톱워치를 멈췄어요! 경과 시간: **{seconds}**"
 
 #: redbot/cogs/general/general.py:222
 #, docstring
 msgid "Create a lmgtfy link."
-msgstr ""
+msgstr "검색 방법을 보여 주는 LMGTFY 링크를 만듭니다."
 
 #: redbot/cogs/general/general.py:231
 #, docstring
 msgid "Because everyone likes hugs!\n\n"
 "        Up to 10 intensity levels.\n"
 "        "
-msgstr ""
+msgstr "상대를 안아 줍니다.\n"
+"\n"
+"        포옹 강도는 10단계까지 지정할 수 있습니다.\n"
+"        "
 
 #: redbot/cogs/general/general.py:255
 #, docstring
@@ -217,19 +236,23 @@ msgid "\n"
 "        `details`: Shows more information when set to `True`.\n"
 "        Default to False.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"        서버 정보를 표시합니다.\n"
+"\n"
+"        `details`를 `True`로 설정하면 자세한 정보를 표시합니다. 기본값은 False입니다.\n"
+"        "
 
 #: redbot/cogs/general/general.py:262
 msgid "Created on {date_and_time}. That's {relative_time}!"
-msgstr ""
+msgstr "서버 개설 일시: {date_and_time} ({relative_time})"
 
 #: redbot/cogs/general/general.py:276
 msgid "Users online"
-msgstr ""
+msgstr "온라인 사용자"
 
 #: redbot/cogs/general/general.py:277
 msgid "Not available"
-msgstr ""
+msgstr "확인할 수 없음"
 
 #: redbot/cogs/general/general.py:279
 msgid "Text Channels"
@@ -245,147 +268,168 @@ msgstr "역할"
 
 #: redbot/cogs/general/general.py:282
 msgid "Owner"
-msgstr "주인님"
+msgstr "서버 소유자"
 
 #: redbot/cogs/general/general.py:284
 msgid "Server ID: "
-msgstr ""
+msgstr "서버 ID: "
 
 #: redbot/cogs/general/general.py:286
 msgid "  •  Use {command} for more info on the server."
-msgstr ""
+msgstr "  •  자세한 서버 정보는 {command} 명령어로 확인하세요."
 
 #: redbot/cogs/general/general.py:312
 msgid "\n"
 "Shard ID: **{shard_id}/{shard_count}**"
-msgstr ""
+msgstr "\n"
+"샤드 ID: **{shard_id}/{shard_count}**"
 
 #: redbot/cogs/general/general.py:321
 msgid "Humans: "
-msgstr ""
+msgstr "일반 사용자: "
 
 #: redbot/cogs/general/general.py:322
 msgid " • Bots: "
-msgstr ""
+msgstr " • 봇: "
 
 #: redbot/cogs/general/general.py:334
 msgid "Users online: **{online}/{total_users}**\n"
-msgstr ""
+msgstr "온라인 사용자: **{online}/{total_users}**\n"
 
 #: redbot/cogs/general/general.py:351
 msgid "0 - None"
-msgstr ""
+msgstr "0 - 없음"
 
 #: redbot/cogs/general/general.py:352
 msgid "1 - Low"
-msgstr ""
+msgstr "1 - 낮음"
 
 #: redbot/cogs/general/general.py:353
 msgid "2 - Medium"
-msgstr ""
+msgstr "2 - 중간"
 
 #: redbot/cogs/general/general.py:354
 msgid "3 - High"
-msgstr ""
+msgstr "3 - 높음"
 
 #: redbot/cogs/general/general.py:355
 msgid "4 - Highest"
-msgstr ""
+msgstr "4 - 최고"
 
 #: redbot/cogs/general/general.py:358
 msgid "{bot_name} joined this server on {bot_join}. That's over {since_join} days ago!"
-msgstr ""
+msgstr "{bot_name}의 서버 참가 일시는 {bot_join}예요. 벌써 {since_join}일이 넘었어요!"
 
 #: redbot/cogs/general/general.py:380
 msgid "Members:"
-msgstr ""
+msgstr "멤버:"
 
 #: redbot/cogs/general/general.py:382
 msgid "Channels:"
-msgstr ""
+msgstr "채널:"
 
 #: redbot/cogs/general/general.py:383
 msgid "💬 Text: {text}\n"
 "🔊 Voice: {voice}\n"
 "🎙 Stage: {stage}"
-msgstr ""
+msgstr "💬 텍스트: {text}\n"
+"🔊 음성: {voice}\n"
+"🎙 무대: {stage}"
 
 #: redbot/cogs/general/general.py:394
 msgid "Utility:"
-msgstr ""
+msgstr "서버 정보:"
 
 #: redbot/cogs/general/general.py:395
 msgid "Owner: {owner}\n"
 "Verif. level: {verif}\n"
 "Server ID: {id}{shard_info}"
-msgstr ""
+msgstr "소유자: {owner}\n"
+"인증 수준: {verif}\n"
+"서버 ID: {id}{shard_info}"
 
 #: redbot/cogs/general/general.py:406
 msgid "Misc:"
-msgstr ""
+msgstr "기타:"
 
 #: redbot/cogs/general/general.py:407
 msgid "AFK channel: {afk_chan}\n"
 "AFK timeout: {afk_timeout}\n"
 "Custom emojis: {emoji_count}\n"
 "Roles: {role_count}"
-msgstr ""
+msgstr "자리 비움 채널: {afk_chan}\n"
+"자리 비움 제한 시간: {afk_timeout}\n"
+"사용자 지정 이모지: {emoji_count}\n"
+"역할: {role_count}"
 
 #: redbot/cogs/general/general.py:412
 msgid "Not set"
-msgstr ""
+msgstr "설정되지 않음"
 
 #: redbot/cogs/general/general.py:450
 msgid "Server features:"
-msgstr ""
+msgstr "서버 기능:"
 
 #: redbot/cogs/general/general.py:450
 msgid "Server features (continued):"
-msgstr ""
+msgstr "서버 기능(계속):"
 
 #: redbot/cogs/general/general.py:455
 msgid "Tier {boostlevel} with {nitroboosters} boosts\n"
 "File size limit: {filelimit}\n"
 "Emoji limit: {emojis_limit}\n"
 "VCs max bitrate: {bitrate}"
-msgstr ""
+msgstr "부스트 {nitroboosters}개로 {boostlevel}단계 달성\n"
+"파일 크기 제한: {filelimit}\n"
+"이모지 수 제한: {emojis_limit}\n"
+"음성 채널 최대 비트 전송률: {bitrate}"
 
 #: redbot/cogs/general/general.py:467
 msgid "Nitro Boost:"
-msgstr ""
+msgstr "서버 부스트:"
 
 #: redbot/cogs/general/general.py:476
 #, docstring
 msgid "Search the Urban Dictionary.\n\n"
 "        This uses the unofficial Urban Dictionary API.\n"
 "        "
-msgstr ""
+msgstr "Urban Dictionary에서 단어를 검색합니다.\n"
+"\n"
+"        비공식 Urban Dictionary API를 사용합니다.\n"
+"        "
 
 #: redbot/cogs/general/general.py:494 redbot/cogs/general/general.py:565
 msgid "No Urban Dictionary entries were found, or there was an error in the process."
-msgstr ""
+msgstr "Urban Dictionary에서 항목을 찾지 못했거나 검색 중 오류가 발생했어요."
 
 #: redbot/cogs/general/general.py:500
 msgid "No Urban Dictionary entries were found."
-msgstr ""
+msgstr "Urban Dictionary에서 항목을 찾지 못했어요."
 
 #: redbot/cogs/general/general.py:506
 msgid "{word} by {author}"
-msgstr ""
+msgstr "{word} · 작성자: {author}"
 
 #: redbot/cogs/general/general.py:514 redbot/cogs/general/general.py:548
 msgid "{definition}\n\n"
 "**Example:** {example}"
-msgstr ""
+msgstr "{definition}\n"
+"\n"
+"**예문:** {example}"
 
 #: redbot/cogs/general/general.py:520
 msgid "{thumbs_down} Down / {thumbs_up} Up, Powered by Urban Dictionary."
-msgstr ""
+msgstr "싫어요 {thumbs_down} / 좋아요 {thumbs_up} · 출처: Urban Dictionary"
 
 #: redbot/cogs/general/general.py:538
 msgid "<{permalink}>\n"
 " {word} by {author}\n\n"
 "{description}\n\n"
 "{thumbs_down} Down / {thumbs_up} Up, Powered by Urban Dictionary."
-msgstr ""
+msgstr "<{permalink}>\n"
+" {word} · 작성자: {author}\n"
+"\n"
+" {description}\n"
+"\n"
+" 싫어요 {thumbs_down} / 좋아요 {thumbs_up} · 출처: Urban Dictionary"
 

@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 import pytest
 from discord.ext import commands as dpy_commands
 
-from redbot.core import commands
+from redbot.core import commands, i18n
 from redbot.core.commands import converter
 from redbot.core.commands.requires import PermState
 
@@ -31,6 +31,33 @@ def is_Group(obj):
 def test_command_decorators(coroutine):
     assert is_Command(commands.command(name="cmd")(coroutine))
     assert is_Group(commands.group(name="grp")(coroutine))
+
+
+@pytest.mark.parametrize("indent", ["        ", ""])
+def test_localized_multiline_help(tmp_path, monkeypatch, indent):
+    monkeypatch.setattr(i18n, "get_locale", lambda: "ko-KR")
+    monkeypatch.setattr(i18n._i18n, "translators", [])
+    locales = tmp_path / "locales"
+    locales.mkdir()
+    (locales / "ko-KR.po").write_text(
+        'msgid "Play a track.\\n\\n        Choose a song.\\n        "\n'
+        'msgstr "곡을 재생합니다.\\n\\n        노래를 선택하세요.\\n        "\n',
+        encoding="utf-8",
+    )
+    translator = i18n.Translator("Music", tmp_path / "music.py")
+
+    @i18n.cog_i18n(translator)
+    class Music(commands.Cog):
+        @commands.command()
+        async def play(self, ctx):
+            pass
+
+    # Simulate the docstrings exposed by Python versions before and after 3.13.
+    doc = f"Play a track.\n\n{indent}Choose a song.\n{indent}"
+    Music.__doc__ = Music.play.callback.__doc__ = doc
+    assert Music().help == Music.play.help == "곡을 재생합니다.\n\n노래를 선택하세요."
+    if not indent:
+        assert translator(doc) == doc  # Ordinary messages still need an exact match.
 
 
 def test_group_decorator_methods(group, coroutine):

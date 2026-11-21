@@ -648,11 +648,15 @@ class Warnings(commands.Cog):
         settings = await self.config.all_members(guild=ctx.guild)
         body_parts = []
         pages = []
-        count_len = len(_("Count")) + 2
-        points_len = len(_("Points")) + 2
+        count_label = _("Count")
+        points_label = _("Points")
+        count_width = discord.utils._string_width(count_label)
+        points_width = discord.utils._string_width(points_label)
+        count_len = count_width + 2
+        points_len = points_width + 2
         for member_id, warnings in settings.items():
-            count_len = max(count_len, len(str(len(warnings["warnings"]))))
-            points_len = max(points_len, len(str(warnings["total_points"])))
+            count_len = max(count_len, len(str(len(warnings["warnings"]))) + 2)
+            points_len = max(points_len, len(str(warnings["total_points"])) + 2)
         for member_id, warnings in settings.items():
             member = ctx.guild.get_member(member_id)
             member_formatted = member_formatted = member.display_name if member else str(member_id)
@@ -660,13 +664,9 @@ class Warnings(commands.Cog):
             points = warnings["total_points"]
             body_parts.append(f"  {count:<{count_len}}{points:<{points_len}}{member_formatted:2}")
         body = "\n".join(body_parts)
-        header = "# {count:{count_len}}{point:{points_len}}{name:2}\n".format(
-            count=_("Count"),
-            count_len=count_len,
-            point=_("Points"),
-            points_len=points_len,
-            name=_("Name"),
-        )
+        count_padding = " " * (count_len - count_width)
+        points_padding = " " * (points_len - points_width)
+        header = f"# {count_label}{count_padding}{points_label}{points_padding}{_('Name')}\n"
         for page in pagify(body, shorten_by=len(header) + 20):
             pages.append(box(header + page, lang="md"))
         if not pages:

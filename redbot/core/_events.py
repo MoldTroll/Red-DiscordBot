@@ -243,7 +243,7 @@ def init_events(bot, cli_flags):
                     )
                 elif error.minimum is not None and error.maximum is None:
                     message = _(
-                        "Argument `{parameter_name}` must be a number no less than {maximum}."
+                        "Argument `{parameter_name}` must be a number no less than {minimum}."
                     )
                 elif error.maximum is not None and error.minimum is not None:
                     message = _(

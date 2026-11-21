@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import functools
+import inspect
 import io
 import os
 import logging
@@ -274,6 +275,7 @@ class Translator(Callable[[str], str]):
         self.cog_folder = Path(file_location).resolve().parent
         self.cog_name = name
         self.translations = {}
+        self._cleaned_docstrings = {}
 
         _i18n.translators.append(self)
 
@@ -311,7 +313,23 @@ class Translator(Callable[[str], str]):
                 self._parse(file)
 
     def _parse(self, translation_file):
-        self.translations.update(_parse(translation_file))
+        catalogs = _parse(translation_file)
+        self.translations.update(catalogs)
+        for locale, catalog in catalogs.items():
+            # Python 3.13+ strips common indentation from compiled docstrings.
+            # Gettext catalogs retain the original indentation from the source.
+            self._cleaned_docstrings[locale] = {
+                inspect.cleandoc(source): translated
+                for source, translated in catalog.items()
+                if "\n" in source
+            }
+
+    def _translate_docstring(self, docstring: str) -> str:
+        translated = self(docstring)
+        locale = get_locale()
+        if translated != docstring or docstring in self.translations.get(locale, {}):
+            return translated
+        return self._cleaned_docstrings.get(locale, {}).get(inspect.cleandoc(docstring), docstring)
 
     def _add_translation(self, untranslated, translated):
         untranslated = _unescape(untranslated)

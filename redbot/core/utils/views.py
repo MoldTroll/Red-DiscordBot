@@ -494,6 +494,8 @@ class SetApiView(discord.ui.View):
         self.default_service = default_service
         self.default_keys = default_keys
         super().__init__()
+        if self.auth_button.label is None and self.auth_button.emoji is None:
+            self.auth_button.label = _("Set API token")
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if not await interaction.client.is_owner(interaction.user):
@@ -503,10 +505,7 @@ class SetApiView(discord.ui.View):
             return False
         return True
 
-    @discord.ui.button(
-        label=_("Set API token"),
-        style=discord.ButtonStyle.grey,
-    )
+    @discord.ui.button(style=discord.ButtonStyle.grey)
     async def auth_button(self, interaction: discord.Interaction, button: discord.Button):
         return await interaction.response.send_modal(
             SetApiModal(self.default_service, self.default_keys)
@@ -578,6 +577,10 @@ class ConfirmView(discord.ui.View):
         if timeout is None:
             raise TypeError("This view should not be used as a persistent view.")
         super().__init__(timeout=timeout)
+        if self.confirm_button.label is None and self.confirm_button.emoji is None:
+            self.confirm_button.label = _("Yes")
+        if self.dismiss_button.label is None and self.dismiss_button.emoji is None:
+            self.dismiss_button.label = _("No")
         self.result: Optional[bool] = None
         self.author: Optional[discord.abc.User] = author
         self.message: Optional[discord.Message] = None
@@ -612,7 +615,7 @@ class ConfirmView(discord.ui.View):
             # message could no longer be there or we may not be able to edit it anymore
             pass
 
-    @discord.ui.button(label=_("Yes"), style=discord.ButtonStyle.green)
+    @discord.ui.button(style=discord.ButtonStyle.green)
     async def confirm_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         # Warning: The Sphinx documentation for this method/attribute does not use this docstring.
         """
@@ -645,7 +648,7 @@ class ConfirmView(discord.ui.View):
         # call `on_timeout` explicitly here since it's not called when `stop()` is called.
         await self.on_timeout()
 
-    @discord.ui.button(label=_("No"), style=discord.ButtonStyle.secondary)
+    @discord.ui.button(style=discord.ButtonStyle.secondary)
     async def dismiss_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         # Warning: The Sphinx documentation for this method/attribute does not use this docstring.
         """

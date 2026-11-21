@@ -873,7 +873,7 @@ class PlaylistCommands(MixinMeta, metaclass=CompositeMetaClass):
                         )
 
             else:
-                msg = "No tracks."
+                msg = _("No tracks.")
 
             if not playlist.url:
                 embed_title = _(

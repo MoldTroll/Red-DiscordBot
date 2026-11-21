@@ -17,31 +17,31 @@ msgstr ""
 
 #: redbot/cogs/economy/economy.py:46
 msgid "JACKPOT! 226! Your bid has been multiplied * 50!"
-msgstr ""
+msgstr "잭팟! 2·2·6! 베팅 금액의 50배를 받았어요!"
 
 #: redbot/cogs/economy/economy.py:50
 msgid "4LC! Your bid has been multiplied * 25!"
-msgstr ""
+msgstr "네잎클로버 세 개! 베팅 금액의 25배를 받았어요!"
 
 #: redbot/cogs/economy/economy.py:54
 msgid "Three cherries! Your bid has been multiplied * 20!"
-msgstr ""
+msgstr "체리 세 개! 베팅 금액의 20배를 받았어요!"
 
 #: redbot/cogs/economy/economy.py:58
 msgid "2 6! Your bid has been multiplied * 4!"
-msgstr "2 6! 사용자님의 입찰 가격이 4배로 늘었어요!"
+msgstr "2·6! 베팅 금액의 4배를 받았어요!"
 
 #: redbot/cogs/economy/economy.py:62
 msgid "Two cherries! Your bid has been multiplied * 3!"
-msgstr "체리 두 개! 사용자님의 입찰 가격이 3배로 올랐어요!"
+msgstr "체리 두 개! 베팅 금액의 3배를 받았어요!"
 
 #: redbot/cogs/economy/economy.py:66
 msgid "Three symbols! Your bid has been multiplied * 10!"
-msgstr ""
+msgstr "같은 무늬 세 개! 베팅 금액의 10배를 받았어요!"
 
 #: redbot/cogs/economy/economy.py:70
 msgid "Two consecutive symbols! Your bid has been multiplied * 2!"
-msgstr "2연속 심볼! 당신의 입찰 가격이 2배로 늘었어요!"
+msgstr "같은 무늬가 두 개 연속! 베팅 금액의 2배를 받았어요!"
 
 #: redbot/cogs/economy/economy.py:74
 msgid "Slot machine payouts:\n"
@@ -52,25 +52,33 @@ msgid "Slot machine payouts:\n"
 "{cherries.value} {cherries.value} Bet * 3\n\n"
 "Three symbols: Bet * 10\n"
 "Two symbols: Bet * 2"
-msgstr ""
+msgstr "슬롯머신 배당표:\n"
+"{two.value} {two.value} {six.value} 베팅 금액 × 50\n"
+"{flc.value} {flc.value} {flc.value} 베팅 금액 × 25\n"
+"{cherries.value} {cherries.value} {cherries.value} 베팅 금액 × 20\n"
+"{two.value} {six.value} 베팅 금액 × 4\n"
+"{cherries.value} {cherries.value} 베팅 금액 × 3\n"
+"\n"
+"같은 무늬 세 개: 베팅 금액 × 10\n"
+"같은 무늬 두 개 연속: 베팅 금액 × 2"
 
 #: redbot/cogs/economy/economy.py:106
 msgid "Invalid value, the argument must be an integer, optionally preceded with a `+` or `-` sign."
-msgstr ""
+msgstr "정수를 입력해 주세요. 숫자 앞에 `+` 또는 `-` 기호를 붙일 수 있어요."
 
 #: redbot/cogs/economy/economy.py:118
 msgid "Invalid value, the amount of currency to increase or decrease must be an integer different from zero."
-msgstr ""
+msgstr "늘리거나 줄일 금액은 0이 아닌 정수로 입력해 주세요."
 
 #: redbot/cogs/economy/economy.py:130
 #, docstring
 msgid "Get rich and have fun with imaginary currency!"
-msgstr ""
+msgstr "가상 화폐를 모으고 즐겨 보세요!"
 
 #: redbot/cogs/economy/economy.py:180
 #, docstring
 msgid "Base command to manage the bank."
-msgstr ""
+msgstr "은행 계좌를 관리합니다."
 
 #: redbot/cogs/economy/economy.py:185
 #, docstring
@@ -81,11 +89,20 @@ msgid "Show the user's account balance.\n\n"
 "        **Arguments**\n\n"
 "        - `<user>` The user to check the balance of. If omitted, defaults to your own balance.\n"
 "        "
-msgstr ""
+msgstr "사용자의 계좌 잔액을 확인합니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]bank balance`\n"
+"        - `[p]bank balance @Twentysix`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<user>` 잔액을 확인할 사용자입니다. 생략하면 내 잔액을 표시합니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:202
 msgid "{user}'s balance is {num} {currency}"
-msgstr ""
+msgstr "{user}의 잔액: {num} {currency}"
 
 #: redbot/cogs/economy/economy.py:209
 #, docstring
@@ -97,11 +114,22 @@ msgid "Transfer currency to other users.\n\n"
 "        - `<to>` The user to give currency to.\n"
 "        - `<amount>` The amount of currency to give.\n"
 "        "
-msgstr ""
+msgstr "다른 사용자에게 송금합니다.\n"
+"\n"
+"        내 계좌에서 송금액이 빠져나가므로 잔액을 확인하세요.\n"
+"\n"
+"        예시:\n"
+"        - `[p]bank transfer @Twentysix 500`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<to>` 받을 사용자입니다.\n"
+"        - `<amount>` 보낼 금액입니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:230
 msgid "{user} transferred {num} {currency} to {other_user}"
-msgstr ""
+msgstr "{user} → {other_user} 송금액: {num} {currency}"
 
 #: redbot/cogs/economy/economy.py:242
 #, docstring
@@ -115,41 +143,63 @@ msgid "Set the balance of a user's bank account.\n\n"
 "        - `<to>` The user to set the currency of.\n"
 "        - `<creds>` The amount of currency to set their balance to.\n"
 "        "
-msgstr ""
+msgstr "사용자의 계좌 잔액을 설정합니다.\n"
+"\n"
+"        금액 앞에 + 또는 -를 붙이면 기존 잔액에 더하거나 뺍니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]bank set @Twentysix 26` - 잔액을 26으로 설정\n"
+"        - `[p]bank set @Twentysix +2` - 잔액에 2 추가\n"
+"        - `[p]bank set @Twentysix -6` - 잔액에서 6 차감\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<to>` 대상 사용자입니다.\n"
+"        - `<creds>` 설정할 금액입니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:262
 msgid "{author} added {num} {currency} to {user}'s account."
-msgstr ""
+msgstr "{author} 님이 {user}의 계좌에 {num} {currency}를 추가했어요."
 
 #: redbot/cogs/economy/economy.py:270
 msgid "{author} removed {num} {currency} from {user}'s account."
-msgstr ""
+msgstr "{author} 님이 {user}의 계좌에서 {num} {currency}를 차감했어요."
 
 #: redbot/cogs/economy/economy.py:278
 msgid "{author} set {user}'s account balance to {num} {currency}."
-msgstr ""
+msgstr "{author} 님이 {user}의 잔액을 {num} {currency}로 설정했어요."
 
 #: redbot/cogs/economy/economy.py:292
 #, docstring
 msgid "Get some free currency.\n\n"
 "        The amount awarded and frequency can be configured.\n"
 "        "
-msgstr ""
+msgstr "정기 지급금을 받습니다.\n"
+"\n"
+"        지급액과 수령 간격은 설정에서 변경할 수 있습니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:312 redbot/cogs/economy/economy.py:368
 msgid "You've reached the maximum amount of {currency}! Please spend some more 😬\n\n"
 "You currently have {new_balance} {currency}."
-msgstr ""
+msgstr "{currency} 보유 한도에 도달했어요! 조금 쓰고 다시 받아 주세요 😬\n"
+"\n"
+"현재 잔액: {new_balance} {currency}"
 
 #: redbot/cogs/economy/economy.py:326 redbot/cogs/economy/economy.py:384
 msgid "{author.mention} Here, take some {currency}. Enjoy! (+{amount} {currency}!)\n\n"
 "You currently have {new_balance} {currency}.\n\n"
 "You are currently #{pos} on the global leaderboard!"
-msgstr ""
+msgstr "{author.mention} {currency} 지급금이 도착했어요! (+{amount} {currency})\n"
+"\n"
+"현재 잔액: {new_balance} {currency}\n"
+"\n"
+"현재 전체 순위는 {pos}위예요!"
 
 #: redbot/cogs/economy/economy.py:345 redbot/cogs/economy/economy.py:402
 msgid "{author.mention} Too soon. Your next payday is {relative_time}."
-msgstr ""
+msgstr "{author.mention} 아직 지급금을 받을 수 없어요. 다음 수령 시간: {relative_time}"
 
 #: redbot/cogs/economy/economy.py:410
 #, docstring
@@ -163,15 +213,28 @@ msgid "Print the leaderboard.\n\n"
 "        - `<top>` How many positions on the leaderboard to show. Defaults to 10 if omitted.\n"
 "        - `<show_global>` Whether to include results from all servers. This will default to false unless specified.\n"
 "        "
-msgstr ""
+msgstr "잔액 순위를 표시합니다.\n"
+"\n"
+"        기본적으로 상위 10명을 보여 줍니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]leaderboard`\n"
+"        - `[p]leaderboard 50` - 상위 50명을 표시합니다.\n"
+"        - `[p]leaderboard 100 yes` - 모든 서버에서 상위 100명을 표시합니다.\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<top>` 표시할 순위 수입니다. 기본값은 10입니다.\n"
+"        - `<show_global>` 모든 서버의 결과를 포함할지 지정합니다. 기본값은 false입니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:427
 msgid "Page {page_num}/{page_len}."
-msgstr ""
+msgstr "{page_num}/{page_len}페이지"
 
 #: redbot/cogs/economy/economy.py:433
 msgid "Economy Leaderboard"
-msgstr ""
+msgstr "잔액 순위"
 
 #: redbot/cogs/economy/economy.py:452
 msgid "There are no accounts in the bank."
@@ -179,24 +242,24 @@ msgstr "은행에 등록된 계좌가 없어요."
 
 #: redbot/cogs/economy/economy.py:456
 msgid "Name"
-msgstr ""
+msgstr "이름"
 
 #: redbot/cogs/economy/economy.py:457
 msgid "Score"
-msgstr ""
+msgstr "점수"
 
 #: redbot/cogs/economy/economy.py:523
 msgid "No balances found."
-msgstr ""
+msgstr "표시할 잔액이 없어요."
 
 #: redbot/cogs/economy/economy.py:528
 #, docstring
 msgid "Show the payouts for the slot machine."
-msgstr ""
+msgstr "슬롯머신 배당표를 표시합니다."
 
 #: redbot/cogs/economy/economy.py:532
 msgid "I can't send direct messages to you."
-msgstr "사용자님에게 직접 메시지를 보낼 수 없어요."
+msgstr "DM을 보낼 수 없어요."
 
 #: redbot/cogs/economy/economy.py:537
 #, docstring
@@ -206,49 +269,61 @@ msgid "Use the slot machine.\n\n"
 "        **Arguments**\n\n"
 "        - `<bid>` The amount to bet on the slot machine. Winning payouts are higher when you bet more.\n"
 "        "
-msgstr ""
+msgstr "슬롯머신을 돌립니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]slot 50`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<bid>` 베팅할 금액입니다. 많이 걸수록 당첨금도 커집니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:564
 msgid "You're on cooldown, try again in a bit."
-msgstr "사용자님은 지금 쿨타임이에요. 잠시 후에 다시 시도해보세요."
+msgstr "아직 슬롯머신을 다시 돌릴 수 없어요. 잠시 후에 시도해 주세요."
 
 #: redbot/cogs/economy/economy.py:567
 msgid "That's an invalid bid amount, sorry :/"
-msgstr "잘못된 입찰 금액이에요, 죄송해요. ;/"
+msgstr "베팅 금액을 확인해 주세요."
 
 #: redbot/cogs/economy/economy.py:570
 msgid "You ain't got enough money, friend."
-msgstr "동작 그만, 밑장빼기냐? 돈이 없잖아."
+msgstr "베팅할 잔액이 부족해요."
 
 #: redbot/cogs/economy/economy.py:625
 msgid "You've reached the maximum amount of {currency}! Please spend some more 😬\n"
 "{old_balance} -> {new_balance}!"
-msgstr ""
+msgstr "{currency} 보유 한도에 도달했어요! 조금 써 주세요 😬\n"
+"{old_balance} → {new_balance}!"
 
 #: redbot/cogs/economy/economy.py:640
 msgid "Nothing!"
-msgstr ""
+msgstr "꽝!"
 
 #: redbot/cogs/economy/economy.py:644
 msgid "Your bid: {bid}"
-msgstr ""
+msgstr "베팅 금액: {bid}"
 
 #: redbot/cogs/economy/economy.py:645
 msgid "\n"
 "{old_balance} - {bid} (Your bid) + {pay} (Winnings) → {new_balance}!"
-msgstr ""
+msgstr "\n"
+"{old_balance} - {bid}(베팅 금액) + {pay}(당첨금) → {new_balance}!"
 
 #: redbot/cogs/economy/economy.py:662
 #, docstring
 msgid "Base command to manage Economy settings."
-msgstr ""
+msgstr "경제 기능을 설정합니다."
 
 #: redbot/cogs/economy/economy.py:666
 #, docstring
 msgid "\n"
 "        Shows the current economy settings\n"
 "        "
-msgstr ""
+msgstr "\n"
+"        현재 경제 설정을 표시합니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:681
 msgid "---Economy Settings---\n"
@@ -257,11 +332,16 @@ msgid "---Economy Settings---\n"
 "Slot cooldown: {slot_time}\n"
 "Payday amount: {payday_amount}\n"
 "Payday cooldown: {payday_time}\n"
-msgstr ""
+msgstr "--- 경제 설정 ---\n"
+"슬롯 최소 베팅액: {slot_min}\n"
+"슬롯 최대 베팅액: {slot_max}\n"
+"슬롯 재사용 대기 시간: {slot_time}\n"
+"정기 지급액: {payday_amount}\n"
+"지급금 수령 간격: {payday_time}\n"
 
 #: redbot/cogs/economy/economy.py:698
 msgid "---Role Payday Amounts---\n"
-msgstr ""
+msgstr "--- 역할별 정기 지급액 ---\n"
 
 #: redbot/cogs/economy/economy.py:702
 #, docstring
@@ -271,15 +351,23 @@ msgid "Set the minimum slot machine bid.\n\n"
 "        **Arguments**\n\n"
 "        - `<bid>` The new minimum bid for using the slot machine. Default is 5.\n"
 "        "
-msgstr ""
+msgstr "슬롯머신의 최소 베팅액을 설정합니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]economyset slotmin 10`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<bid>` 최소 베팅액입니다. 기본값은 5입니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:719
 msgid "Warning: Minimum bid is greater than the maximum bid ({max_bid}). Slots will not work."
-msgstr ""
+msgstr "최소 베팅액이 최대 베팅액({max_bid})보다 커서 슬롯머신을 사용할 수 없어요."
 
 #: redbot/cogs/economy/economy.py:730
 msgid "Minimum bid is now {bid} {currency}."
-msgstr ""
+msgstr "최소 베팅액을 {bid} {currency}로 설정했어요."
 
 #: redbot/cogs/economy/economy.py:737
 #, docstring
@@ -289,15 +377,23 @@ msgid "Set the maximum slot machine bid.\n\n"
 "        **Arguments**\n\n"
 "        - `<bid>` The new maximum bid for using the slot machine. Default is 100.\n"
 "        "
-msgstr ""
+msgstr "슬롯머신의 최대 베팅액을 설정합니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]economyset slotmax 50`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<bid>` 최대 베팅액입니다. 기본값은 100입니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:754
 msgid "Warning: Maximum bid is less than the minimum bid ({min_bid}). Slots will not work."
-msgstr ""
+msgstr "최대 베팅액이 최소 베팅액({min_bid})보다 작아서 슬롯머신을 사용할 수 없어요."
 
 #: redbot/cogs/economy/economy.py:765
 msgid "Maximum bid is now {bid} {currency}."
-msgstr ""
+msgstr "최대 베팅액을 {bid} {currency}로 설정했어요."
 
 #: redbot/cogs/economy/economy.py:774
 #, docstring
@@ -309,11 +405,20 @@ msgid "Set the cooldown for the slot machine.\n\n"
 "        - `<duration>` The new duration to wait in between uses of the slot machine. Default is 5 seconds.\n"
 "        Accepts: seconds, minutes, hours, days, weeks (if no unit is specified, the duration is assumed to be given in seconds)\n"
 "        "
-msgstr ""
+msgstr "슬롯머신을 다시 사용할 때까지 기다릴 시간을 설정합니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]economyset slottime 10`\n"
+"        - `[p]economyset slottime 10m`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<duration>` 슬롯머신 사용 간격입니다. 기본값은 5초입니다. 초, 분, 시간, 일, 주 단위를 사용할 수 있으며 단위를 생략하면 초로 처리합니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:791
 msgid "Cooldown is now {num} seconds."
-msgstr ""
+msgstr "재사용 대기 시간을 {num}초로 설정했어요."
 
 #: redbot/cogs/economy/economy.py:797
 #, docstring
@@ -325,11 +430,20 @@ msgid "Set the cooldown for the payday command.\n\n"
 "        - `<duration>` The new duration to wait in between uses of payday. Default is 5 minutes.\n"
 "        Accepts: seconds, minutes, hours, days, weeks (if no unit is specified, the duration is assumed to be given in seconds)\n"
 "        "
-msgstr ""
+msgstr "지급금을 다시 받을 때까지 기다릴 시간을 설정합니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]economyset paydaytime 86400`\n"
+"        - `[p]economyset paydaytime 1d`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<duration>` 지급금 수령 간격입니다. 기본값은 5분입니다. 초, 분, 시간, 일, 주 단위를 사용할 수 있으며 단위를 생략하면 초로 처리합니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:815
 msgid "Value modified. At least {num} seconds must pass between each payday."
-msgstr ""
+msgstr "지급금을 다시 받으려면 {num}초 이상 기다려야 해요."
 
 #: redbot/cogs/economy/economy.py:822
 #, docstring
@@ -339,15 +453,23 @@ msgid "Set the amount earned each payday.\n\n"
 "        **Arguments**\n\n"
 "        - `<creds>` The new amount to give when using the payday command. Default is 120.\n"
 "        "
-msgstr ""
+msgstr "한 번에 받을 수 있는 정기 지급액을 설정합니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]economyset paydayamount 400`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<creds>` 명령어를 실행할 때 받을 금액입니다. 기본값은 120입니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:835
 msgid "Amount must be greater than zero and less than {maxbal}."
-msgstr ""
+msgstr "금액은 0보다 크고 {maxbal}보다 작아야 해요."
 
 #: redbot/cogs/economy/economy.py:845
 msgid "Every payday will now give {num} {currency}."
-msgstr ""
+msgstr "정기 지급액을 {num} {currency}로 설정했어요."
 
 #: redbot/cogs/economy/economy.py:852
 #, docstring
@@ -360,21 +482,79 @@ msgid "Set the amount earned each payday for a role.\n\n"
 "        - `<role>` The role to assign a custom payday amount to.\n"
 "        - `<creds>` The new amount to give when using the payday command.\n"
 "        "
-msgstr ""
+msgstr "특정 역할의 정기 지급액을 설정합니다.\n"
+"\n"
+"        `0`을 입력하면 해당 역할의 지급액 설정을 삭제합니다.\n"
+"\n"
+"        서버별 은행에서만 사용할 수 있습니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]economyset rolepaydayamount @Members 400`\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<role>` 지급액을 설정할 역할입니다.\n"
+"        - `<creds>` 해당 역할의 멤버가 받을 금액입니다.\n"
+"        "
 
 #: redbot/cogs/economy/economy.py:870
 msgid "The bank requires that you set the payday to be less than its maximum balance of {maxbal}."
-msgstr ""
+msgstr "정기 지급액은 은행의 최대 잔액인 {maxbal}보다 작아야 해요."
 
 #: redbot/cogs/economy/economy.py:877
 msgid "The bank must be per-server for per-role paydays to work."
-msgstr ""
+msgstr "역할별 지급액은 서버별 은행에서만 설정할 수 있어요."
 
 #: redbot/cogs/economy/economy.py:883
 msgid "The payday value attached to role has been removed. Users with this role will now receive the default pay of {num} {currency}."
-msgstr ""
+msgstr "역할별 지급액 설정을 삭제했어요. 해당 역할의 멤버는 기본 지급액인 {num} {currency}를 받아요."
 
 #: redbot/cogs/economy/economy.py:892
 msgid "Every payday will now give {num} {currency} to people with the role {role_name}."
-msgstr ""
+msgstr "{role_name} 역할의 멤버는 이제 지급금으로 {num} {currency}를 받아요."
 
+#: redbot/cogs/economy/economy.py:293
+#, docstring
+msgid "Add currency to a user's bank account.\n"
+"\n"
+"        Example:\n"
+"        - `[p]bank add @Twentysix 100` - Increases balance by 100\n"
+"\n"
+"        **Arguments**\n"
+"\n"
+"        - `<to>` The user to give currency to.\n"
+"        - `<creds>` The amount of currency to add.\n"
+"        "
+msgstr "사용자의 계좌에 지정한 금액을 더합니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]bank add @Twentysix 100` - 잔액에 100을 더합니다.\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<to>` 금액을 더할 사용자입니다.\n"
+"        - `<creds>` 더할 금액입니다.\n"
+"        "
+
+#: redbot/cogs/economy/economy.py:324
+#, docstring
+msgid "Remove currency from a user's bank account.\n"
+"\n"
+"        Example:\n"
+"        - `[p]bank sub @Twentysix 50` - Decreases balance by 50\n"
+"\n"
+"        **Arguments**\n"
+"\n"
+"        - `<to>` The user to remove currency from.\n"
+"        - `<creds>` The amount of currency to remove.\n"
+"        "
+msgstr "사용자의 계좌에서 지정한 금액을 뺍니다.\n"
+"\n"
+"        예시:\n"
+"        - `[p]bank sub @Twentysix 50` - 잔액에서 50을 뺍니다.\n"
+"\n"
+"        **인수**\n"
+"\n"
+"        - `<to>` 금액을 뺄 사용자입니다.\n"
+"        - `<creds>` 뺄 금액입니다.\n"
+"        "

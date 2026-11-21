@@ -137,7 +137,7 @@ DANGEROUS_COMMANDS = {
     "command_llset_config_source_bandcamp": _(
         "This command toggles the support of Bandcamp audio playback. "
         "An example is <http://deaddiskdrive.bandcamp.com/track/crystal-glass>; "
-        "disabling this will make the bot unable to play any Bandcamp content",
+        "disabling this will make the bot unable to play any Bandcamp content"
     ),
     "command_llset_config_source_local": _(
         "This command toggles the support of local track audio playback. "

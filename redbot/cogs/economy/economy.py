@@ -80,7 +80,7 @@ SLOT_PAYOUTS_MSG = _(
     "{cherries.value} {cherries.value} Bet * 3\n\n"
     "Three symbols: Bet * 10\n"
     "Two symbols: Bet * 2"
-).format(**SMReel.__dict__)
+)
 _ = T_
 
 
@@ -589,7 +589,7 @@ class Economy(commands.Cog):
     async def payouts(self, ctx: commands.Context):
         """Show the payouts for the slot machine."""
         try:
-            await ctx.author.send(SLOT_PAYOUTS_MSG)
+            await ctx.author.send(T_(SLOT_PAYOUTS_MSG).format(**SMReel.__dict__))
         except discord.Forbidden:
             await ctx.send(_("I can't send direct messages to you."))
 

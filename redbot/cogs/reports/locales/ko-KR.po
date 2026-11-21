@@ -22,54 +22,57 @@ msgid "Create user reports that server staff can respond to.\n\n"
 "    to a channel in the server for staff, and the report creator\n"
 "    gets a DM. Both can be used to communicate.\n"
 "    "
-msgstr ""
+msgstr "사용자가 신고를 접수하고 서버 운영진과 대화할 수 있습니다.\n"
+"\n"
+"`[p]report`로 신고하면 운영진 채널에 신고가 전달되고 신고자는 DM을 받습니다. 운영진은 해당 채널에서, 신고자는 DM에서 대화를 이어 갈 수 있습니다.\n"
+"    "
 
 #: redbot/cogs/reports/reports.py:104
 #, docstring
 msgid "Manage Reports."
-msgstr ""
+msgstr "신고 설정을 관리합니다."
 
 #: redbot/cogs/reports/reports.py:114
 #, docstring
 msgid "Set the channel where reports will be sent."
-msgstr ""
+msgstr "신고를 보낼 채널을 지정합니다."
 
 #: redbot/cogs/reports/reports.py:116
 msgid "The report channel has been set."
-msgstr ""
+msgstr "신고 채널을 설정했어요."
 
 #: redbot/cogs/reports/reports.py:121
 #, docstring
 msgid "Enable or disable reporting for this server."
-msgstr ""
+msgstr "이 서버의 신고 기능을 켜거나 끕니다."
 
 #: redbot/cogs/reports/reports.py:126
 msgid "Reporting is now enabled"
-msgstr ""
+msgstr "신고 기능을 켰어요."
 
 #: redbot/cogs/reports/reports.py:128
 msgid "Reporting is now disabled."
-msgstr ""
+msgstr "신고 기능을 껐어요."
 
 #: redbot/cogs/reports/reports.py:187
 msgid "You took too long to select. Try again later."
-msgstr ""
+msgstr "선택 시간이 지났어요. 잠시 후 다시 시도해 주세요."
 
 #: redbot/cogs/reports/reports.py:194
 msgid "That wasn't a valid choice."
-msgstr ""
+msgstr "올바른 선택지가 아니에요."
 
 #: redbot/cogs/reports/reports.py:216
 msgid "Report from {author}{maybe_nick}"
-msgstr ""
+msgstr "{author}{maybe_nick}님의 신고"
 
 #: redbot/cogs/reports/reports.py:221
 msgid "Report #{}"
-msgstr ""
+msgstr "신고 #{}"
 
 #: redbot/cogs/reports/reports.py:225
 msgid "Report from {author.mention} (Ticket #{number})"
-msgstr ""
+msgstr "{author.mention}님의 신고(접수 번호 #{number})"
 
 #: redbot/cogs/reports/reports.py:244
 #, docstring
@@ -77,60 +80,64 @@ msgid "Send a report.\n\n"
 "        Use without arguments for interactive reporting, or do\n"
 "        `[p]report [text]` to use it non-interactively.\n"
 "        "
-msgstr ""
+msgstr "신고를 보냅니다.\n"
+"\n"
+"인수 없이 실행하면 안내에 따라 신고할 수 있습니다. 바로 보내려면 `[p]report [text]`로 신고 내용을 입력하세요.\n"
+"        "
 
 #: redbot/cogs/reports/reports.py:253
 msgid "Select a server to make a report in by number."
-msgstr ""
+msgstr "신고할 서버의 번호를 선택해 주세요."
 
 #: redbot/cogs/reports/reports.py:259
 msgid "Reporting has not been enabled for this server"
-msgstr ""
+msgstr "이 서버는 신고 기능을 사용하지 않아요."
 
 #: redbot/cogs/reports/reports.py:266
 msgid "You've sent too many reports recently. Please contact a server admin if this is important matter, or please wait and try again later."
-msgstr ""
+msgstr "최근에 신고를 너무 많이 보냈어요. 긴급한 일이면 서버 관리자에게 연락하고, 그 외에는 잠시 후 다시 시도해 주세요."
 
 #: redbot/cogs/reports/reports.py:274
 msgid "Please finish making your prior report before trying to make an additional one!"
-msgstr ""
+msgstr "새 신고를 작성하려면 먼저 작성 중인 신고를 마쳐 주세요."
 
 #: redbot/cogs/reports/reports.py:289
 msgid "Please respond to this message with your Report.\n"
 "Your report should be a single message"
-msgstr ""
+msgstr "이 메시지에 답장해 신고 내용을 보내 주세요.\n"
+"신고 내용은 메시지 하나에 담아 주세요."
 
 #: redbot/cogs/reports/reports.py:295
 msgid "This requires DMs enabled."
-msgstr ""
+msgstr "이 기능을 사용하려면 DM을 허용해야 해요."
 
 #: redbot/cogs/reports/reports.py:304
 msgid "You took too long. Try again later."
-msgstr ""
+msgstr "응답 시간이 지났어요. 잠시 후 다시 시도해 주세요."
 
 #: redbot/cogs/reports/reports.py:312
 msgid "This server has no reports channel set up. Please contact a server admin."
-msgstr ""
+msgstr "이 서버는 신고 채널을 설정하지 않았어요. 서버 관리자에게 문의해 주세요."
 
 #: redbot/cogs/reports/reports.py:318
 msgid "There was an error sending your report, please contact a server admin."
-msgstr ""
+msgstr "신고를 보내는 중에 오류가 발생했어요. 서버 관리자에게 문의해 주세요."
 
 #: redbot/cogs/reports/reports.py:321
 msgid "Your report was submitted. (Ticket #{})"
-msgstr ""
+msgstr "신고를 접수했어요. (접수 번호 #{})"
 
 #: redbot/cogs/reports/reports.py:357
 msgid "{closer} has closed the correspondence"
-msgstr ""
+msgstr "{closer}님이 대화를 종료했어요."
 
 #: redbot/cogs/reports/reports.py:372
 msgid "Re: ticket# {ticket_number} in {guild.name}"
-msgstr ""
+msgstr "{guild.name} 서버의 신고 #{ticket_number} 관련 대화"
 
 #: redbot/cogs/reports/reports.py:385
 msgid "Correspondence about ticket# {ticket_number} in {guild.name} has been ended due to reports being disabled in that server."
-msgstr ""
+msgstr "{guild.name} 서버의 신고 기능이 꺼져서 신고 #{ticket_number}에 관한 대화를 종료했어요."
 
 #: redbot/cogs/reports/reports.py:396
 #, docstring
@@ -139,36 +146,43 @@ msgid "Open a message tunnel.\n\n"
 "        to the ticket opener's direct messages.\n\n"
 "        Tunnels do not persist across bot restarts.\n"
 "        "
-msgstr ""
+msgstr "신고자와 대화를 시작합니다.\n"
+"\n"
+"이 채널이나 스레드에 보낸 메시지가 신고자에게 DM으로 전달됩니다.\n"
+"\n"
+"봇을 다시 시작하면 대화 연결이 종료됩니다.\n"
+"        "
 
 #: redbot/cogs/reports/reports.py:410
 msgid "That ticket doesn't seem to exist"
-msgstr ""
+msgstr "해당 접수 번호의 신고를 찾을 수 없어요."
 
 #: redbot/cogs/reports/reports.py:413
 msgid "That user isn't here anymore."
-msgstr ""
+msgstr "해당 사용자가 더 이상 이 서버에 없어요."
 
 #: redbot/cogs/reports/reports.py:419
 msgid "Either you or the user you are trying to reach already has an open communication."
-msgstr ""
+msgstr "이미 본인이나 상대방이 다른 신고 대화를 진행 중이에요."
 
 #: redbot/cogs/reports/reports.py:425
 msgid " Anything you say or upload here (8MB file size limitation on uploads) will be forwarded to them until the communication is closed.\n"
 "You can close a communication at any point by reacting with the ❎ to the last message received.\n"
 "Any message successfully forwarded will be marked with ✅.\n"
 "Tunnels are not persistent across bot restarts."
-msgstr ""
+msgstr " 대화를 종료할 때까지 여기에 보내는 메시지와 파일이 상대방에게 전달돼요. 첨부 파일은 최대 8MB까지 보낼 수 있어요.\n"
+"마지막으로 받은 메시지에 ❎ 반응을 추가하면 언제든 대화를 종료할 수 있어요. 전달된 메시지에는 ✅가 표시돼요.\n"
+"봇을 다시 시작하면 대화 연결이 종료돼요."
 
 #: redbot/cogs/reports/reports.py:436
 msgid "A moderator in the server `{guild.name}` has opened a 2-way communication about ticket number {ticket_number}."
-msgstr ""
+msgstr "`{guild.name}` 서버의 운영진이 신고 #{ticket_number}에 관한 대화를 시작했어요."
 
 #: redbot/cogs/reports/reports.py:445
 msgid "That user has DMs disabled."
-msgstr ""
+msgstr "해당 사용자가 DM을 차단하고 있어요."
 
 #: redbot/cogs/reports/reports.py:449
 msgid "You have opened a 2-way communication about ticket number {ticket_number}."
-msgstr ""
+msgstr "신고 #{ticket_number}에 관한 대화를 시작했어요."
 

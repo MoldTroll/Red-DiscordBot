@@ -17,82 +17,84 @@ msgstr ""
 
 #: redbot/cogs/mutes/converters.py:57
 msgid "`{unit}` is not a valid unit of time for this command"
-msgstr ""
+msgstr "이 명령에서는 `{unit}` 시간 단위를 사용할 수 없어요."
 
 #: redbot/cogs/mutes/converters.py:65 redbot/cogs/mutes/mutes.py:1016
 msgid "The time provided is too long; use a more reasonable time."
-msgstr ""
+msgstr "지정한 기간이 너무 길어요. 더 짧은 기간을 입력해 주세요."
 
 #: redbot/cogs/mutes/converters.py:68
 msgid "The time provided must not be in the past."
-msgstr ""
+msgstr "과거 시각을 지정할 수 없어요."
 
 #: redbot/cogs/mutes/mutes.py:34
 msgid "That user is already muted in {location}."
-msgstr ""
+msgstr "해당 사용자는 이미 {location}에서 음소거되어 있어요."
 
 #: redbot/cogs/mutes/mutes.py:35
 msgid "That user is not muted in {location}."
-msgstr ""
+msgstr "해당 사용자는 {location}에서 음소거되어 있지 않아요."
 
 #: redbot/cogs/mutes/mutes.py:36
 msgid "I cannot let you do that. You are not higher than the user in the role hierarchy."
-msgstr "그렇게 하게 둘 수는 없어요. 역할 계층의 사용자보다 높지 않아요."
+msgstr "상대방의 최고 역할보다 높은 역할이 있어야 이 작업을 할 수 있어요."
 
 #: redbot/cogs/mutes/mutes.py:39
 msgid "I cannot let you do that. You are not higher than the mute role in the role hierarchy."
-msgstr "그렇게 할 수 없습니다. mute 대상보다 당신의 역할 계층이 낮습니다."
+msgstr "음소거 역할보다 높은 역할이 있어야 이 작업을 할 수 있어요."
 
 #: redbot/cogs/mutes/mutes.py:42
 msgid "That user cannot be (un)muted, as they have the Administrator permission."
-msgstr "해당 사용자는 관리자 권한이 있으므로 음소거(해제)할 수 없습니다."
+msgstr "해당 사용자는 관리자 권한이 있어서 음소거를 적용하거나 해제할 수 없어요."
 
 #: redbot/cogs/mutes/mutes.py:43
 msgid "Failed to mute or unmute user. I need the Manage Roles permission and the user I'm muting must be lower than myself in the role hierarchy."
-msgstr "해당 사용자를 음소거 (해제) 하지 못했습니다. mute를 위해서 역할 관리 권한이 필요하고 mute대상이 역할 계층에서 나보다 낮아야 합니다."
+msgstr "음소거를 적용하거나 해제하지 못했어요. 봇에 역할 관리 권한이 있어야 하고 봇의 최고 역할이 대상 사용자의 최고 역할보다 높아야 해요."
 
 #: redbot/cogs/mutes/mutes.py:48
 msgid "Failed to mute or unmute user. I need the Timeout Members permission and the user I'm muting must be lower than myself in the role hierarchy."
-msgstr ""
+msgstr "음소거를 적용하거나 해제하지 못했어요. 봇에 멤버 타임아웃 권한이 있어야 하고 봇의 최고 역할이 대상 사용자의 최고 역할보다 높아야 해요."
 
 #: redbot/cogs/mutes/mutes.py:53
 msgid "Failed to mute or unmute user. I need the Manage Permissions permission in {location}."
-msgstr ""
+msgstr "음소거를 적용하거나 해제하려면 봇에 {location}의 권한 관리 권한이 필요해요."
 
 #: redbot/cogs/mutes/mutes.py:56
 msgid "The user has left the server while applying an overwrite."
-msgstr "덮어쓰기를 적용하는 동안 사용자가 서버를 떠났습니다."
+msgstr "채널 권한을 변경하는 도중 사용자가 서버를 나갔어요."
 
 #: redbot/cogs/mutes/mutes.py:57
 msgid "The channel I tried to mute or unmute the user in isn't found."
-msgstr "사용자를 음소거하거나 음소거 해제하려는 채널을 찾을 수 없습니다."
+msgstr "음소거를 적용하거나 해제하려던 채널을 찾을 수 없어요."
 
 #: redbot/cogs/mutes/mutes.py:58
 msgid "The mute role no longer exists."
-msgstr ""
+msgstr "음소거 역할이 더 이상 존재하지 않아요."
 
 #: redbot/cogs/mutes/mutes.py:59
 msgid "Because I don't have the Move Members permission, this will take into effect when the user rejoins."
-msgstr "구성원 이동 권한이 없기 때문에, 사용자가 다시 가입할 때 적용됩니다."
+msgstr "봇에 멤버 이동 권한이 없어서 해당 사용자가 음성 채널에 다시 접속할 때 적용돼요."
 
 #: redbot/cogs/mutes/mutes.py:62
 msgid "Timeouts cannot be longer than 28 days."
-msgstr ""
+msgstr "타임아웃은 최대 28일까지 설정할 수 있어요."
 
 #: redbot/cogs/mutes/mutes.py:63
 msgid "You must provide a time for the timeout to end."
-msgstr ""
+msgstr "타임아웃이 종료될 시간을 지정해 주세요."
 
 #: redbot/cogs/mutes/mutes.py:64
 msgid "That user is channel muted in their current voice channel, not just voice muted. If you want to fully unmute this user in the channel, use {command} in their voice channel's text channel instead."
-msgstr ""
+msgstr "해당 사용자는 현재 음성 채널에서 채널 전체에 음소거가 적용되어 있어요. 완전히 해제하려면 해당 음성 채널의 채팅에서 {command} 명령을 사용해 주세요."
 
 #: redbot/cogs/mutes/mutes.py:88
 #, docstring
 msgid "\n"
 "    Mute users temporarily or indefinitely.\n"
 "    "
-msgstr "사용자를 일시적으로 또는 무기한 음소거합니다."
+msgstr "\n"
+"사용자를 일정 기간 또는 무기한 음소거합니다.\n"
+"    "
 
 #: redbot/cogs/mutes/mutes.py:332 redbot/cogs/mutes/mutes.py:344
 #: redbot/cogs/mutes/mutes.py:348 redbot/cogs/mutes/mutes.py:439
@@ -110,22 +112,22 @@ msgstr "서버 음소거 해제"
 #: redbot/cogs/mutes/mutes.py:357
 msgid "I am unable to unmute {user} for the following reason:\n"
 "{reason}"
-msgstr "다음과 같은 이유로 {user}의 음소거를 해제할 수 없습니다.\n"
-": {reason}"
+msgstr "{user}님의 음소거를 해제할 수 없어요.\n"
+"사유: {reason}"
 
 #: redbot/cogs/mutes/mutes.py:443
 msgid "\n"
 "Unmuted in channels: "
 msgstr "\n"
-"채널에서 음소거 해제: "
+"음소거를 해제한 채널: "
 
 #: redbot/cogs/mutes/mutes.py:469
 msgid "{member} could not be unmuted for the following reasons:\n"
-msgstr "다음과 같은 이유로 {member} 의 음소거를 해제할 수 없습니다.\n"
+msgstr "다음 사유로 {member}님의 음소거를 해제하지 못했어요:\n"
 
 #: redbot/cogs/mutes/mutes.py:473
 msgid "{reason} In the following channels: {channels}\n"
-msgstr ""
+msgstr "{reason} — 해당 채널: {channels}\n"
 
 #: redbot/cogs/mutes/mutes.py:519 redbot/cogs/mutes/mutes.py:734
 #: redbot/cogs/mutes/voicemutes.py:224
@@ -140,7 +142,8 @@ msgstr "채널 음소거 해제"
 #: redbot/cogs/mutes/mutes.py:539
 msgid "I am unable to unmute {user} in {channel} for the following reason:\n"
 "{reason}"
-msgstr "다음과 같은 이유로 {channel} 에서 {user} 의 음소거를 해제할 수 없습니다: {reason}"
+msgstr "{channel}에서 {user}님의 음소거를 해제할 수 없어요.\n"
+"사유: {reason}"
 
 #: redbot/cogs/mutes/mutes.py:580
 msgid "Unknown"
@@ -148,47 +151,47 @@ msgstr "알 수 없음"
 
 #: redbot/cogs/mutes/mutes.py:585
 msgid "No reason provided."
-msgstr "이유가 제공되지 않았습니다."
+msgstr "지정된 사유가 없어요."
 
 #: redbot/cogs/mutes/mutes.py:595
 msgid "Until"
-msgstr ""
+msgstr "종료 시각"
 
 #: redbot/cogs/mutes/mutes.py:596
 msgid "Duration"
-msgstr "지속기간"
+msgstr "기간"
 
 #: redbot/cogs/mutes/mutes.py:597
 msgid "Guild"
-msgstr "길드"
+msgstr "서버"
 
 #: redbot/cogs/mutes/mutes.py:599
 msgid "Moderator"
-msgstr "관리자"
+msgstr "담당 운영진"
 
 #: redbot/cogs/mutes/mutes.py:607
 msgid "Moderator:"
-msgstr ""
+msgstr "담당 운영진:"
 
 #: redbot/cogs/mutes/mutes.py:609
 msgid "Until:"
-msgstr ""
+msgstr "종료 시각:"
 
 #: redbot/cogs/mutes/mutes.py:609
 msgid "Duration:"
-msgstr ""
+msgstr "기간:"
 
 #: redbot/cogs/mutes/mutes.py:613
 msgid "Guild:"
-msgstr ""
+msgstr "서버:"
 
 #: redbot/cogs/mutes/mutes.py:652 redbot/cogs/mutes/mutes.py:657
 msgid "Manually removed mute role"
-msgstr ""
+msgstr "음소거 역할을 수동으로 해제함"
 
 #: redbot/cogs/mutes/mutes.py:672 redbot/cogs/mutes/mutes.py:681
 msgid "Manually applied mute role"
-msgstr ""
+msgstr "음소거 역할을 수동으로 부여함"
 
 #: redbot/cogs/mutes/mutes.py:681 redbot/cogs/mutes/mutes.py:1280
 msgid "Server mute"
@@ -196,49 +199,51 @@ msgstr "서버 음소거"
 
 #: redbot/cogs/mutes/mutes.py:744 redbot/cogs/mutes/mutes.py:753
 msgid "Manually removed channel overwrites"
-msgstr ""
+msgstr "채널별 권한 설정을 수동으로 제거함"
 
 #: redbot/cogs/mutes/mutes.py:785
 msgid "Previously muted in this server."
-msgstr "이 서버는 이전에 음소거되었습니다."
+msgstr "이전에 이 서버에서 음소거된 사용자입니다."
 
 #: redbot/cogs/mutes/mutes.py:791
 #, docstring
 msgid "Mute settings."
-msgstr "음소거 설정."
+msgstr "음소거 설정을 관리합니다."
 
 #: redbot/cogs/mutes/mutes.py:798
 #, docstring
 msgid "Set whether mute notifications should be sent to users in DMs."
-msgstr "DM에서 사용자에게 음소거 알림을 보낼지 여부를 설정합니다."
+msgstr "사용자에게 음소거 알림을 DM으로 보낼지 설정합니다."
 
 #: redbot/cogs/mutes/mutes.py:801
 msgid "I will now try to send mute notifications to users DMs."
-msgstr "이제 사용자 DM에게 음소거 알림을 보내도록 하겠습니다."
+msgstr "이제 사용자에게 음소거 알림을 DM으로 보내려고 시도해요."
 
 #: redbot/cogs/mutes/mutes.py:803
 msgid "Mute notifications will no longer be sent to users DMs."
-msgstr "음소거 알림이 더 이상 사용자 DM으로 전송되지 않습니다."
+msgstr "이제 사용자에게 음소거 알림을 DM으로 보내지 않아요."
 
 #: redbot/cogs/mutes/mutes.py:809
 #, docstring
 msgid "Decide whether the name of the moderator muting a user should be included in the DM to that user."
-msgstr ""
+msgstr "음소거 알림 DM에 조치를 취한 운영진의 이름을 표시할지 설정합니다."
 
 #: redbot/cogs/mutes/mutes.py:813
 msgid "I will include the name of the moderator who issued the mute when sending a DM to a user."
-msgstr ""
+msgstr "이제 음소거 알림 DM에 담당 운영진의 이름을 표시해요."
 
 #: redbot/cogs/mutes/mutes.py:819
 msgid "I will not include the name of the moderator who issued the mute when sending a DM to a user."
-msgstr ""
+msgstr "이제 음소거 알림 DM에 담당 운영진의 이름을 표시하지 않아요."
 
 #: redbot/cogs/mutes/mutes.py:827
 #, docstring
 msgid "\n"
 "        Shows the current mute settings for this guild.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"이 서버의 현재 음소거 설정을 표시합니다.\n"
+"        "
 
 #: redbot/cogs/mutes/mutes.py:835
 msgid "Mute Role: {role}\n"
@@ -246,12 +251,16 @@ msgid "Mute Role: {role}\n"
 "Default Time: {time}\n"
 "Send DM: {dm}\n"
 "Show moderator: {show_mod}"
-msgstr ""
+msgstr "음소거 역할: {role}\n"
+"알림 채널: {channel}\n"
+"기본 기간: {time}\n"
+"DM 전송: {dm}\n"
+"담당 운영진 표시: {show_mod}"
 
 #: redbot/cogs/mutes/mutes.py:842 redbot/cogs/mutes/mutes.py:843
 #: redbot/cogs/mutes/mutes.py:844
 msgid "None"
-msgstr "읎어요."
+msgstr "없음"
 
 #: redbot/cogs/mutes/mutes.py:859
 #, docstring
@@ -260,15 +269,19 @@ msgid "\n"
 "        If no channel is provided this will be cleared and notifications\n"
 "        about issues when unmuting users will not be sent anywhere.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"자동 음소거 해제에 문제가 생기면 알릴 채널을 설정합니다.\n"
+"\n"
+"채널을 생략하면 설정이 지워지고 문제 알림을 보내지 않습니다.\n"
+"        "
 
 #: redbot/cogs/mutes/mutes.py:867
 msgid "Notification channel for unmute issues has been cleared."
-msgstr ""
+msgstr "음소거 해제 문제를 알릴 채널 설정을 지웠어요."
 
 #: redbot/cogs/mutes/mutes.py:871
 msgid "I will post unmute issues in {channel}."
-msgstr "{channel} 에 음소거 해제 issue를 게시하겠습니다."
+msgstr "음소거 해제 중 발생한 문제를 {channel}에 알릴게요."
 
 #: redbot/cogs/mutes/mutes.py:878
 #, docstring
@@ -278,23 +291,28 @@ msgid "Sets the role to be applied when muting a user.\n\n"
 "        Note: If no role is setup a user may be able to leave the server\n"
 "        and rejoin no longer being muted.\n"
 "        "
-msgstr ""
+msgstr "사용자를 음소거할 때 부여할 역할을 설정합니다.\n"
+"\n"
+"역할을 설정하지 않으면 봇이 Discord의 서버 타임아웃 기능을 사용합니다.\n"
+"\n"
+"음소거 역할이 없으면 사용자가 서버를 나갔다가 다시 들어와 음소거를 피할 수도 있습니다.\n"
+"        "
 
 #: redbot/cogs/mutes/mutes.py:890
 msgid "Discord Timeouts will be used for mutes instead."
-msgstr ""
+msgstr "이제 음소거에 Discord 타임아웃을 사용해요."
 
 #: redbot/cogs/mutes/mutes.py:894
 msgid "You can't set this role as it is not lower than you in the role hierarchy."
-msgstr ""
+msgstr "자신의 최고 역할보다 낮은 역할만 지정할 수 있어요."
 
 #: redbot/cogs/mutes/mutes.py:899 redbot/cogs/mutes/mutes.py:962
 msgid "Mute role set to {role}"
-msgstr ""
+msgstr "음소거 역할을 {role}(으)로 설정했어요."
 
 #: redbot/cogs/mutes/mutes.py:903 redbot/cogs/mutes/mutes.py:966
 msgid "No notification channel has been setup, use {command_1} to be updated when there's an issue in automatic unmutes."
-msgstr ""
+msgstr "아직 알림 채널이 없어요. 자동 음소거 해제에 문제가 생길 때 알림을 받으려면 {command_1} 명령을 사용해 주세요."
 
 #: redbot/cogs/mutes/mutes.py:914
 #, docstring
@@ -304,23 +322,28 @@ msgid "Create a Muted role.\n\n"
 "        If you already have a muted role created on the server use\n"
 "        `[p]muteset role ROLE_NAME_HERE`\n"
 "        "
-msgstr ""
+msgstr "음소거 역할을 만듭니다.\n"
+"\n"
+"역할을 만들고 가능한 모든 채널에 음소거용 권한을 설정합니다.\n"
+"\n"
+"이미 서버에 음소거 역할이 있다면 `[p]muteset role ROLE_NAME_HERE`로 지정하세요.\n"
+"        "
 
 #: redbot/cogs/mutes/mutes.py:925
 msgid "There is already a mute role setup in this server. Please remove it with {command} before trying to create a new one."
-msgstr ""
+msgstr "이 서버에는 음소거 역할이 이미 설정되어 있어요. 새 역할을 만들려면 먼저 {command} 명령으로 기존 설정을 해제해 주세요."
 
 #: redbot/cogs/mutes/mutes.py:944 redbot/cogs/mutes/mutes.py:990
 msgid "Mute role setup"
-msgstr ""
+msgstr "음소거 역할 설정"
 
 #: redbot/cogs/mutes/mutes.py:949
 msgid "I could not create a muted role in this server."
-msgstr ""
+msgstr "이 서버에 음소거 역할을 만들 수 없어요."
 
 #: redbot/cogs/mutes/mutes.py:956
 msgid "I could not set overwrites for the following channels: {channels}"
-msgstr ""
+msgstr "다음 채널에 음소거용 권한을 설정할 수 없어요: {channels}"
 
 #: redbot/cogs/mutes/mutes.py:998
 #, docstring
@@ -328,51 +351,57 @@ msgid "\n"
 "        Set the default mute time for the mute command.\n\n"
 "        If no time interval is provided this will be cleared.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"음소거 명령의 기본 기간을 설정합니다.\n"
+"\n"
+"기간을 생략하면 기본값이 지워집니다.\n"
+"        "
 
 #: redbot/cogs/mutes/mutes.py:1006
 msgid "Default mute time removed."
-msgstr ""
+msgstr "기본 음소거 기간을 지웠어요."
 
 #: redbot/cogs/mutes/mutes.py:1010
 msgid "Please provide a valid time format."
-msgstr ""
+msgstr "올바른 형식으로 기간을 입력해 주세요."
 
 #: redbot/cogs/mutes/mutes.py:1020
 msgid "Default mute time set to {time}."
-msgstr ""
+msgstr "기본 음소거 기간을 {time}(으)로 설정했어요."
 
 #: redbot/cogs/mutes/mutes.py:1032
 msgid "This server does not have a mute role setup and I do not have permission to timeout users.  You can setup a mute role with {command_1} or {command_2} if you just want a basic role created setup.\n\n"
-msgstr ""
+msgstr "이 서버에는 음소거 역할이 없고 봇에 멤버 타임아웃 권한도 없어요. {command_1} 명령으로 역할을 지정하거나 {command_2} 명령으로 기본 음소거 역할을 만들어 주세요.\n"
 
 #: redbot/cogs/mutes/mutes.py:1053
 #, docstring
 msgid "\n"
 "        Displays active mutes on this server.\n"
 "        "
-msgstr ""
+msgstr "\n"
+"이 서버에서 현재 적용 중인 음소거를 표시합니다.\n"
+"        "
 
 #: redbot/cogs/mutes/mutes.py:1060
 msgid "__Server Mutes__\n"
-msgstr ""
+msgstr "__서버 음소거__\n"
 
 #: redbot/cogs/mutes/mutes.py:1076 redbot/cogs/mutes/mutes.py:1087
 #: redbot/cogs/mutes/mutes.py:1108
 msgid "__Until__: {time_left}\n"
-msgstr ""
+msgstr "__종료 시각__: {time_left}\n"
 
 #: redbot/cogs/mutes/mutes.py:1083
 msgid "__Server Timeouts__\n"
-msgstr ""
+msgstr "__서버 타임아웃__\n"
 
 #: redbot/cogs/mutes/mutes.py:1092
 msgid "__<#{channel_id}> Mutes__\n"
-msgstr ""
+msgstr "__<#{channel_id}> 채널 음소거__\n"
 
 #: redbot/cogs/mutes/mutes.py:1121
 msgid "There are no mutes on this server right now."
-msgstr ""
+msgstr "현재 이 서버에는 음소거된 사용자가 없어요."
 
 #: redbot/cogs/mutes/mutes.py:1134
 #, docstring
@@ -385,36 +414,43 @@ msgid "Timeout users.\n\n"
 "        `[p]timeout @member1 @member2 spam 5 hours`\n"
 "        `[p]timeout @member1 3 days`\n\n"
 "        "
-msgstr ""
+msgstr "사용자에게 타임아웃을 적용합니다.\n"
+"\n"
+"`<users...>`에 사용자명, ID 또는 멘션을 공백으로 구분해 입력하세요. `[time_and_reason]`에는 기간과 사유를 입력합니다. 기간은 `30 minutes`나 `2 days`처럼 지정하세요. 생략하면 기본 기간을 사용하며, 기본값이 없으면 오류가 발생합니다.\n"
+"\n"
+"예시:\n"
+"`[p]timeout @member1 @member2 spam 5 hours`\n"
+"`[p]timeout @member1 3 days`\n"
+"        "
 
 #: redbot/cogs/mutes/mutes.py:1149 redbot/cogs/mutes/mutes.py:1231
 #: redbot/cogs/mutes/mutes.py:1385 redbot/cogs/mutes/voicemutes.py:88
 msgid "You cannot mute me."
-msgstr ""
+msgstr "봇을 음소거할 수 없어요."
 
 #: redbot/cogs/mutes/mutes.py:1151 redbot/cogs/mutes/mutes.py:1233
 #: redbot/cogs/mutes/mutes.py:1387 redbot/cogs/mutes/voicemutes.py:90
 msgid "You cannot mute yourself."
-msgstr ""
+msgstr "자신을 음소거할 수 없어요."
 
 #: redbot/cogs/mutes/mutes.py:1162 redbot/cogs/mutes/mutes.py:1172
 #: redbot/cogs/mutes/mutes.py:1245 redbot/cogs/mutes/mutes.py:1255
 #: redbot/cogs/mutes/mutes.py:1396 redbot/cogs/mutes/mutes.py:1406
 #: redbot/cogs/mutes/voicemutes.py:109 redbot/cogs/mutes/voicemutes.py:119
 msgid " for {length} until {duration}"
-msgstr ""
+msgstr " (기간: {length}, 종료: {duration})"
 
 #: redbot/cogs/mutes/mutes.py:1195
 msgid "{users} has been timed out in this server{time}."
-msgstr ""
+msgstr "이 서버에서 {users}님에게 타임아웃을 적용했어요{time}."
 
 #: redbot/cogs/mutes/mutes.py:1197
 msgid "{users} have been timed out in this server{time}."
-msgstr ""
+msgstr "이 서버에서 {users}님에게 타임아웃을 적용했어요{time}."
 
 #: redbot/cogs/mutes/mutes.py:1202
 msgid "None of the users provided could be muted properly."
-msgstr ""
+msgstr "지정한 사용자 중 아무도 음소거하지 못했어요."
 
 #: redbot/cogs/mutes/mutes.py:1216
 #, docstring
@@ -427,27 +463,34 @@ msgid "Mute users.\n\n"
 "        `[p]mute @member1 @member2 spam 5 hours`\n"
 "        `[p]mute @member1 3 days`\n\n"
 "        "
-msgstr ""
+msgstr "사용자를 음소거합니다.\n"
+"\n"
+"`<users...>`에 사용자명, ID 또는 멘션을 공백으로 구분해 입력하세요. `[time_and_reason]`에는 기간과 사유를 입력합니다. 기간은 `30 minutes`나 `2 days`처럼 지정하세요. 생략하면 기본 기간을 사용하며, 기본값이 없으면 무기한 음소거합니다.\n"
+"\n"
+"예시:\n"
+"`[p]mute @member1 @member2 spam 5 hours`\n"
+"`[p]mute @member1 3 days`\n"
+"        "
 
 #: redbot/cogs/mutes/mutes.py:1287
 msgid "{users} has been muted in this server{time}."
-msgstr ""
+msgstr "이 서버에서 {users}님을 음소거했어요{time}."
 
 #: redbot/cogs/mutes/mutes.py:1289
 msgid "{users} have been muted in this server{time}."
-msgstr ""
+msgstr "이 서버에서 {users}님을 음소거했어요{time}."
 
 #: redbot/cogs/mutes/mutes.py:1301
 msgid "{member} could not be (un)muted for the following reasons:\n"
-msgstr ""
+msgstr "다음 사유로 {member}님의 음소거를 적용하거나 해제하지 못했어요:\n"
 
 #: redbot/cogs/mutes/mutes.py:1321
 msgid "Some users could not be properly muted or unmuted. Would you like to see who, where, and why?"
-msgstr ""
+msgstr "일부 사용자의 음소거를 적용하거나 해제하지 못했어요. 대상 사용자와 채널, 사유를 확인할까요?"
 
 #: redbot/cogs/mutes/mutes.py:1349
 msgid "OK then."
-msgstr ""
+msgstr "알겠어요."
 
 #: redbot/cogs/mutes/mutes.py:1371
 #, docstring
@@ -460,7 +503,14 @@ msgid "Mute a user in the current text channel (or in the parent of the current 
 "        `[p]mutechannel @member1 @member2 spam 5 hours`\n"
 "        `[p]mutechannel @member1 3 days`\n"
 "        "
-msgstr ""
+msgstr "현재 텍스트 채널에서 사용자를 음소거합니다. 스레드에서는 상위 채널에 적용합니다.\n"
+"\n"
+"`<users...>`에 사용자명, ID 또는 멘션을 공백으로 구분해 입력하세요. `[time_and_reason]`에는 기간과 사유를 입력합니다. 기간은 `30 minutes`나 `2 days`처럼 지정하세요. 생략하면 기본 기간을 사용하며, 기본값이 없으면 무기한 음소거합니다.\n"
+"\n"
+"예시:\n"
+"`[p]mutechannel @member1 @member2 spam 5 hours`\n"
+"`[p]mutechannel @member1 3 days`\n"
+"        "
 
 #: redbot/cogs/mutes/mutes.py:1438
 msgid "Channel mute"
@@ -468,15 +518,15 @@ msgstr "채널 음소거"
 
 #: redbot/cogs/mutes/mutes.py:1446 redbot/cogs/mutes/voicemutes.py:156
 msgid "{users} has been muted in this channel{time}."
-msgstr ""
+msgstr "이 채널에서 {users}님을 음소거했어요{time}."
 
 #: redbot/cogs/mutes/mutes.py:1448 redbot/cogs/mutes/voicemutes.py:158
 msgid "{users} have been muted in this channel{time}."
-msgstr ""
+msgstr "이 채널에서 {users}님을 음소거했어요{time}."
 
 #: redbot/cogs/mutes/mutes.py:1453
 msgid "The following users could not be muted:\n"
-msgstr ""
+msgstr "다음 사용자를 음소거하지 못했어요:\n"
 
 #: redbot/cogs/mutes/mutes.py:1468
 #, docstring
@@ -484,21 +534,24 @@ msgid "Unmute users.\n\n"
 "        `<users...>` is a space separated list of usernames, ID's, or mentions.\n"
 "        `[reason]` is the reason for the unmute.\n"
 "        "
-msgstr ""
+msgstr "사용자의 음소거를 해제합니다.\n"
+"\n"
+"`<users...>`에 사용자명, ID 또는 멘션을 공백으로 구분해 입력하세요. `[reason]`에는 음소거 해제 사유를 입력할 수 있습니다.\n"
+"        "
 
 #: redbot/cogs/mutes/mutes.py:1476 redbot/cogs/mutes/mutes.py:1548
 #: redbot/cogs/mutes/mutes.py:1622 redbot/cogs/mutes/voicemutes.py:184
 msgid "You cannot unmute me."
-msgstr "음소거를 해제할 수 없습니다."
+msgstr "봇의 음소거를 해제할 수 없어요."
 
 #: redbot/cogs/mutes/mutes.py:1478 redbot/cogs/mutes/mutes.py:1550
 #: redbot/cogs/mutes/mutes.py:1624 redbot/cogs/mutes/voicemutes.py:186
 msgid "You cannot unmute yourself."
-msgstr "자신은 음소거를 해제할 수 없습니다."
+msgstr "자신의 음소거를 해제할 수 없어요."
 
 #: redbot/cogs/mutes/mutes.py:1523 redbot/cogs/mutes/mutes.py:1597
 msgid "{users} unmuted in this server."
-msgstr ""
+msgstr "이 서버에서 {users}님의 음소거를 해제했어요."
 
 #: redbot/cogs/mutes/mutes.py:1540
 #, docstring
@@ -506,7 +559,10 @@ msgid "Force Unmute users who have had channel overwrite mutes in every channel.
 "        `<users...>` is a space separated list of usernames, ID's, or mentions.\n"
 "        `[reason]` is the reason for the unmute.\n"
 "        "
-msgstr ""
+msgstr "채널별 권한으로 적용된 음소거를 모든 채널에서 강제로 해제합니다.\n"
+"\n"
+"`<users...>`에 사용자명, ID 또는 멘션을 공백으로 구분해 입력하세요. `[reason]`에는 음소거 해제 사유를 입력할 수 있습니다.\n"
+"        "
 
 #: redbot/cogs/mutes/mutes.py:1614
 #, docstring
@@ -514,27 +570,30 @@ msgid "Unmute a user in this channel (or in the parent of this thread).\n\n"
 "        `<users...>` is a space separated list of usernames, ID's, or mentions.\n"
 "        `[reason]` is the reason for the unmute.\n"
 "        "
-msgstr ""
+msgstr "이 채널에서 사용자의 음소거를 해제합니다. 스레드에서는 상위 채널에 적용합니다.\n"
+"\n"
+"`<users...>`에 사용자명, ID 또는 멘션을 공백으로 구분해 입력하세요. `[reason]`에는 음소거 해제 사유를 입력할 수 있습니다.\n"
+"        "
 
 #: redbot/cogs/mutes/mutes.py:1663 redbot/cogs/mutes/voicemutes.py:234
 msgid "{users} unmuted in this channel."
-msgstr ""
+msgstr "이 채널에서 {users}님의 음소거를 해제했어요."
 
 #: redbot/cogs/mutes/mutes.py:1668
 msgid "The following users could not be unmuted:\n"
-msgstr ""
+msgstr "다음 사용자의 음소거를 해제하지 못했어요:\n"
 
 #: redbot/cogs/mutes/mutes.py:1747
 msgid "I lack the moderate members permission."
-msgstr ""
+msgstr "봇에 멤버 관리 권한이 없어요."
 
 #: redbot/cogs/mutes/mutes.py:1791
 msgid "I lack the timeout members permission."
-msgstr ""
+msgstr "봇에 멤버 타임아웃 권한이 없어요."
 
 #: redbot/cogs/mutes/mutes.py:1794
 msgid "this server"
-msgstr ""
+msgstr "이 서버"
 
 #: redbot/cogs/mutes/voicemutes.py:42
 msgid "That user is not in a voice channel."
@@ -542,7 +601,7 @@ msgstr "해당 사용자가 음성 채널에 없습니다."
 
 #: redbot/cogs/mutes/voicemutes.py:49
 msgid "I require the {perms} permission(s) in that user's channel to do that."
-msgstr ""
+msgstr "해당 사용자의 채널에서 이 작업을 하려면 봇에 {perms} 권한이 필요해요."
 
 #: redbot/cogs/mutes/voicemutes.py:59
 msgid "You must have the {perms} permission(s) in that user's channel to use this command."
@@ -558,7 +617,13 @@ msgid "Mute a user in their current voice channel.\n\n"
 "        Examples:\n"
 "        `[p]voicemute @member1 @member2 spam 5 hours`\n"
 "        `[p]voicemute @member1 3 days`"
-msgstr ""
+msgstr "사용자가 접속 중인 음성 채널에서 해당 사용자를 음소거합니다.\n"
+"\n"
+"`<users...>`에 사용자명, ID 또는 멘션을 공백으로 구분해 입력하세요. `[time_and_reason]`에는 기간과 사유를 입력합니다. 기간은 `30 minutes`나 `2 days`처럼 지정하세요. 생략하면 기본 기간을 사용하며, 기본값이 없으면 무기한 음소거합니다.\n"
+"\n"
+"예시:\n"
+"`[p]voicemute @member1 @member2 spam 5 hours`\n"
+"`[p]voicemute @member1 3 days`"
 
 #: redbot/cogs/mutes/voicemutes.py:148
 msgid "Voice mute"
@@ -573,9 +638,51 @@ msgstr "다음 사용자를 음소거할 수 없습니다.\n"
 msgid "Unmute a user in their current voice channel.\n\n"
 "        `<users...>` is a space separated list of usernames, ID's, or mentions.\n"
 "        `[reason]` is the reason for the unmute."
-msgstr ""
+msgstr "사용자가 접속 중인 음성 채널에서 해당 사용자의 음소거를 해제합니다.\n"
+"\n"
+"`<users...>`에 사용자명, ID 또는 멘션을 공백으로 구분해 입력하세요. `[reason]`에는 음소거 해제 사유를 입력할 수 있습니다."
 
 #: redbot/cogs/mutes/voicemutes.py:239
 msgid "The following users could not be unmuted\n"
-msgstr ""
+msgstr "다음 사용자의 음소거를 해제하지 못했어요:\n"
+
+#: redbot/cogs/mutes/mutes.py:828
+#, docstring
+msgid "Set whether mute notifications should be sent to users in DMs.\n"
+"\n"
+"        This is independent of `[p]muteset sendunmutedm` which controls unmute DMs."
+msgstr "사용자에게 음소거 알림을 DM으로 보낼지 설정합니다.\n"
+"\n"
+"음소거 해제 알림은 `[p]muteset sendunmutedm`에서 별도로 설정합니다."
+
+#: redbot/cogs/mutes/mutes.py:841
+#, docstring
+msgid "Set whether unmute notifications should be sent to users in DMs.\n"
+"\n"
+"        This is independent of `[p]muteset sendmutedm` which controls mute DMs."
+msgstr "사용자에게 음소거 해제 알림을 DM으로 보낼지 설정합니다.\n"
+"\n"
+"음소거 알림은 `[p]muteset sendmutedm`에서 별도로 설정합니다."
+
+#: redbot/cogs/mutes/mutes.py:846
+msgid "I will now try to send unmute notifications to users DMs."
+msgstr "이제 사용자에게 음소거 해제 알림을 DM으로 보내려고 시도해요."
+
+#: redbot/cogs/mutes/mutes.py:848
+msgid "Unmute notifications will no longer be sent to users DMs."
+msgstr "이제 사용자에게 음소거 해제 알림을 DM으로 보내지 않아요."
+
+#: redbot/cogs/mutes/mutes.py:881
+msgid "Mute Role: {role}\n"
+"Notification Channel: {channel}\n"
+"Default Time: {time}\n"
+"Send DM on mute: {dm}\n"
+"Send DM on unmute: {dm_on_unmute}\n"
+"Show moderator: {show_mod}"
+msgstr "음소거 역할: {role}\n"
+"알림 채널: {channel}\n"
+"기본 기간: {time}\n"
+"음소거 시 DM 전송: {dm}\n"
+"음소거 해제 시 DM 전송: {dm_on_unmute}\n"
+"담당 운영진 표시: {show_mod}"
 
