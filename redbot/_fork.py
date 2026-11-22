@@ -6,6 +6,9 @@ import re
 REPOSITORY = "MoldTroll/Red-DiscordBot"
 BRANCH = "V3/develop"
 REPOSITORY_URL = f"https://github.com/{REPOSITORY}"
+# Bump when an older runtime can no longer read data written by this release.
+# Covers persisted Red configuration and bundled cogs, including the Audio queue.
+ROLLBACK_DATA_FORMAT = 2  # Format 2 distinguishes held queue entries from active requests.
 
 
 def version_from_commit(base_version: str, timestamp: int, revision: str) -> str:

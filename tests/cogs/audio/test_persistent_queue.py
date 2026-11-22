@@ -1,3 +1,4 @@
+import asyncio
 import json
 from contextlib import closing
 from types import SimpleNamespace
@@ -7,6 +8,7 @@ import lavalink
 import pytest
 
 from redbot.cogs.audio.apis.persist_queue_wrapper import QueueInterface
+from redbot.cogs.audio.core.commands.audioset import AudioSetCommands
 from redbot.cogs.audio.core.commands.controller import PlayerControllerCommands
 from redbot.cogs.audio.core.commands.queue import QueueCommands
 from redbot.cogs.audio.core.events.cog import AudioEvents
@@ -148,6 +150,168 @@ async def test_end_events_leave_new_requests_intact(music, monkeypatch):
     await AudioEvents.on_red_audio_track_end(m.cog, m.guild, track("old"), m.ctx.author)
     await AudioEvents.on_red_audio_queue_end(m.cog, m.guild, track("old"), m.ctx.author)
     assert [t._red_queue_entry_id for t in await reopen(m)] == [entry._red_queue_entry_id]
+
+
+async def test_failure_hold_survives_restart_without_auto_play(music):
+    m = music
+    await m.api.init()
+    first = await add(m, track("A"))
+    duplicate = await add(m, track("A"), SimpleNamespace(id=28))
+    other = await add(m, track("B"))
+    m.api.hold(m.guild.id, [other, duplicate, first])
+    assert m.api.rooms_to_restore() == {}
+    assert await reopen(m) == []
+    await m.api.drop(m.guild.id)  # automatic empty-channel cleanup
+    with closing(APSWConnectionWrapper(m.path)) as db:
+        recovered = QueueInterface(m.cog.config, db, m.cog)
+        await recovered.init()
+        assert [t.title for t in recovered.held(m.guild.id)] == ["B", "A", "A"]
+        m.guild.get_member = lambda uid: SimpleNamespace(id=uid)
+        m.guild.me = m.ctx.author
+        m.player.add = lambda requester, t: m.player.queue.append(t)
+        m.player.queue = []
+        recovered.release_held(m.player)
+        assert [t.extras["requester"] for t in m.player.queue] == [9, 28, 9]
+        assert recovered.held(m.guild.id) == []
+        assert [t.title for t in await reopen(m)] == ["B", "A", "A"]
+        assert recovered.release_held(m.player) == [] and len(m.player.queue) == 3
+
+
+async def test_nonpersistent_queue_hold_is_memory_only(music):
+    m = music
+    await m.api.init()
+    m.cog._persist_queue_cache[m.guild.id] = False
+    entry = await add(m, track("ephemeral"))
+    m.api.hold(m.guild.id, [entry])
+    assert m.api.held(m.guild.id) == [entry]
+    with closing(APSWConnectionWrapper(m.path)) as db:
+        assert QueueInterface(m.cog.config, db, m.cog).held(m.guild.id) == []
+    m.api.clear_held(m.guild.id)
+    assert m.api.held(m.guild.id) == []
+
+
+async def test_persist_toggle_keeps_live_queue_and_honors_restart(music):
+    m = music
+    await m.api.init()
+    pending = await add(m, track("active"))
+    saved = await add(m, track("held"))
+    m.api.hold(m.guild.id, [saved])
+    m.player.queue = [pending]
+    setting = AsyncMock(return_value=True)
+    setting.get_lock = Mock(return_value=asyncio.Lock())
+
+    async def change(value):
+        setting.return_value = value
+
+    setting.set = AsyncMock(side_effect=change)
+    m.cog.config.guild = lambda _: SimpleNamespace(persist_queue=setting)
+    toggle = AudioSetCommands.command_audioset_persist_queue.callback
+    await toggle(m.cog, m.ctx)
+    assert m.player.queue == [pending] and m.api.held(m.guild.id) == [saved]
+    assert saved._red_queue_entry_id is None and pending._red_queue_entry_id is None
+    with closing(APSWConnectionWrapper(m.path)) as disk:
+        fresh = QueueInterface(m.cog.config, disk, m.cog)
+        await fresh.init()
+        assert list(disk.cursor().execute("SELECT * FROM persist_queue")) == []
+        assert fresh.held(m.guild.id) == [] and fresh.rooms_to_restore() == {}
+
+    await toggle(m.cog, m.ctx)
+    assert m.cog._persist_queue_cache[m.guild.id] is True
+    assert pending._red_queue_entry_id and saved._red_queue_entry_id
+    with closing(APSWConnectionWrapper(m.path)) as disk:
+        fresh = QueueInterface(m.cog.config, disk, m.cog)
+        await fresh.init()
+        assert [r.track_object.title for r in await fresh.fetch_all()] == ["active"]
+        assert [t.title for t in fresh.held(m.guild.id)] == ["held"]
+
+
+@pytest.mark.parametrize("connected", [True, False])
+async def test_pause_directs_to_resume_without_invoking_it(music, connected):
+    m = music
+    await m.api.init()
+    saved = await add(m, track("held"))
+    m.api.hold(m.guild.id, [saved])
+    m.player.queue = []
+    m.cog._player_check = lambda _: connected
+    m.ctx.clean_prefix = "^"
+    await PlayerControllerCommands.command_pause.callback(m.cog, m.ctx)
+    assert "^queue resume" in m.cog.send_embed_msg.await_args.kwargs["description"]
+    assert m.api.held(m.guild.id) == [saved] and m.player.current is None
+
+
+@pytest.mark.parametrize("busy", [False, True])
+async def test_queue_resume_refuses_busy_player_and_is_repeatable(music, busy):
+    m = music
+    await m.api.init()
+    first = await add(m, track("A"))
+    last = await add(m, track("B"))
+    m.api.hold(m.guild.id, [first, last])
+    m.player.queue = []
+    m.player.current = track("someone else's song") if busy else None
+    m.guild.voice_client = m.player
+    m.guild.get_member = lambda member_id: m.ctx.author
+    m.guild.me = m.ctx.author
+    m.player.add = lambda requester, t: m.player.queue.append(t)
+    m.cog._eq_check = AsyncMock()
+    m.cog.set_player_settings = AsyncMock()
+    m.cog.rgetattr = MiscellaneousUtilities.rgetattr.__get__(m.cog)
+    m.cog._error_counter = {m.guild.id: 5}
+    await QueueCommands.command_queue_resume.callback(m.cog, m.ctx)
+    if busy:
+        assert m.player.current.title == "someone else's song"
+        assert m.api.held(m.guild.id) == [first, last]
+        assert m.player.queue == []
+    else:
+        assert m.player.current is first
+        assert m.player.queue == [last] and m.api.held(m.guild.id) == []
+        assert m.cog._error_counter[m.guild.id] == 0
+        await QueueCommands.command_queue_resume.callback(m.cog, m.ctx)
+        assert m.player.queue == [last]
+
+
+async def test_resume_restashes_only_its_own_entries_on_transport_error(music):
+    m = music
+    await m.api.init()
+    held = await add(m, track("held"))
+    later = await add(m, track("new"))
+    m.api.hold(m.guild.id, [held])
+    m.player.queue = []
+    m.guild.voice_client = m.player
+    m.guild.get_member = lambda member_id: m.ctx.author
+    m.guild.me = m.ctx.author
+    m.player.add = lambda requester, t: m.player.queue.append(t)
+    m.cog._eq_check = AsyncMock()
+    m.cog.set_player_settings = AsyncMock()
+    m.cog.rgetattr = MiscellaneousUtilities.rgetattr.__get__(m.cog)
+    m.cog._error_counter = {}
+
+    async def fail():
+        m.player.current = m.player.queue.pop(0)
+        m.player.queue.append(later)
+        raise ConnectionError
+
+    m.player.play = fail
+    await QueueCommands.command_queue_resume.callback(m.cog, m.ctx)
+    assert "still saved" in m.cog.send_embed_msg.await_args.kwargs["title"]
+    assert m.api.held(m.guild.id) == [held]
+    assert m.player.current is None and m.player.queue == [later]
+    assert [t.title for t in await reopen(m)] == ["new"]
+
+
+async def test_migrate_previous_entry_id_schema(music):
+    m = music
+    cur = m.conn.cursor()
+    cur.execute(
+        "CREATE TABLE persist_queue(entry_id INTEGER PRIMARY KEY, guild_id INTEGER, room_id INTEGER, track TEXT, position INTEGER)"
+    )
+    cur.execute(
+        "INSERT INTO persist_queue VALUES(17,42,74,?,NULL)",
+        (json.dumps({"track": "before", "info": {"title": "before"}}),),
+    )
+    await m.api.init()
+    await m.api.init()
+    assert m.api.rooms_to_restore() == {42: 74}
+    assert [t.title for t in await reopen(m)] == ["before"]
 
 
 async def test_migrate_legacy_queue_is_ordered_and_idempotent(music):

@@ -1934,14 +1934,17 @@ msgstr "재생을 점검할 빈 음성 채널을 지정합니다. 채널을 지�
 msgid "Choose a voice channel in this server."
 msgstr "이 서버의 음성 채널을 선택하세요."
 
+msgid "I need View Channel, Connect, and Speak in the test channel."
+msgstr "점검 채널에서 봇에 채널 보기, 연결, 말하기 권한이 필요합니다."
+
 #: redbot/cogs/audio/core/commands/llset.py:69
 #, docstring
-msgid "Play a short sample and verify position updates in the designated test channel."
-msgstr "지정한 음성 채널에서 곡을 잠시 재생해 재생 시간이 흐르는지 확인합니다."
+msgid "Play a short YouTube clip to the end in the designated test voice channel."
+msgstr "지정한 점검용 음성 채널에서 짧은 YouTube 영상을 끝까지 재생합니다."
 
 #: redbot/cogs/audio/core/commands/llset.py:73
-msgid "Playback advanced while connected to Discord voice."
-msgstr "Discord 음성 채널에 연결된 상태에서 곡의 재생 시간이 흐르는 것을 확인했습니다."
+msgid "The test clip played to the end while connected to Discord voice."
+msgstr "Discord 음성 채널에서 점검용 영상이 끝까지 재생됐습니다."
 
 #: redbot/cogs/audio/core/commands/llset.py:74
 msgid "Set a test channel with llset playbackchannel first."
@@ -1956,8 +1959,8 @@ msgid "The configured test voice channel is unavailable."
 msgstr "재생 점검용으로 지정한 음성 채널을 사용할 수 없습니다."
 
 #: redbot/cogs/audio/core/commands/llset.py:77
-msgid "Playback did not pass the voice and track position check."
-msgstr "음성 채널에서 곡의 재생 시간이 흐르는지 확인하지 못했습니다."
+msgid "The test clip did not complete with verified voice playback."
+msgstr "점검용 영상이 음성 채널에서 끝까지 재생되는 것을 확인하지 못했습니다."
 
 #: redbot/cogs/audio/core/commands/llset.py:60
 #, docstring
@@ -4083,3 +4086,42 @@ msgstr "곡이 없습니다."
 msgid "LIVE"
 msgstr "실시간"
 
+
+msgid "Suspended requests: {count}"
+msgstr "보류된 신청곡: {count}곡"
+
+msgid "Use `{prefix}queue resume` to resume the remaining requests."
+msgstr "`{prefix}queue resume` 명령으로 남은 신청곡을 이어서 재생할 수 있습니다."
+
+msgid "Playback suspended"
+msgstr "재생이 보류되었습니다."
+
+msgid "There are no suspended requests."
+msgstr "보류된 신청곡이 없습니다."
+
+msgid "You need the DJ role to resume the queue."
+msgstr "대기열을 재개하려면 DJ 역할이 필요합니다."
+
+msgid "I cannot join and speak in that channel."
+msgstr "해당 음성 채널에 접속해 소리를 보낼 수 없습니다."
+
+msgid "The audio service is unavailable."
+msgstr "현재 음원 재생 서비스에 연결할 수 없습니다."
+
+msgid "Resume the suspended queue when the player is idle in your voice channel."
+msgstr "봇이 같은 음성 채널에 있고 재생 중인 곡과 대기열이 비어 있을 때 재개해 주세요."
+
+msgid "The player changed. Your suspended requests are still saved."
+msgstr "재생 상태가 변경되었습니다. 보류된 신청곡은 그대로 보관되어 있습니다."
+
+msgid "Suspended queue resumed."
+msgstr "보류된 대기열의 재생을 재개했습니다."
+
+msgid "Resume requests held after repeated playback errors."
+msgstr "연속된 재생 오류로 보류된 신청곡을 이어서 재생합니다."
+
+msgid "Could not connect. Your suspended requests are still saved."
+msgstr "음성 채널에 연결할 수 없습니다. 보류된 신청곡은 그대로 보관되어 있습니다."
+
+msgid "Playback could not start. Your suspended requests are still saved."
+msgstr "재생을 시작할 수 없습니다. 보류된 신청곡은 그대로 보관되어 있습니다."

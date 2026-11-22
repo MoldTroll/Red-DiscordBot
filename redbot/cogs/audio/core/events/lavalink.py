@@ -23,12 +23,25 @@ _ = Translator("Audio", Path(__file__))
 def _playback_error_description(track, event_type, extra):
     if event_type == lavalink.LavalinkEvents.TRACK_STUCK:
         reason = _("Track playback stopped responding.")
-    elif any(
-        "AllClientsFailedException" in (extra.get(key) or "") for key in ("message", "cause")
-    ):
-        reason = _("None of the configured YouTube clients could play this track.")
     else:
-        reason = _("Lavalink could not play this track.")
+        detail = "\n".join(str(extra.get(key) or "") for key in ("message", "cause")).lower()
+        is_youtube = "allclientsfailedexception" in detail or (
+            (getattr(track, "_info", {}) or {}).get("sourceName") == "youtube"
+        )
+        causes = []
+        if is_youtube:
+            if "status code: 403" in detail or "http 403" in detail:
+                causes.append(_("request refused (HTTP 403)"))
+            if "requires login" in detail or "sign in to confirm" in detail:
+                causes.append(_("sign-in requested"))
+            if "requires age verification" in detail:
+                causes.append(_("age verification requested"))
+        if causes:
+            reason = _("YouTube client responses: {causes}.").format(causes=", ".join(causes))
+        elif "allclientsfailedexception" in detail:
+            reason = _("None of the configured YouTube clients could play this track.")
+        else:
+            reason = _("Lavalink could not play this track.")
 
     # Node exceptions may contain Java stack traces and signed stream URLs. Use only
     # a short track title alongside the translated reason, including for direct streams.
@@ -45,6 +58,77 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
     ):
         self._last_ll_update = datetime.datetime.now(datetime.timezone.utc)
         self._ll_guild_updates.add(int(extra.get("guildId", 0)))
+        if player.fetch("red_playback_probe"):
+            return
+
+        pending = player.fetch("pending_now_playing")
+        announcing = player.fetch("announcing_now_playing")
+        if announcing and (not event_type.connected or player.paused):
+            player.store("announcing_now_playing", None)
+            if player.current is announcing[0]:
+                player.store("pending_now_playing", (player.current, None))
+            return
+        if not pending or player.current is not pending[0]:
+            return
+        track, previous = pending
+        if not event_type.connected or player.paused:
+            player.store("pending_now_playing", (track, None))
+            return
+        position = (event_type.time, event_type.position)
+        if previous is None or (position[0] > previous[0] and position[1] < previous[1]):
+            player.store("pending_now_playing", (track, position))
+            return
+        if position[0] <= previous[0] or position[1] <= previous[1]:
+            return
+        # Claim the notification before yielding so concurrent state updates announce once.
+        player.store("pending_now_playing", None)
+        # A new start or a connection loss can supersede this send while Discord I/O runs.
+        delivery = (track,)
+        player.store("announcing_now_playing", delivery)
+
+        def still_current():
+            return player.current is track and player.fetch("announcing_now_playing") is delivery
+
+        guild = player.guild
+        channel = guild.get_channel_or_thread(player.fetch("notify_channel"))
+        if not channel or not self._has_notify_perms(channel):
+            player.store("announcing_now_playing", None)
+            return
+        await set_contextual_locales_from_guild(self.bot, guild)
+        description = await self.get_track_description(track, self.local_folder_current_path)
+        if not description:
+            if still_current():
+                player.store("announcing_now_playing", None)
+            return
+        duration = _("LIVE") if track.is_stream else self.format_time(track.length)
+        thumb = (
+            self.rgetattr(track, "thumbnail", None)
+            if await self.config.guild(guild).thumbnail()
+            else None
+        )
+        if not still_current():
+            return
+        previous_msg = player.fetch("notify_message")
+        if previous_msg:
+            with contextlib.suppress(discord.HTTPException):
+                await previous_msg.delete()
+        if not still_current():
+            return
+        message = await self.send_embed_msg(
+            channel,
+            title=_("Now Playing"),
+            description=description,
+            footer=_("Track length: {length} | Requested by: {user}").format(
+                length=duration, user=track.requester
+            ),
+            thumbnail=thumb,
+        )
+        if still_current():
+            player.store("announcing_now_playing", None)
+            player.store("notify_message", message)
+        elif message:
+            with contextlib.suppress(discord.HTTPException):
+                await message.delete()
 
     async def lavalink_event_handler(
         self, player: lavalink.Player, event_type: lavalink.LavalinkEvents, extra
@@ -52,6 +136,10 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
         if player.fetch("red_playback_probe"):
             return
         current_track = player.current
+        failure = event_type in (
+            lavalink.LavalinkEvents.TRACK_EXCEPTION,
+            lavalink.LavalinkEvents.TRACK_STUCK,
+        )
         current_channel = player.channel
         guild = self.rgetattr(current_channel, "guild", None)
         if not (current_channel and guild):
@@ -59,6 +147,45 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
             await player.stop()
             await player.disconnect()
             return
+        if failure:
+            if not player.node.ready:
+                return
+            previous_failure = player.fetch("last_playback_failure")
+            if previous_failure and (current_track is None or previous_failure is current_track):
+                return
+            player.store("announcing_now_playing", None)
+            player.store("last_playback_failure", current_track or True)
+            player.store("pending_now_playing", None)
+            # The Lavalink client schedules FINISHED -> play() alongside our listener.
+            # Count and reserve requests before any config, node, or Discord I/O.
+            early_exit = self.record_playback_failure(guild.id)
+            expected_current = current_track
+            api = self.api_interface.persistent_queue_api
+            if current_track is not None:
+                player.queue[:] = [track for track in player.queue if track is not current_track]
+                api.removed(guild.id, [current_track])
+            if early_exit:
+                api.hold(guild.id, player.queue)
+                player.queue = []
+                player.current = None
+                player.store("queue_suspended", True)
+                player.store("playing_song", None)
+                player.store("autoplay_notified", False)
+            elif current_track is not None and player.repeat:
+                # Prevent automatic repetition of the failed request during notification.
+                player.current = expected_current = None
+        elif event_type == lavalink.LavalinkEvents.TRACK_START:
+            if current_track is None or (
+                isinstance(extra, str) and extra != current_track.track_identifier
+            ):
+                return
+            player.store("announcing_now_playing", None)
+            player.store("last_playback_failure", None)
+            player.store("queue_suspended", False)
+            player.store("pending_now_playing", None)
+        failed_queue_end = event_type == lavalink.LavalinkEvents.QUEUE_END and bool(
+            player.fetch("last_playback_failure")
+        )
         if await self.bot.cog_disabled_in_guild(self, guild):
             await player.stop()
             await player.disconnect()
@@ -133,19 +260,18 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
         log.verbose("Received a new lavalink event for %s: %s: %r", guild_id, event_type, extra)
         await set_contextual_locales_from_guild(self.bot, guild)
         current_requester = self.rgetattr(current_track, "requester", None)
-        current_stream = self.rgetattr(current_track, "is_stream", None)
-        current_length = self.rgetattr(current_track, "length", None)
-        current_thumbnail = self.rgetattr(current_track, "thumbnail", None)
         current_id = self.rgetattr(current_track, "_info", {}).get("identifier")
 
-        repeat = guild_data["repeat"]
         notify = guild_data["notify"]
         autoplay = guild_data["auto_play"]
         status = await self.config.status()
         prev_song: lavalink.Track = player.fetch("prev_song")
-        await self.maybe_reset_error_counter(player)
 
         if event_type == lavalink.LavalinkEvents.TRACK_START:
+            if player.current is not current_track or player.fetch("last_playback_failure"):
+                return
+            if notify and current_track:
+                player.store("pending_now_playing", (current_track, None))
             self.skip_votes[guild_id] = set()
             playing_song = player.fetch("playing_song")
             requester = player.fetch("requester")
@@ -174,12 +300,15 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
         if event_type == lavalink.LavalinkEvents.QUEUE_END:
             prev_requester = player.fetch("prev_requester")
             self.bot.dispatch("red_audio_queue_end", guild, prev_song, prev_requester)
-            if player.is_auto_playing or (
-                autoplay
-                and not player.queue
-                and player.fetch("playing_song") is not None
-                and self.playlist_api is not None
-                and self.api_interface is not None
+            if not player.fetch("queue_suspended") and (
+                player.is_auto_playing
+                or (
+                    autoplay
+                    and not player.queue
+                    and player.fetch("playing_song") is not None
+                    and self.playlist_api is not None
+                    and self.api_interface is not None
+                )
             ):
                 notify_channel_id = player.fetch("notify_channel")
                 try:
@@ -203,37 +332,6 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
                             ),
                         )
                     return
-        if event_type == lavalink.LavalinkEvents.TRACK_START and notify:
-            notify_channel_id = player.fetch("notify_channel")
-            notify_channel = guild.get_channel_or_thread(notify_channel_id)
-            if notify_channel and self._has_notify_perms(notify_channel):
-                if player.fetch("notify_message") is not None:
-                    with contextlib.suppress(discord.HTTPException):
-                        await player.fetch("notify_message").delete()
-                description = await self.get_track_description(
-                    current_track, self.local_folder_current_path
-                )
-                if not description:
-                    return
-                if current_stream:
-                    dur = _("LIVE")
-                else:
-                    dur = self.format_time(current_length)
-
-                thumb = None
-                if await self.config.guild(guild).thumbnail() and current_thumbnail:
-                    thumb = current_thumbnail
-
-                notify_message = await self.send_embed_msg(
-                    notify_channel,
-                    title=_("Now Playing"),
-                    description=description,
-                    footer=_("Track length: {length} | Requested by: {user}").format(
-                        length=dur, user=current_requester
-                    ),
-                    thumbnail=thumb,
-                )
-                player.store("notify_message", notify_message)
         if event_type == lavalink.LavalinkEvents.TRACK_START and status:
             log.debug("Track started for %s, updating bot status", guild_id)
             player_check = await self.get_active_player_count()
@@ -250,67 +348,63 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
             if not autoplay:
                 notify_channel_id = player.fetch("notify_channel")
                 notify_channel = guild.get_channel_or_thread(notify_channel_id)
-                if notify_channel and notify and self._has_notify_perms(notify_channel):
+                if (
+                    not (
+                        failed_queue_end
+                        or player.fetch("last_playback_failure")
+                        or player.current
+                        or player.queue
+                    )
+                    and notify_channel
+                    and notify
+                    and self._has_notify_perms(notify_channel)
+                ):
                     await self.send_embed_msg(notify_channel, title=_("Queue ended."))
                 if disconnect:
                     log.debug(
                         "Queue ended for %s, Disconnecting bot due to configuration", guild_id
                     )
+                    # Let the audio buffer drain, then recheck the player: a request can
+                    # start during the grace period or on a replacement voice connection.
+                    await asyncio.sleep(2)
+                    if player.current or player.queue or guild.voice_client is not player:
+                        return
                     self.bot.dispatch("red_audio_audio_disconnect", guild)
+                    await player.disconnect()
                     await self.config.guild_from_id(
                         guild_id=guild_id
                     ).currently_auto_playing_in.set([])
-                    # let audio buffer run out on slower machines (GH-5158)
-                    await asyncio.sleep(2)
-                    await player.disconnect()
                     self._ll_guild_updates.discard(guild.id)
             if status:
                 log.debug("Queue ended for %s, updating bot status", guild_id)
                 player_check = await self.get_active_player_count()
                 await self.update_bot_presence(*player_check)
 
-        if event_type in [
-            lavalink.LavalinkEvents.TRACK_EXCEPTION,
-            lavalink.LavalinkEvents.TRACK_STUCK,
-        ]:
+        if failure:
             message_channel = guild.get_channel_or_thread(player.fetch("notify_channel"))
-            if current_track is not None:
-                failed = [track for track in player.queue if track == current_track]
-                self.api_interface.persistent_queue_api.removed(guild_id, [current_track, *failed])
-                player.queue = [track for track in player.queue if track != current_track]
-            if repeat and player.current is current_track:
-                player.current = None
-            if not guild_id:
-                return
-            guild_id = int(guild_id)
-            self._error_counter.setdefault(guild_id, 0)
-            if guild_id not in self._error_counter:
-                self._error_counter[guild_id] = 0
-            early_exit = await self.increase_error_counter(player)
             if early_exit:
-                self._disconnected_players[guild_id] = True
-                self.play_lock[guild_id] = False
-                eq = player.fetch("eq")
-                self.api_interface.persistent_queue_api.removed(guild_id, player.queue)
-                player.queue = []
-                player.store("playing_song", None)
-                player.store("autoplay_notified", False)
-                if eq:
-                    await self.config.custom("EQUALIZER", guild_id).eq_bands.set(eq.bands)
-                await player.stop()
-                await player.disconnect()
-                await self.config.guild_from_id(guild_id=guild_id).currently_auto_playing_in.set(
-                    []
-                )
-                self._ll_guild_updates.discard(guild_id)
-                self.bot.dispatch("red_audio_audio_disconnect", guild)
-                log.warning("Closing the player after repeated errors in guild %s.", guild_id)
-                title = _("Multiple Errors Detected")
-                description = _(
-                    "Closing the audio player "
-                    "due to multiple errors being detected. "
-                    "If this persists, please inform the bot owner "
-                    "as the Audio cog may be temporally unavailable."
+                # Player.stop() clears any new requests added while its node write is
+                # in flight. Only stop the failed source; the recovery queue is detached.
+                try:
+                    if player.current is None and player.fetch("queue_suspended"):
+                        await player.pause()
+                    if player.current is None and player.fetch("queue_suspended"):
+                        await player.node.no_event_stop(guild_id)
+                except (OSError, lavalink.RedLavalinkException) as exc:
+                    log.warning(
+                        "Failed to stop suspended player in guild %s (%s).",
+                        guild_id,
+                        type(exc).__name__,
+                    )
+                if player.current is None and player.fetch("queue_suspended"):
+                    await self.config.guild(guild).currently_auto_playing_in.set([])
+                title = _("Playback suspended after repeated errors")
+                description = (
+                    _("Use `{prefix}queue resume` to resume the remaining requests.").format(
+                        prefix=(await self.bot.get_valid_prefixes(guild))[-1]
+                    )
+                    if api.held(guild_id)
+                    else _playback_error_description(current_track, event_type, extra)
                 )
             else:
                 title = (
@@ -335,7 +429,6 @@ class LavalinkEvents(MixinMeta, metaclass=CompositeMetaClass):
                     exc.status,
                 )
             # The client can advance on TrackEnd while Discord is sending the notification.
-            expected_current = None if repeat else current_track
             if not early_exit and current_track is not None and player.node.ready:
                 if player.current is expected_current:
                     await player.skip()

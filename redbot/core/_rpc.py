@@ -34,7 +34,15 @@ class RPC:
         self._started = False
 
     async def _pre_login(self) -> None:
-        from ._rpc_server import RedRpc
+        try:
+            from ._rpc_server import RedRpc
+        except ModuleNotFoundError as exc:
+            if exc.name != "aiohttp_json_rpc":
+                raise
+            log.critical(
+                "Starting Red with --rpc requires installing this build with the [rpc] extra."
+            )
+            raise SystemExit(ExitCodes.CONFIGURATION_ERROR) from exc
 
         self.app = web.Application()
         self._rpc = RedRpc()

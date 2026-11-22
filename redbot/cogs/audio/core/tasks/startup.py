@@ -197,6 +197,8 @@ class StartUpTasks(MixinMeta, metaclass=CompositeMetaClass):
                 log.debug("Error restoring player in %s", guild_id, exc_info=exc)
 
         for guild_id, (notify_channel_id, vc_id) in metadata.items():
+            if self.api_interface.persistent_queue_api.held(guild_id):
+                continue
             guild = self.bot.get_guild(guild_id)
             player: Optional[lavalink.Player] = None
             vc = 0

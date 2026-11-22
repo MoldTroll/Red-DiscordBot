@@ -242,12 +242,20 @@ class PlayerControllerCommands(MixinMeta, metaclass=CompositeMetaClass):
     @commands.bot_has_permissions(embed_links=True)
     async def command_pause(self, ctx: commands.Context):
         """Pause or resume a playing track."""
+        player = lavalink.get_player(ctx.guild.id) if self._player_check(ctx) else None
+        if player is None or not player.current:
+            if self.api_interface.persistent_queue_api.held(ctx.guild.id):
+                return await self.send_embed_msg(
+                    ctx,
+                    title=_("Playback suspended"),
+                    description=_(
+                        "Use `{prefix}queue resume` to resume the remaining requests."
+                    ).format(prefix=ctx.clean_prefix),
+                )
+            return await self.send_embed_msg(ctx, title=_("Nothing playing."))
         dj_enabled = self._dj_status_cache.setdefault(
             ctx.guild.id, await self.config.guild(ctx.guild).dj_enabled()
         )
-        if not self._player_check(ctx):
-            return await self.send_embed_msg(ctx, title=_("Nothing playing."))
-        player = lavalink.get_player(ctx.guild.id)
         can_skip = await self._can_instaskip(ctx, ctx.author)
         if (not ctx.author.voice or ctx.author.voice.channel != player.channel) and not can_skip:
             return await self.send_embed_msg(
@@ -644,11 +652,13 @@ class PlayerControllerCommands(MixinMeta, metaclass=CompositeMetaClass):
             player.is_playing
             or (not player.is_playing and player.paused)
             or player.queue
+            or self.api_interface.persistent_queue_api.held(ctx.guild.id)
             or getattr(player.current, "extras", {}).get("autoplay")
         ):
             eq = player.fetch("eq")
             if eq:
                 await self.config.custom("EQUALIZER", ctx.guild.id).eq_bands.set(eq.bands)
+            self.api_interface.persistent_queue_api.clear_held(ctx.guild.id)
             await self.api_interface.persistent_queue_api.drop(ctx.guild.id)
             player.queue = []
             player.store("playing_song", None)

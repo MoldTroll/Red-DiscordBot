@@ -26,25 +26,13 @@ _ = Translator("Audio", Path(__file__))
 
 
 class PlayerUtilities(MixinMeta, metaclass=CompositeMetaClass):
-    async def maybe_reset_error_counter(self, player: lavalink.Player) -> None:
-        guild = self.rgetattr(player, "channel.guild.id", None)
-        if not guild:
-            return
-        now = time.time()
-        seconds_allowed = 10
-        last_error = self._error_timer.setdefault(guild, now)
-        if now - seconds_allowed > last_error:
-            self._error_timer[guild] = 0
-            self._error_counter[guild] = 0
-
-    async def increase_error_counter(self, player: lavalink.Player) -> bool:
-        guild = self.rgetattr(player, "channel.guild.id", None)
-        if not guild:
-            return False
-        now = time.time()
-        self._error_counter[guild] += 1
-        self._error_timer[guild] = now
-        return self._error_counter[guild] >= 5
+    def record_playback_failure(self, guild_id: int) -> bool:
+        now = time.monotonic()
+        if now - self._error_timer.get(guild_id, 0) > 10:
+            self._error_counter[guild_id] = 0
+        self._error_timer[guild_id] = now
+        self._error_counter[guild_id] += 1
+        return self._error_counter[guild_id] >= 5
 
     async def get_active_player_count(self) -> Tuple[Optional[str], int]:
         try:

@@ -1,5 +1,4 @@
 aiohttp>=3.14.5,<4
-aiohttp-json-rpc
 apsw
 babel
 click

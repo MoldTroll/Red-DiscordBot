@@ -455,3 +455,21 @@ msgstr "재생 점검이 진행 중입니다. 잠시 후 다시 시도하세요.
 msgid "LIVE"
 msgstr "실시간"
 
+
+msgid "YouTube client responses: {causes}."
+msgstr "YouTube 클라이언트에서 다음 응답을 받았습니다: {causes}."
+
+msgid "age verification requested"
+msgstr "연령 확인 요청"
+
+msgid "sign-in requested"
+msgstr "로그인 요청"
+
+msgid "request refused (HTTP 403)"
+msgstr "음원 요청 거부(HTTP 403)"
+
+msgid "Playback suspended after repeated errors"
+msgstr "연속된 재생 오류로 대기열을 보류했습니다."
+
+msgid "Use `{prefix}queue resume` to resume the remaining requests."
+msgstr "`{prefix}queue resume` 명령으로 남은 신청곡을 이어서 재생할 수 있습니다."

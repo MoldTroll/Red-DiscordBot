@@ -22,10 +22,69 @@ LOCK = Path("/run/lock/redbot-audio-maintenance.lock")
 HELPERS = Path("/usr/local/libexec/red-lavalink")
 PYTHON = "/usr/bin/python3"
 AUTOMATIC_RETRY_SECONDS = 6 * 60 * 60
+# This deployed predecessor writes format 1, but predates the packaged declaration.
+FIRST_KNOWN_DATA_FORMAT = {"1ef34110f9362172a7aa8eb9ffd4ad4f374b529a": 1}
 
 
 class Busy(Exception):
     """Another maintenance operation or music listener needs the running service."""
+
+
+def runtime_info():
+    """Run inside the inspected venv. Detect installed code, not mutable branch state."""
+    from importlib import metadata
+
+    try:
+        from redbot import _fork
+    except ImportError:
+        _fork = None  # A runtime installed before the fork has no format declaration.
+
+    red = metadata.distribution("Red-DiscordBot")
+    origin = json.loads(red.read_text("direct_url.json") or "{}")
+    revision = origin.get("vcs_info", {}).get("commit_id")
+    data_format = getattr(_fork, "ROLLBACK_DATA_FORMAT", FIRST_KNOWN_DATA_FORMAT.get(revision))
+    if type(data_format) is not int or data_format < 1:
+        data_format = None
+    files = sorted(
+        p
+        for p in (red.files or ())
+        if str(p).startswith(("redbot/cogs/audio/", "redbot/core/", "redbot/__main__.py"))
+        and p.suffix == ".py"
+    )
+    if not any(str(p).startswith("redbot/cogs/audio/") for p in files):
+        return {"music": None, "format": data_format}
+    digest = hashlib.sha256()
+    for path in files:
+        digest.update(str(path).encode() + b"\0" + bytes.fromhex(checksum(red.locate_file(path))))
+    dependencies = sorted(
+        (d.metadata["Name"].lower(), d.version)
+        for d in metadata.distributions()
+        if d.metadata["Name"].lower() != "red-discordbot"
+    )
+    digest.update(json.dumps(dependencies).encode())
+    return {"music": digest.hexdigest(), "format": data_format}
+
+
+def audio_schema(root):
+    """Additional offline check for on-disk migrations, including SQLite WAL state."""
+    import sqlite3
+
+    path = root / "cogs/Audio/Audio.db"
+    try:
+        connection = sqlite3.connect(path.as_uri() + "?mode=ro", uri=True)
+        try:
+            version = connection.execute("PRAGMA user_version").fetchone()[0]
+            schema = connection.execute(
+                "SELECT type, name, tbl_name, sql FROM sqlite_master "
+                "WHERE name NOT GLOB 'sqlite_*' ORDER BY type, name"
+            ).fetchall()
+        finally:
+            connection.close()
+    except sqlite3.Error:
+        return ""
+    if not schema:
+        return ""
+    return hashlib.sha256(json.dumps([version, schema]).encode()).hexdigest()
 
 
 def sync_dir(path):
@@ -79,9 +138,10 @@ def checksum(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
-def snapshot(root, stream):
+def snapshot(root, stream, *, recovery=False):
     paths = sorted(data_files(root))
-    if Path("core/settings.json") not in paths or Path("cogs/Audio/Audio.db") not in paths:
+    required = {Path("core/settings.json"), Path("cogs/Audio/Audio.db")}
+    if not recovery and not required.issubset(paths):
         raise RuntimeError(
             "Expected the music instance's core/settings.json and cogs/Audio/Audio.db"
         )
@@ -188,28 +248,92 @@ class Rollout:
     def bot(self, *args):
         return as_user(self.user, *args)
 
+    def instance_user(self, name):
+        import pwd
+
+        user = os.environ.get(f"RED_USER_{name.upper()}", self.user)
+        unit_user = output("systemctl", "show", "-p", "User", "--value", f"red@{name}.service")
+        if pwd.getpwnam(user).pw_uid == 0 or unit_user != user:
+            raise ValueError(f"Unexpected service account for {name}")
+        return user
+
     def helper(self, operation, *args):
-        return self.bot(PYTHON, "-I", Path(__file__).resolve(), operation, *args)
+        command = [PYTHON, "-I", Path(__file__).resolve(), operation, *args]
+        if operation in ("snapshot", "restore", "recovery-snapshot", "audio-schema"):
+            for name, path in self.data.items():
+                if args == (path,):
+                    return as_user(self.instance_user(name), *command)
+            raise ValueError("Unexpected instance data path")
+        return self.bot(*command)
+
+    def backup_data(self, name, path, operation):
+        # A crash can leave a partial file, but only a complete archive is published.
+        tmp = path.with_suffix(".partial")
+        try:
+            with tmp.open("wb") as dst:
+                run(*self.helper(operation, self.data[name]), stdout=dst)
+                os.fsync(dst.fileno())
+            os.replace(tmp, path)
+            sync_dir(path.parent)
+            return checksum(path)
+        finally:
+            tmp.unlink(missing_ok=True)
 
     def lava(self, action):
         return as_user(self.lava_user, PYTHON, "-I", HELPERS / "release.py", action, self.lava_dir)
 
     def probe(self, name, *flags):
         socket = Path(f"/run/redbot-probe-{name}/check.sock")
-        return self.bot(PYTHON, "-I", HELPERS / "probe.py", *flags, socket)
+        return as_user(
+            self.instance_user(name), PYTHON, "-I", HELPERS / "probe.py", *flags, socket
+        )
 
-    def idle(self, recovering=False):
+    def socket_disabled(self, name):
+        # A missing socket can also mean that the Audio cog is still starting.
+        # Only the actual running process can confirm that the probe was disabled.
+        pid = output("systemctl", "show", "-p", "MainPID", "--value", f"red@{name}.service")
+        if not pid.isdecimal() or pid == "0":
+            return False
+        try:
+            env = Path(f"/proc/{pid}/environ").read_bytes().split(b"\0")
+        except FileNotFoundError:
+            return False
+        prefix = b"RED_AUDIO_PROBE_SOCKET="
+        return not any(value.startswith(prefix) and value != prefix for value in env)
+
+    def invocation(self, name):
+        return output("systemctl", "show", "-p", "InvocationID", "--value", f"red@{name}.service")
+
+    def idle(self, recovering=False, require_playback=False):
         def check(args, optional=False):
             result = subprocess.run(args)
             if result.returncode == 75:
                 raise Busy()
+            if result.returncode == 78:
+                if require_playback:
+                    raise Busy(
+                        "Music update deferred: configure an accessible test voice channel."
+                    )
+                return
             if not optional:
                 result.check_returncode()
 
         check(self.lava("idle"))
         for name in self.names:
-            if active(name) and Path(f"/run/redbot-probe-{name}/check.sock").is_socket():
+            if not recovering and not self.connected(name):
+                raise RuntimeError(f"{name} is not connected to Lavalink.")
+            if not active(name):
+                if not recovering:
+                    raise RuntimeError(f"{name} stopped during the preflight check.")
+                continue
+            socket = Path(f"/run/redbot-probe-{name}/check.sock")
+            if socket.is_socket():
                 check(self.probe(name, "--available"), optional=recovering)
+            if not socket.is_socket() and not recovering:
+                if not self.socket_disabled(name):
+                    raise Busy(f"Update deferred: waiting for the enabled {name} Audio probe.")
+                if require_playback:
+                    raise Busy(f"Music update deferred: {name} playback check socket is disabled.")
 
     def link(self, name):
         return self.root / "instances" / name
@@ -268,16 +392,14 @@ class Rollout:
         link = self.link(name)
         if not link.is_symlink():
             raise RuntimeError(f"Missing service runtime link for {name}")
-        unit_user = output("systemctl", "show", "-p", "User", "--value", f"red@{name}.service")
-        if unit_user != self.user:
-            raise RuntimeError(f"Unexpected service account for {name}")
+        user = self.instance_user(name)
         code = (
             "import json, sys; from redbot.core import data_manager as d;"
             "d.load_basic_configuration(sys.argv[1]); c=d.basic_config;"
             "print(json.dumps([d.storage_type(), c['DATA_PATH'], c['CORE_PATH_APPEND'], c['COG_PATH_APPEND']]))"
         )
         backend, path, core, cogs = json.loads(
-            output(*self.bot(link / "bin/python", "-I", "-c", code, name))
+            output(*as_user(user, link / "bin/python", "-I", "-c", code, name))
         )
         if (backend, Path(path).resolve(), core, cogs) != (
             "JSON",
@@ -306,24 +428,44 @@ class Rollout:
             return any(f" {runtime}/" in line and "/site-packages/" in line for line in maps)
         return True
 
-    def health(self, name, sha=None):
+    def health(self, name, sha=None, *, require_playback=False):
         until = time.monotonic() + self.timeout
+        socket = Path(f"/run/redbot-probe-{name}/check.sock")
         while time.monotonic() < until:
             runtime = self.link(name).resolve(strict=True) if sha else None
             if self.connected(name, runtime):
                 if sha is None:
                     return
-                if Path(f"/run/redbot-probe-{name}/check.sock").is_socket():
-                    if self.revision(self.link(name)) != sha:
-                        raise RuntimeError(f"{name} has an unexpected revision")
-                    run(*self.lava("check"))
-                    result = subprocess.run(self.probe(name))
+                ready = socket.is_socket()
+                if not ready and not self.socket_disabled(name):
+                    time.sleep(2)
+                    continue
+                if self.revision(self.link(name)) != sha:
+                    raise RuntimeError(f"{name} has an unexpected revision")
+                run(*self.lava("check"))
+                if ready:
+                    flags = ["--require-playback"] if require_playback else []
+                    result = subprocess.run(self.probe(name, *flags))
                     if result.returncode == 75:
                         raise Busy()
-                    result.check_returncode()
-                    if not self.connected(name, runtime):
-                        raise RuntimeError(f"{name} disconnected during the playback check")
-                    return
+                    if result.returncode == 78:
+                        if not socket.is_socket():
+                            time.sleep(2)
+                            continue
+                        if require_playback:
+                            raise Busy(f"Music update deferred: {name} has no test voice channel.")
+                        print(
+                            f"{name}: voice playback not verified (no test channel).", flush=True
+                        )
+                    else:
+                        result.check_returncode()
+                elif require_playback:
+                    raise Busy(f"Music update deferred: {name} playback check socket is disabled.")
+                else:
+                    print(f"{name}: voice playback not verified (probe disabled).", flush=True)
+                if not self.connected(name, runtime):
+                    raise RuntimeError(f"{name} disconnected during the playback check")
+                return
             time.sleep(2)
         raise RuntimeError(f"Timed out waiting for {name}")
 
@@ -344,7 +486,9 @@ class Rollout:
             all_backups.add(previous_failure)
         if committed:
             backups = list(dict.fromkeys([*known["backups"], tx["backup"]]))[-2:]
-            failed_backup = None
+            # A successful retry must not delete the only copy of user changes
+            # made by a canary before an incompatible rollback.
+            failed_backup = previous_failure
         else:
             backups = known["backups"]
             failed_backup = tx["backup"]
@@ -374,18 +518,61 @@ class Rollout:
         if phase == "pending":
             return
         unit = f"red@{name}.service"
-        if phase in ("backed_up", "ready"):
-            archive = Path(tx["backup"]) / f"{name}.tar.gz"
+        if phase in ("backed_up", "ready", "rolling_back"):
+            backup = Path(tx["backup"])
+            archive = backup / f"{name}.tar.gz"
             if checksum(archive) != row["checksum"]:
                 raise RuntimeError(f"Offline snapshot failed its integrity check for {name}")
-            if active(name):
+            was_active = active(name)
+            if was_active:
                 self.idle(recovering=True)
             run("systemctl", "stop", unit)
-            with archive.open("rb") as src:
-                run(*self.helper("restore", self.data[name]), stdin=src)
+            current = backup / f"{name}-before-rollback.tar.gz"
+            if phase != "rolling_back":
+                # Publish and journal the latest offline data before mutating anything.
+                # Include surviving files even if a failed migration removed its database.
+                try:
+                    recovered_hash = self.backup_data(name, current, "recovery-snapshot")
+                    schema = row.get("audio_schema")
+                    keep_data = bool(
+                        phase == "ready"
+                        and schema
+                        and output(*self.helper("audio-schema", self.data[name])) == schema
+                    )
+                    row.update(
+                        phase="rolling_back", keep_data=keep_data, recovery_checksum=recovered_hash
+                    )
+                    save(tx)
+                except Exception:
+                    if row["phase"] == "ready" and was_active:
+                        run("systemctl", "start", unit)
+                    raise
+            if checksum(current) != row["recovery_checksum"]:
+                raise RuntimeError(f"Pre-rollback snapshot failed its integrity check for {name}")
+            # The runtime switch follows the data restore. If it already completed,
+            # replaying the old snapshot could erase writes accepted after a reboot.
+            already_switched = phase == "rolling_back" and (
+                self.link(name).resolve(strict=True) == Path(row["old"])
+            )
+            if phase == "rolling_back" and was_active:
+                # systemd may have started the bot on reboot. Preserve additional
+                # writes without replacing the original pre-rollback evidence.
+                resumed = backup / f"{name}-after-restart.tar.gz"
+                row["restart_checksum"] = self.backup_data(name, resumed, "recovery-snapshot")
+                save(tx)
+                print(f"{name}: saved restarted service data to {resumed}", flush=True)
+            if not row["keep_data"] and not already_switched:
+                with archive.open("rb") as src:
+                    run(*self.helper("restore", self.data[name]), stdin=src)
             run(*self.helper("switch", self.link(name), row["old"]))
             row["phase"] = "restored"
             save(tx)
+            action = (
+                "kept current data"
+                if row["keep_data"] or already_switched
+                else "restored pre-update data"
+            )
+            print(f"{name}: {action}. Pre-rollback data: {current}", flush=True)
         # Before "backed_up" no new code has run; after "restored" do not
         # overwrite data that the restored bot has accepted since recovery.
         run("systemctl", "start", unit)
@@ -428,7 +615,6 @@ class Rollout:
             if "completed" in tx:
                 self.complete(tx, tx["completed"])
             elif tx.pop("deferred", False):
-                self.idle()
                 save(tx)
                 self.apply(tx)
             else:
@@ -460,17 +646,38 @@ class Rollout:
         if not all(self.connected(name) for name in self.names):
             raise RuntimeError("All existing bot services must be connected before an update")
         dest = self.prepare(sha)
+        inspected = {}
+        for venv in dict.fromkeys(
+            [dest, *(self.link(n).resolve(strict=True) for n in self.names)]
+        ):
+            inspected[venv] = json.loads(
+                output(
+                    *self.bot(venv / "bin/python", "-I", Path(__file__).resolve(), "runtime-info")
+                )
+            )
+        incoming = inspected[dest]
         backup = Path(tempfile.mkdtemp(prefix=f"{sha[:12]}-", dir=STATE))
         tx = {
             "backup": str(backup),
             "candidate": str(dest),
             "sha": sha,
             "data": {k: str(v) for k, v in self.data.items()},
-            "instances": {
-                name: {"old": str(self.link(name).resolve(strict=True)), "phase": "pending"}
-                for name in self.names
-            },
+            "instances": {},
+            "require_playback": False,
         }
+        for name in self.names:
+            old = self.link(name).resolve(strict=True)
+            previous = inspected[old]
+            tx["require_playback"] |= (
+                not incoming["music"] or incoming["music"] != previous["music"]
+            )
+            tx["instances"][name] = {
+                "old": str(old),
+                "phase": "pending",
+                "compatible_data": bool(
+                    incoming["format"] and incoming["format"] == previous["format"]
+                ),
+            }
         save(tx)
         staging.unlink()
         sync_dir(STATE)
@@ -478,10 +685,21 @@ class Rollout:
 
     def apply(self, tx):
         checking_candidate = False
+        require_playback = tx.get("require_playback", True)
         try:
             for name in self.names:
-                self.idle()
                 row = tx["instances"][name]
+                if (
+                    row["phase"] == "ready"
+                    and row.get("verified_invocation")
+                    and row["verified_invocation"] == self.invocation(name)
+                    and self.connected(name, Path(tx["candidate"]))
+                    and self.revision(self.link(name)) == tx["sha"]
+                ):
+                    # Re-check both bots' idleness before the next cutover. Do not
+                    # rejoin their shared channel for a trial this process completed.
+                    continue
+                self.idle(require_playback=require_playback)
                 needs_start = row["phase"] == "pending"
                 if needs_start:
                     row["phase"] = "stopping"
@@ -490,20 +708,22 @@ class Rollout:
                     run("systemctl", "stop", unit)
                     backup = Path(tx["backup"])
                     archive = backup / f"{name}.tar.gz"
-                    with archive.open("xb") as dst:
-                        run(*self.helper("snapshot", self.data[name]), stdout=dst)
-                        os.fsync(dst.fileno())
-                    sync_dir(backup)
-                    row["checksum"] = checksum(archive)
+                    row["checksum"] = self.backup_data(name, archive, "snapshot")
+                    if row.get("compatible_data"):
+                        row["audio_schema"] = output(*self.helper("audio-schema", self.data[name]))
                     row["phase"] = "backed_up"
                     save(tx)
                     run(*self.helper("switch", self.link(name), tx["candidate"]))
                 checking_candidate = True
                 if needs_start:
                     run("systemctl", "start", unit)
-                self.health(name, tx["sha"])
+                invocation = self.invocation(name)
+                self.health(name, tx["sha"], require_playback=require_playback)
+                if invocation != self.invocation(name):
+                    raise RuntimeError(f"{name} restarted during candidate verification")
                 checking_candidate = False
                 row["phase"] = "ready"
+                row["verified_invocation"] = invocation
                 save(tx)
                 print(f"Verified {name} at {tx['sha']}.", flush=True)
         except Busy:
@@ -532,8 +752,12 @@ def main():
         if os.geteuid() == 0:
             raise ValueError("File operations must run as the instance user")
         command, *args = sys.argv[1:]
-        if command == "snapshot":
-            snapshot(Path(args[0]), sys.stdout.buffer)
+        if command == "runtime-info":
+            print(json.dumps(runtime_info()))
+        elif command == "audio-schema":
+            print(audio_schema(Path(args[0])))
+        elif command in ("snapshot", "recovery-snapshot"):
+            snapshot(Path(args[0]), sys.stdout.buffer, recovery=command == "recovery-snapshot")
         elif command == "restore":
             restore(Path(args[0]), sys.stdin.buffer)
         elif command == "switch":
@@ -555,8 +779,8 @@ def main():
             return
         try:
             Rollout().update(automatic=automatic)
-        except Busy:
-            print("Music or its test channel is busy. Run the update again when idle.")
+        except Busy as exc:
+            print(str(exc) or "Music or its test channel is busy. Run the update again when idle.")
 
 
 if __name__ == "__main__":

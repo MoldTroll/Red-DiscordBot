@@ -40,6 +40,15 @@ class QueueCommands(MixinMeta, metaclass=CompositeMetaClass):
         # Check to avoid an IndexError further down in the code.
         if page < 1:
             page = 1
+        held = self.api_interface.persistent_queue_api.held(ctx.guild.id)
+        if held and (not self._player_check(ctx) or not lavalink.get_player(ctx.guild.id).current):
+            return await self.send_embed_msg(
+                ctx,
+                title=_("Suspended requests: {count}").format(count=len(held)),
+                description=_(
+                    "Use `{prefix}queue resume` to resume the remaining requests."
+                ).format(prefix=ctx.clean_prefix),
+            )
 
         async def _queue_menu(
             ctx: commands.Context,
@@ -174,30 +183,117 @@ class QueueCommands(MixinMeta, metaclass=CompositeMetaClass):
                 page = len_queue_pages
         return await menu(ctx, queue_page_list, queue_controls, page=(page - 1))
 
+    @command_queue.command(name="resume")
+    @commands.max_concurrency(1, per=commands.BucketType.guild)
+    async def command_queue_resume(self, ctx: commands.Context):
+        """Resume requests held after repeated playback errors."""
+        guild = ctx.guild
+        api = self.api_interface.persistent_queue_api
+        if not api.held(guild.id):
+            return await self.send_embed_msg(ctx, title=_("There are no suspended requests."))
+        channel = self.rgetattr(ctx.author, "voice.channel", None)
+        if not channel:
+            return await self.send_embed_msg(ctx, title=_("Connect to a voice channel first."))
+        if await self.config.guild(guild).dj_enabled() and not await self._can_instaskip(
+            ctx, ctx.author
+        ):
+            return await self.send_embed_msg(
+                ctx, title=_("You need the DJ role to resume the queue.")
+            )
+        try:
+            player = lavalink.get_player(guild.id)
+        except PlayerNotFound:
+            if not self.can_join_and_speak(channel) or (
+                not channel.permissions_for(ctx.me).move_members and self.is_vc_full(channel)
+            ):
+                return await self.send_embed_msg(
+                    ctx, title=_("I cannot join and speak in that channel.")
+                )
+            # Refuse a competing connection rather than moving another listener's player.
+            try:
+                player = await channel.connect(
+                    cls=lavalink.Player, self_deaf=await self.config.guild(guild).auto_deafen()
+                )
+            except (
+                discord.DiscordException,
+                lavalink.RedLavalinkException,
+                OSError,
+                asyncio.TimeoutError,
+            ):
+                return await self.send_embed_msg(
+                    ctx, title=_("Could not connect. Your suspended requests are still saved.")
+                )
+        except NodeNotFound:
+            return await self.send_embed_msg(ctx, title=_("The audio service is unavailable."))
+        if player.channel != channel or player.current or player.queue:
+            return await self.send_embed_msg(
+                ctx,
+                title=_(
+                    "Resume the suspended queue when the player is idle in your voice channel."
+                ),
+            )
+        await self._eq_check(ctx, player)
+        await self.set_player_settings(ctx)
+        if (
+            guild.voice_client is not player
+            or player.current
+            or player.queue
+            or self.rgetattr(ctx.author, "voice.channel", None) != player.channel
+        ):
+            return await self.send_embed_msg(
+                ctx, title=_("The player changed. Your suspended requests are still saved.")
+            )
+        player.store("notify_channel", ctx.channel.id)
+        tracks = api.release_held(player)
+        if not tracks:
+            return await self.send_embed_msg(ctx, title=_("There are no suspended requests."))
+        self._error_counter[guild.id] = 0
+        try:
+            await player.play()
+        except (Exception, asyncio.CancelledError) as exc:
+            # A synchronous transport failure can leave play()'s first item in current.
+            # Restash only items from this resume; concurrent user requests remain live.
+            ids = {id(t) for t in tracks}
+            remaining = [t for t in (player.current, *player.queue) if id(t) in ids]
+            api.hold(guild.id, remaining)
+            player.queue[:] = [t for t in player.queue if id(t) not in ids]
+            if id(player.current) in ids:
+                player.current = None
+            if isinstance(exc, (OSError, lavalink.RedLavalinkException, asyncio.TimeoutError)):
+                return await self.send_embed_msg(
+                    ctx,
+                    title=_("Playback could not start. Your suspended requests are still saved."),
+                )
+            raise
+        await self.send_embed_msg(ctx, title=_("Suspended queue resumed."))
+
     @command_queue.command(name="clear")
     async def command_queue_clear(self, ctx: commands.Context):
         """Clears the queue."""
         try:
             player = lavalink.get_player(ctx.guild.id)
         except (NodeNotFound, PlayerNotFound):
-            return await self.send_embed_msg(ctx, title=_("There's nothing in the queue."))
+            player = None
         dj_enabled = self._dj_status_cache.setdefault(
             ctx.guild.id, await self.config.guild(ctx.guild).dj_enabled()
         )
-        if not self._player_check(ctx) or not player.queue:
+        api = self.api_interface.persistent_queue_api
+        if not ((player is not None and player.queue) or api.held(ctx.guild.id)):
             return await self.send_embed_msg(ctx, title=_("There's nothing in the queue."))
         if (
             dj_enabled
             and not await self._can_instaskip(ctx, ctx.author)
-            and not await self.is_requester_alone(ctx)
+            and (player is None or not await self.is_requester_alone(ctx))
         ):
             return await self.send_embed_msg(
                 ctx,
                 title=_("Unable To Clear Queue"),
                 description=_("You need the DJ role to clear the queue."),
             )
-        self.api_interface.persistent_queue_api.removed(ctx.guild.id, player.queue)
-        player.queue.clear()
+        api.clear_held(ctx.guild.id)
+        if player is not None:
+            api.removed(ctx.guild.id, player.queue)
+            player.queue.clear()
         await self.send_embed_msg(
             ctx, title=_("Queue Modified"), description=_("The queue has been cleared.")
         )

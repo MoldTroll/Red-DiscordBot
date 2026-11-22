@@ -1,0 +1,2 @@
+aiohttp-json-rpc==0.13.3
+    # via -r extra-rpc.in

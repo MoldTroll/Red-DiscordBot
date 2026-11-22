@@ -5,13 +5,15 @@ from contextlib import suppress
 import logging
 import os
 from pathlib import Path
+import re
 
 import discord
 import lavalink
 
 
 log = logging.getLogger("red.Audio.playback")
-TEST_TRACK = "https://www.youtube.com/watch?v=YE7VzlLtp-4"  # Blender's Big Buck Bunny.
+# A short YouTube track that can reach its natural end within a deployment check.
+TEST_VIDEO_ID = "jNQXAC9IVRw"  # Me at the zoo, approximately 19 seconds.
 
 
 class PlaybackProbe:
@@ -42,8 +44,10 @@ class PlaybackProbe:
     async def _serve(self, reader, writer):
         try:
             request = await asyncio.wait_for(reader.readline(), timeout=5)
-            if request == b"check\n":
+            if request in (b"check\n", b"verify\n"):
                 result = await self.check()
+                if request == b"verify\n" and result == "ok":
+                    result = "finished"
             elif request == b"available\n":
                 result, _ = await self.channel_status()
             else:
@@ -60,6 +64,9 @@ class PlaybackProbe:
             return "unconfigured", None
         channel = self.cog.bot.get_channel(channel_id)
         if not isinstance(channel, discord.VoiceChannel) or channel.guild.me is None:
+            return "unavailable", None
+        permissions = channel.permissions_for(channel.guild.me)
+        if not (permissions.view_channel and permissions.connect and permissions.speak):
             return "unavailable", None
         if await self.cog.bot.cog_disabled_in_guild(self.cog, channel.guild):
             return "unavailable", None
@@ -84,6 +91,10 @@ class PlaybackProbe:
             self.guild_id = None
 
     async def _play(self, channel):
+        video_id = os.getenv("RED_AUDIO_PROBE_VIDEO_ID", TEST_VIDEO_ID)
+        if not re.fullmatch(r"[A-Za-z0-9_-]{11}", video_id):
+            log.warning("RED_AUDIO_PROBE_VIDEO_ID must be an 11-character YouTube video ID")
+            return "failed"
         # VoiceChannel.connect refuses an existing connection instead of moving the player.
         player = None
 
@@ -95,35 +106,72 @@ class PlaybackProbe:
 
         try:
             await channel.connect(cls=create_player, self_deaf=True, timeout=10)
-            result = await player.load_tracks(TEST_TRACK)
+            result = await player.load_tracks(f"https://www.youtube.com/watch?v={video_id}")
             if not result.tracks:
                 return "failed"
             if any(member != channel.guild.me for member in channel.members):
                 return "busy"
             track = result.tracks[0]
-            state_updates = asyncio.Queue()
+            if (
+                track._info.get("identifier") != video_id
+                or track.is_stream
+                or not 15_000 <= track.length <= 35_000
+            ):
+                log.warning("Playback check requires the selected video to last 15 to 35 seconds")
+                return "failed"
+            outcome = asyncio.get_running_loop().create_future()
+            first = last = None
+
+            def finish(status):
+                if not outcome.done():
+                    outcome.set_result(status)
 
             async def on_update(updated_player, state, raw_data):
-                if updated_player is player and player.current is track:
-                    state_updates.put_nowait(state)
+                nonlocal first, last
+                if updated_player is not player or player.current is not track:
+                    return
+                if any(member != channel.guild.me for member in channel.members):
+                    finish("busy")
+                elif not state.connected:
+                    first = last = None
+                elif first is None:
+                    first = last = state
+                elif state.time > last.time and state.position > last.position:
+                    last = state
+
+            async def on_event(updated_player, event, extra):
+                if updated_player is not player:
+                    return
+                if any(member != channel.guild.me for member in channel.members):
+                    finish("busy")
+                elif event in (
+                    lavalink.LavalinkEvents.TRACK_EXCEPTION,
+                    lavalink.LavalinkEvents.TRACK_STUCK,
+                    lavalink.LavalinkEvents.WEBSOCKET_CLOSED,
+                    lavalink.LavalinkEvents.FORCED_DISCONNECT,
+                ):
+                    finish("failed")
+                elif event == lavalink.LavalinkEvents.TRACK_END:
+                    # FINISHED can follow a partial stream. Require both connected
+                    # playback over time and a position close to the reported end.
+                    played = (
+                        extra == lavalink.TrackEndReason.FINISHED
+                        and first is not None
+                        and last.time - first.time >= 10_000
+                        and last.position - first.position >= 10_000
+                        and last.position >= track.length - 5_000
+                    )
+                    finish("ok" if played else "failed")
 
             lavalink.register_update_listener(on_update)
+            lavalink.register_event_listener(on_event)
             try:
                 await player.set_volume(1)
                 player.add(channel.guild.me, track)
                 await player.play()
-                first = None
-                while True:
-                    state = await state_updates.get()
-                    if any(member != channel.guild.me for member in channel.members):
-                        return "busy"
-                    if not state.connected:
-                        first = None
-                    elif first is None:
-                        first = state
-                    elif state.time > first.time and state.position >= first.position + 1000:
-                        return "ok"
+                return await outcome
             finally:
+                lavalink.unregister_event_listener(on_event)
                 lavalink.unregister_update_listener(on_update)
         finally:
             if player is not None and channel.guild.voice_client is player:

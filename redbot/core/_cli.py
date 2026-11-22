@@ -308,7 +308,7 @@ def parse_cli_flags(args):
     parser.add_argument(
         "--rpc",
         action="store_true",
-        help="Enables the built-in RPC server. Please read the docs prior to enabling this!",
+        help="Enable the RPC server (requires the rpc installation extra).",
     )
     parser.add_argument(
         "--rpc-port",

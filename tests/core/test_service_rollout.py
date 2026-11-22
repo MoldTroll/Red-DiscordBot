@@ -1,11 +1,46 @@
 from io import BytesIO
+from importlib import metadata
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import sqlite3
+import sys
+from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
 
 from tools.redbot import update
+
+
+def test_runtime_music_fingerprint_covers_audio_and_dependencies(tmp_path, monkeypatch):
+    audio = PurePosixPath("redbot/cogs/audio/queue.py")
+    other = PurePosixPath("redbot/cogs/trivia/trivia.py")
+    for part in (audio, other):
+        path = tmp_path / part
+        path.parent.mkdir(parents=True)
+        path.write_text("pass")
+    red = SimpleNamespace(
+        files=[audio, other],
+        locate_file=lambda p: tmp_path / p,
+        metadata={"Name": "Red-DiscordBot"},
+        version="1",
+        read_text=lambda _: None,
+    )
+    dep = SimpleNamespace(metadata={"Name": "red-lavalink"}, version="1")
+    monkeypatch.setattr(metadata, "distribution", lambda _: red)
+    monkeypatch.setattr(metadata, "distributions", lambda: [red, dep])
+    old = update.runtime_info()["music"]
+    assert old
+    red.version = "2"
+    (tmp_path / other).write_text("pass # unrelated")
+    assert update.runtime_info()["music"] == old
+    (tmp_path / audio).write_text("pass # new audio")
+    changed = update.runtime_info()["music"]
+    assert changed != old
+    dep.version = "2"
+    assert update.runtime_info()["music"] != changed
+    red.files = None
+    assert update.runtime_info()["music"] is None
 
 
 def test_offline_snapshot_restores_json_and_sqlite_files(tmp_path, monkeypatch):
@@ -75,19 +110,21 @@ def rollout(tmp_path, monkeypatch):
             _, action, unit = args
             name = unit.split("@")[1].split(".")[0]
             running[name] = action == "start"
-        elif args[0] in ("snapshot", "restore", "switch"):
+        elif args[0] in ("snapshot", "recovery-snapshot", "restore", "switch"):
             action, path = args[:2]
             name = Path(path).name
             assert not running[name]
             if action == "snapshot":
                 kwargs["stdout"].write(b"backup")
+            if action == "recovery-snapshot":
+                kwargs["stdout"].write(b"current user data")
             if action == "restore":
                 assert kwargs["stdin"].read() == b"backup"
         else:
             raise AssertionError(args)
         operations.append((action, name))
 
-    def health(name, sha=None):
+    def health(name, sha=None, **kwargs):
         assert running[name]
         operations.append(("new_health" if sha else "old_health", name))
 
@@ -96,6 +133,9 @@ def rollout(tmp_path, monkeypatch):
     monkeypatch.setattr(updater, "helper", lambda *args: args)
     monkeypatch.setattr(updater, "idle", lambda **kwargs: None)
     monkeypatch.setattr(updater, "health", health)
+    monkeypatch.setattr(updater, "invocation", lambda name: name + "-running")
+    monkeypatch.setattr(updater, "connected", lambda name, runtime=None: running[name])
+    monkeypatch.setattr(updater, "revision", lambda link: sha)
     monkeypatch.setattr(updater, "discard", Mock())
     return updater, tx, operations
 
@@ -112,7 +152,7 @@ def test_second_service_failure_restores_both_offline(rollout, monkeypatch):
     updater, tx, operations = rollout
     health = updater.health
 
-    def reject_primary(name, sha=None):
+    def reject_primary(name, sha=None, **kwargs):
         if sha and name == "primary":
             raise RuntimeError("failed primary probe")
         health(name, sha)
@@ -123,6 +163,158 @@ def test_second_service_failure_restores_both_offline(rollout, monkeypatch):
     assert [name for action, name in operations if action == "restore"] == ["primary", "canary"]
     assert operations[-1] == ("old_health", "canary")
     assert not update.JOURNAL.exists()
+
+
+@pytest.mark.parametrize(
+    "old_schema, current_schema, keep",
+    [("schema-1", "schema-1", True), ("schema-1", "schema-2", False), (None, "", False)],
+)
+def test_rollback_of_serving_canary_keeps_or_archives_user_changes(
+    rollout, monkeypatch, old_schema, current_schema, keep
+):
+    updater, tx, operations = rollout
+    archive = Path(tx["backup"]) / "canary.tar.gz"
+    archive.write_bytes(b"backup")
+    row = tx["instances"]["canary"]
+    row.update(phase="ready", checksum=update.checksum(archive), audio_schema=old_schema)
+    monkeypatch.setattr(update, "output", lambda *args: current_schema)
+    updater.rollback_instance(tx, "canary")
+    recovery = archive.with_name("canary-before-rollback.tar.gz")
+    assert recovery.read_bytes() == b"current user data"
+    assert update.checksum(recovery) == row["recovery_checksum"]
+    assert (("restore", "canary") in operations) is not keep
+    assert operations.index(("recovery-snapshot", "canary")) < operations.index(
+        ("switch", "canary")
+    )
+
+
+def test_interrupted_incompatible_restore_does_not_overwrite_recovery_archive(
+    rollout, monkeypatch
+):
+    updater, tx, operations = rollout
+    archive = Path(tx["backup"]) / "canary.tar.gz"
+    archive.write_bytes(b"backup")
+    tx["instances"]["canary"].update(phase="ready", checksum=update.checksum(archive))
+    tx["instances"]["canary"]["old"] = str(updater.root / "older-release")
+    execute = update.run
+
+    def fail_restore(*args, **kwargs):
+        if args[0] == "restore":
+            raise OSError("interrupt restore")
+        return execute(*args, **kwargs)
+
+    monkeypatch.setattr(update, "run", fail_restore)
+    with pytest.raises(OSError, match="interrupt restore"):
+        updater.rollback_instance(tx, "canary")
+    pending = json.loads(update.JOURNAL.read_text())
+    assert pending["instances"]["canary"]["phase"] == "rolling_back"
+    monkeypatch.setattr(update, "run", execute)
+    updater.rollback_instance(pending, "canary")
+    assert operations.count(("recovery-snapshot", "canary")) == 1
+    assert operations.count(("restore", "canary")) == 1
+    assert operations[-1] == ("old_health", "canary")
+
+
+def test_reboot_after_switch_keeps_writes_received_by_old_runtime(rollout):
+    updater, tx, operations = rollout
+    backup = Path(tx["backup"])
+    archive = backup / "canary.tar.gz"
+    archive.write_bytes(b"backup")
+    current = backup / "canary-before-rollback.tar.gz"
+    current.write_bytes(b"initial candidate data")
+    tx["instances"]["canary"].update(
+        phase="rolling_back",
+        checksum=update.checksum(archive),
+        keep_data=False,
+        recovery_checksum=update.checksum(current),
+    )
+    updater.rollback_instance(tx, "canary")
+    assert ("restore", "canary") not in operations
+    assert current.read_bytes() == b"initial candidate data"
+    assert (backup / "canary-after-restart.tar.gz").read_bytes() == b"current user data"
+    assert operations[-1] == ("old_health", "canary")
+
+
+def test_recovery_disk_full_preserves_live_canary_without_destructive_restore(
+    rollout, monkeypatch
+):
+    updater, tx, operations = rollout
+    archive = Path(tx["backup"]) / "canary.tar.gz"
+    archive.write_bytes(b"backup")
+    tx["instances"]["canary"].update(phase="ready", checksum=update.checksum(archive))
+    monkeypatch.setattr(updater, "backup_data", Mock(side_effect=OSError("disk full")))
+    with pytest.raises(OSError, match="disk full"):
+        updater.rollback_instance(tx, "canary")
+    assert operations == [("stop", "canary"), ("start", "canary")]
+
+
+def test_audio_schema_tracks_durable_layout_and_ignores_song_changes(tmp_path):
+    audio = tmp_path / "cogs/Audio"
+    audio.mkdir(parents=True)
+    assert update.audio_schema(tmp_path) == ""
+    db = sqlite3.connect(audio / "Audio.db")
+    try:
+        db.execute("CREATE TABLE queue (title TEXT)")
+        old = update.audio_schema(tmp_path)
+        assert old
+        db.execute("INSERT INTO queue VALUES ('new song')")
+        db.commit()
+        assert update.audio_schema(tmp_path) == old
+        db.execute("ALTER TABLE queue ADD COLUMN position INTEGER")
+        changed = update.audio_schema(tmp_path)
+        assert changed and changed != old
+        db.execute("PRAGMA user_version=2")
+        assert update.audio_schema(tmp_path) != changed
+    finally:
+        db.close()
+
+
+def test_missing_test_channel_blocks_music_cutover(rollout, monkeypatch):
+    updater, tx, operations = rollout
+    monkeypatch.setattr(updater, "idle", update.Rollout.idle.__get__(updater))
+    monkeypatch.setattr(updater, "probe", lambda name, *flags: ["probe", name, *flags])
+    monkeypatch.setattr(updater, "lava", lambda action: ["lava", action])
+    monkeypatch.setattr(Path, "is_socket", lambda self: True)
+
+    def run(args):
+        return update.subprocess.CompletedProcess(args, 78 if args[0] == "probe" else 0)
+
+    monkeypatch.setattr(update.subprocess, "run", run)
+    tx["require_playback"] = True
+    with pytest.raises(update.Busy, match="test voice channel"):
+        updater.apply(tx)
+    assert json.loads(update.JOURNAL.read_text())["deferred"]
+    assert not operations
+    tx["require_playback"] = False
+    updater.apply(tx)
+    assert ("stop", "primary") in operations
+
+
+@pytest.mark.parametrize(
+    "strict, result, expected", [(True, 0, None), (True, 78, update.Busy), (False, 78, None)]
+)
+def test_music_candidate_requires_completed_voice_check(
+    rollout, monkeypatch, strict, result, expected
+):
+    updater, tx, _ = rollout
+    updater.timeout = 30
+    monkeypatch.setattr(updater, "connected", lambda *args: True)
+    monkeypatch.setattr(updater, "revision", lambda path: tx["sha"])
+    monkeypatch.setattr(updater, "lava", lambda action: ["lava", action])
+    monkeypatch.setattr(update, "run", Mock())
+    monkeypatch.setattr(Path, "is_socket", lambda self: True)
+    probe = Mock(return_value=["probe"])
+    monkeypatch.setattr(updater, "probe", probe)
+    monkeypatch.setattr(
+        update.subprocess, "run", lambda args: update.subprocess.CompletedProcess(args, result)
+    )
+    health = lambda: update.Rollout.health(updater, "canary", tx["sha"], require_playback=strict)
+    if expected:
+        with pytest.raises(expected):
+            health()
+    else:
+        health()
+    probe.assert_called_once_with("canary", *(["--require-playback"] if strict else []))
 
 
 def test_interrupted_rollout_recovers_without_network_or_new_release(rollout):
@@ -148,7 +340,101 @@ def test_listener_between_switches_defers_then_resumes(rollout, monkeypatch):
     monkeypatch.setattr(updater, "idle", lambda **kwargs: None)
     updater.update()
     assert operations.count(("stop", "canary")) == 1
+    assert operations.count(("new_health", "canary")) == 1
     assert operations[-1] == ("new_health", "primary")
+
+
+def test_restarted_deferred_canary_repeats_voice_validation(rollout, monkeypatch):
+    updater, tx, operations = rollout
+    monkeypatch.setattr(updater, "idle", Mock(side_effect=[None, update.Busy()]))
+    with pytest.raises(update.Busy):
+        updater.apply(tx)
+    monkeypatch.setattr(updater, "idle", lambda **kwargs: None)
+    monkeypatch.setattr(updater, "invocation", lambda name: name + "-restarted")
+    updater.update()
+    assert operations.count(("new_health", "canary")) == 2
+    assert operations.count(("stop", "canary")) == 1
+
+
+def test_missing_probe_classified_using_service_configuration(rollout, monkeypatch, capsys):
+    updater, tx, _ = rollout
+    updater.timeout = 4
+    monkeypatch.setattr(Path, "is_socket", lambda self: False)
+    monkeypatch.setattr(updater, "lava", lambda action: ["lava", action])
+    lava_check = Mock()
+    monkeypatch.setattr(update, "run", lava_check)
+    monkeypatch.setattr(updater, "socket_disabled", lambda name: True)
+    update.Rollout.health(updater, "canary", tx["sha"])
+    lava_check.assert_called_once_with("lava", "check")
+    assert "probe disabled" in capsys.readouterr().out
+    with pytest.raises(update.Busy, match="disabled"):
+        update.Rollout.health(updater, "canary", tx["sha"], require_playback=True)
+    monkeypatch.setattr(updater, "socket_disabled", lambda name: False)
+    monkeypatch.setattr(update.time, "monotonic", Mock(side_effect=[0, 1, 3, 5]))
+    monkeypatch.setattr(update.time, "sleep", lambda t: None)
+    with pytest.raises(RuntimeError, match="Timed out"):
+        update.Rollout.health(updater, "canary", tx["sha"])
+
+
+def test_nonmusic_preflight_requires_connected_audio_and_expected_probe(rollout, monkeypatch):
+    updater, tx, _ = rollout
+    monkeypatch.setattr(updater, "lava", lambda action: ["lava", action])
+    monkeypatch.setattr(
+        update.subprocess, "run", lambda args: update.subprocess.CompletedProcess(args, 0)
+    )
+    monkeypatch.setattr(Path, "is_socket", lambda self: False)
+    monkeypatch.setattr(updater, "socket_disabled", lambda name: False)
+    with pytest.raises(update.Busy, match="enabled"):
+        update.Rollout.idle(updater)
+    monkeypatch.setattr(updater, "socket_disabled", lambda name: True)
+    update.Rollout.idle(updater)
+    monkeypatch.setattr(updater, "connected", lambda name: False)
+    with pytest.raises(RuntimeError, match="not connected"):
+        update.Rollout.idle(updater)
+
+
+def test_split_runtime_accounts_route_data_helpers_without_changing_build_account(
+    tmp_path, monkeypatch
+):
+    # The production wrapper historically supplied its own snapshot and restore.
+    # New data operations fall through to the base implementation.
+    class SeparateAccounts(update.Rollout):
+        def helper(self, operation, *args):
+            if operation in ("snapshot", "restore"):
+                return ["legacy-helper"]
+            return super().helper(operation, *args)
+
+    updater = object.__new__(SeparateAccounts)
+    updater.user = "build"
+    updater.data = {"canary": tmp_path / "canary", "primary": tmp_path / "primary"}
+    uid = {"build": 1000, "bot-canary": 1001, "root": 0}
+    monkeypatch.setitem(
+        sys.modules,
+        "pwd",
+        SimpleNamespace(getpwnam=lambda user: SimpleNamespace(pw_uid=uid[user])),
+    )
+    monkeypatch.setenv("RED_USER_CANARY", "bot-canary")
+    monkeypatch.delenv("RED_USER_PRIMARY", raising=False)
+    monkeypatch.setattr(
+        update,
+        "output",
+        lambda *args: "bot-canary" if args[-1] == "red@canary.service" else "build",
+    )
+    for operation in ("audio-schema", "recovery-snapshot"):
+        assert updater.helper(operation, updater.data["canary"])[2] == "bot-canary"
+        assert updater.helper(operation, updater.data["primary"])[2] == "build"
+        with pytest.raises(ValueError, match="data path"):
+            updater.helper(operation, tmp_path / "outside")
+    assert updater.helper("snapshot", updater.data["canary"]) == ["legacy-helper"]
+    assert update.Rollout.helper(updater, "restore", updater.data["canary"])[2] == "bot-canary"
+    assert updater.helper("switch", tmp_path / "link", tmp_path / "release")[2] == "build"
+    monkeypatch.setenv("RED_USER_CANARY", "build")
+    with pytest.raises(ValueError, match="service account"):
+        updater.helper("audio-schema", updater.data["canary"])
+    monkeypatch.setenv("RED_USER_CANARY", "root")
+    monkeypatch.setattr(update, "output", lambda *args: "root")
+    with pytest.raises(ValueError, match="service account"):
+        updater.helper("recovery-snapshot", updater.data["canary"])
 
 
 def test_instance_names_must_be_unique_and_safe():
@@ -189,14 +475,25 @@ def test_cleanup_retains_active_previous_and_bootstrap(rollout, monkeypatch):
     paths = [update.STATE / ("a" * 12 + f"-old{i}") for i in range(2)]
     for path in paths:
         path.mkdir()
+    last_incident = update.STATE / ("b" * 12 + "-failure")
+    last_incident.mkdir()
     ledger = update.STATE / "managed.json"
-    update.save({"releases": [previous, retired], "backups": list(map(str, paths))}, ledger)
+    update.save(
+        {
+            "releases": [previous, retired],
+            "backups": list(map(str, paths)),
+            "failed_backup": str(last_incident),
+        },
+        ledger,
+    )
     monkeypatch.setattr(updater, "link", lambda name: Path(tx["candidate"]))
     updater.complete(tx, committed=True)
     updater.discard.assert_called_once_with(Path(retired))
     result = json.loads(ledger.read_text())
     assert set(result["releases"]) == {previous, tx["candidate"]}
     assert result["backups"] == [str(paths[1]), tx["backup"]]
+    assert result["failed_backup"] == str(last_incident)
+    assert last_incident.is_dir()
     assert bootstrap.exists()
     assert not paths[0].exists()
 
@@ -218,7 +515,7 @@ def test_failed_canary_delays_only_automatic_retry_of_same_sha(rollout, monkeypa
     clock = Mock(return_value=1000)
     monkeypatch.setattr(update.time, "time", clock)
 
-    def reject_canary(name, sha=None):
+    def reject_canary(name, sha=None, **kwargs):
         if sha:
             assert name == "canary"
             raise RuntimeError("candidate playback failed")

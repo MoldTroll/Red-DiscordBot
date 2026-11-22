@@ -6,7 +6,8 @@ import aiohttp
 import pytest
 
 from redbot.pytest.rpc import *
-from redbot.core._rpc import get_name
+from redbot.core._cli import ExitCodes
+from redbot.core._rpc import RPC, get_name
 
 
 def test_rpc_disabled_startup(tmp_path):
@@ -49,6 +50,15 @@ def test_rpc_disabled_startup(tmp_path):
         """
     )
     subprocess.run([sys.executable, "-c", script, str(tmp_path)], check=True, timeout=30)
+
+
+async def test_rpc_enabled_without_extra(monkeypatch, caplog):
+    monkeypatch.delitem(sys.modules, "redbot.core._rpc_server", raising=False)
+    monkeypatch.setitem(sys.modules, "aiohttp_json_rpc", None)
+    with pytest.raises(SystemExit) as error:
+        await RPC()._pre_login()
+    assert error.value.code == ExitCodes.CONFIGURATION_ERROR
+    assert "[rpc] extra" in caplog.text
 
 
 @pytest.mark.parametrize("red", [("--rpc", "--rpc-port", "0")], indirect=True)

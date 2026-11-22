@@ -42,7 +42,7 @@ for file in REQUIREMENTS_FOLDER.glob("extra-*.txt"):
         extras_require[file.stem[len("extra-") :]] = get_requirements(fp)
 
 extras_require["dev"] = extras_combined()
-extras_require["all"] = extras_combined("postgres")
+extras_require["all"] = extras_combined("postgres", "rpc")
 
 
 # Metadata and options defined in pyproject.toml

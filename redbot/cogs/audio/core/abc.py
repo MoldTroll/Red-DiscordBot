@@ -94,7 +94,7 @@ class MixinMeta(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def maybe_reset_error_counter(self, player: lavalink.Player) -> None:
+    def record_playback_failure(self, guild_id: int) -> bool:
         raise NotImplementedError()
 
     @abstractmethod
@@ -103,10 +103,6 @@ class MixinMeta(ABC):
 
     @abstractmethod
     async def get_active_player_count(self) -> Tuple[str, int]:
-        raise NotImplementedError()
-
-    @abstractmethod
-    async def increase_error_counter(self, player: lavalink.Player) -> bool:
         raise NotImplementedError()
 
     @abstractmethod

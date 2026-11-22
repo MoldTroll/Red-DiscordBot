@@ -62,19 +62,25 @@ class LavalinkSetupCommands(MixinMeta, metaclass=CompositeMetaClass):
         """Designate an empty test voice channel. Omit the channel to disable playback checks."""
         if channel and channel.guild != ctx.guild:
             return await ctx.send(_("Choose a voice channel in this server."))
+        if channel:
+            permissions = channel.permissions_for(channel.guild.me)
+            if not (permissions.view_channel and permissions.connect and permissions.speak):
+                return await ctx.send(
+                    _("I need View Channel, Connect, and Speak in the test channel.")
+                )
         await self.config.playback_check_channel.set(channel.id if channel else None)
         await ctx.tick()
 
     @command_llset.command(name="playbackcheck")
     async def command_llset_playbackcheck(self, ctx: commands.Context):
-        """Play a short sample and verify position updates in the designated test channel."""
+        """Play a short YouTube clip to the end in the designated test voice channel."""
         status = await self.playback_probe.check()
         messages = {
-            "ok": _("Playback advanced while connected to Discord voice."),
+            "ok": _("The test clip played to the end while connected to Discord voice."),
             "unconfigured": _("Set a test channel with llset playbackchannel first."),
             "busy": _("Skipped because the test channel or bot is busy."),
             "unavailable": _("The configured test voice channel is unavailable."),
-            "failed": _("Playback did not pass the voice and track position check."),
+            "failed": _("The test clip did not complete with verified voice playback."),
         }
         await ctx.send(messages[status])
 

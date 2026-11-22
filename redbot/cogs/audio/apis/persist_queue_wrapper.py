@@ -20,6 +20,7 @@ class QueueInterface:
         self.database = conn
         self.config = config
         self.cog = cog
+        self._held = {}
 
     async def init(self) -> None:
         with self.database.transaction() as cursor:
@@ -34,10 +35,15 @@ class QueueInterface:
                     guild_id INTEGER NOT NULL,
                     room_id INTEGER NOT NULL,
                     track TEXT NOT NULL,
-                    position INTEGER
+                    position INTEGER,
+                    held INTEGER NOT NULL DEFAULT 0
                 )
                 """
             )
+            if columns and not legacy and "held" not in columns:
+                cursor.execute(
+                    "ALTER TABLE persist_queue ADD COLUMN held INTEGER NOT NULL DEFAULT 0"
+                )
             if legacy:
                 # Old rows identified media, so repeated requests may already have been merged.
                 cursor.execute(
@@ -55,15 +61,15 @@ class QueueInterface:
         rows = self.database.cursor().execute(
             """
             SELECT guild_id, room_id FROM persist_queue
-            WHERE entry_id IN (SELECT max(entry_id) FROM persist_queue GROUP BY guild_id)
+            WHERE entry_id IN (SELECT max(entry_id) FROM persist_queue WHERE held=0 GROUP BY guild_id)
             """
         )
         return dict(rows)
 
     async def fetch_all(self, guild_id: Optional[int] = None) -> List[QueueFetchResult]:
-        sql = "SELECT guild_id, room_id, track, entry_id FROM persist_queue"
+        sql = "SELECT guild_id, room_id, track, entry_id FROM persist_queue WHERE held=0"
         if guild_id is not None:
-            sql += " WHERE guild_id = ?"
+            sql += " AND guild_id = ?"
         sql += " ORDER BY guild_id, coalesce(position, entry_id), entry_id"
         rows = self.database.cursor().execute(sql, () if guild_id is None else (guild_id,))
         return [QueueFetchResult(*row) for row in rows]
@@ -163,5 +169,83 @@ class QueueInterface:
                     "UPDATE persist_queue SET position=? WHERE guild_id=? AND entry_id=?", entries
                 )
 
+    def held(self, guild_id):
+        if guild_id in self._held:
+            return self._held[guild_id]
+        rows = self.database.cursor().execute(
+            "SELECT guild_id, room_id, track, entry_id FROM persist_queue "
+            "WHERE guild_id=? AND held=1 ORDER BY position, entry_id",
+            (guild_id,),
+        )
+        return [QueueFetchResult(*row).track_object for row in rows]
+
+    def hold(self, guild_id, tracks):
+        # Keep non-persistent requests in memory only, just as during normal playback.
+        if not tracks:
+            return
+        backlog = self.held(guild_id)
+        with self.database.transaction() as cursor:
+            cursor.executemany(
+                "UPDATE persist_queue SET held=1, position=? WHERE guild_id=? AND entry_id=?",
+                (
+                    (i, guild_id, t._red_queue_entry_id)
+                    for i, t in enumerate(tracks, len(backlog))
+                    if getattr(t, "_red_queue_entry_id", None) is not None
+                ),
+            )
+        self._held[guild_id] = [*backlog, *tracks]
+
+    def release_held(self, player):
+        guild_id = player.guild.id
+        tracks = self.held(guild_id)
+        with self.database.transaction() as cursor:
+            cursor.execute(
+                "UPDATE persist_queue SET held=0, room_id=? WHERE guild_id=? AND held=1",
+                (player.channel.id, guild_id),
+            )
+        self._held.pop(guild_id, None)
+        for track in tracks:
+            track.extras["vc"] = player.channel.id
+            player.add(
+                player.guild.get_member(track.extras.get("requester")) or player.guild.me, track
+            )
+        return tracks
+
+    def clear_held(self, guild_id):
+        self.database.cursor().execute(
+            "DELETE FROM persist_queue WHERE guild_id=? AND held=1", (guild_id,)
+        )
+        self._held.pop(guild_id, None)
+
+    def set_persistence(self, guild_id, enabled, player):
+        """Keep live requests when disabling disk storage and snapshot them when enabling it."""
+        held = self.held(guild_id)
+        pending = list(player.queue) if player is not None else []
+        tracks = [*pending, *held]
+        previous_ids = [getattr(track, "_red_queue_entry_id", None) for track in tracks]
+        try:
+            with self.database.transaction() as cursor:
+                cursor.execute("DELETE FROM persist_queue WHERE guild_id=?", (guild_id,))
+                for index, track in enumerate(tracks):
+                    track._red_queue_entry_id = None
+                    if enabled:
+                        if index < len(pending):
+                            room_id = player.channel.id
+                        else:
+                            room_id = track.extras["vc"]
+                        self._save(guild_id, room_id, track)
+                        cursor.execute(
+                            "UPDATE persist_queue SET held=?, position=? WHERE entry_id=?",
+                            (index >= len(pending), index, track._red_queue_entry_id),
+                        )
+        except Exception:
+            for track, entry_id in zip(tracks, previous_ids):
+                track._red_queue_entry_id = entry_id
+            raise
+        if held:
+            self._held[guild_id] = held
+
     async def drop(self, guild_id: int) -> None:
-        self.database.cursor().execute("DELETE FROM persist_queue WHERE guild_id=?", (guild_id,))
+        self.database.cursor().execute(
+            "DELETE FROM persist_queue WHERE guild_id=? AND held=0", (guild_id,)
+        )

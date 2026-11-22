@@ -9,11 +9,13 @@ RPC
   RPC support is included in Red on a `provisional <developer-guarantees-exclusions>` basis.
   Backwards incompatible changes (up to and including removal of the RPC) may occur if deemed necessary.
 
-Red comes default with an internal RPC server that may be used to remotely control the bot in various ways.
+Red offers an optional RPC server for remote control of the bot.
 Cogs must register functions to be exposed to RPC clients.
 Each of those functions must only take JSON serializable parameters and must return JSON serializable objects.
 
-To enable the internal RPC server you must start the bot with the ``--rpc`` flag.
+To enable it, install the ``rpc`` extra for the same build of Red, then start the bot
+with ``--rpc``. For example, from a checkout of the deployed fork revision, run
+``python -m pip install ".[rpc]"`` in the bot's virtual environment.
 
 ********
 Examples

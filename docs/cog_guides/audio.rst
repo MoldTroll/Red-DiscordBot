@@ -506,12 +506,17 @@ Playback checks in a test voice channel
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The bot owner can designate an empty Discord voice channel for each bot with
-``[p]llset playbackchannel <channel ID>``. Run ``[p]llset playbackcheck`` to join
-it, play a short sample from Blender's Big Buck Bunny at low volume, and wait
-for two connected Lavalink updates showing advancing playback. The bot leaves
+``[p]llset playbackchannel <channel ID>``. Give that bot View Channel, Connect
+and Speak permissions. Run ``[p]llset playbackcheck`` to play the short YouTube
+clip *Me at the zoo* at low volume. The check requires sustained playback
+while connected to Discord voice and a natural track end. The bot leaves
 the channel when the check ends. A busy channel or an existing player in the
 guild defers the check. Running ``[p]llset playbackchannel`` without an argument
 disables it.
+
+To use your own short public YouTube clip, set ``RED_AUDIO_PROBE_VIDEO_ID`` in
+the bot's environment to its 11-character video ID. Use a 15–35 second
+non-live video that the Lavalink server can play.
 
 For automatic checks on Linux, set the following in the Red systemd template's
 ``[Service]`` section and restart the instances:
@@ -522,15 +527,17 @@ For automatic checks on Linux, set the following in the Red systemd template's
     RuntimeDirectoryMode=0700
     Environment=RED_AUDIO_PROBE_SOCKET=/run/redbot-probe-%i/check.sock
 
-Add the instance sockets to ``/etc/default/lavalink-refresh``:
+Add one instance socket per Red unit to ``/etc/default/lavalink-refresh``,
+in the same order as ``RED_UNITS``:
 
 .. code-block:: ini
 
     RED_PLAYBACK_SOCKETS="/run/redbot-probe-music/check.sock /run/redbot-probe-music2/check.sock"
 
-The service accounts running the checks must be able to access the sockets.
-Until a test channel is configured, the updater reports that voice playback
-was skipped and continues to check the Lavalink connection and YouTube search.
+Each socket directory must be owned by its Red systemd unit's service account.
+When a music update requires voice verification, a missing or inaccessible
+test channel defers promotion. A successful YouTube search alone cannot
+verify playback.
 
 Start the timer and run the first check:
 

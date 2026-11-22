@@ -1472,16 +1472,24 @@ class AudioSetCommands(MixinMeta, metaclass=CompositeMetaClass):
 
         Persistent queues allows the current queue to be restored when the queue closes.
         """
-        persist_cache = self._persist_queue_cache.setdefault(
-            ctx.guild.id, await self.config.guild(ctx.guild).persist_queue()
-        )
-        await self.config.guild(ctx.guild).persist_queue.set(not persist_cache)
-        self._persist_queue_cache[ctx.guild.id] = not persist_cache
+        setting = self.config.guild(ctx.guild).persist_queue
+        async with setting.get_lock():
+            enabled = not await setting()
+            await setting.set(enabled)
+            try:
+                player = lavalink.get_player(ctx.guild.id) if self._player_check(ctx) else None
+                self.api_interface.persistent_queue_api.set_persistence(
+                    ctx.guild.id, enabled, player
+                )
+            except Exception:
+                await setting.set(not enabled)
+                raise
+            self._persist_queue_cache[ctx.guild.id] = enabled
         await self.send_embed_msg(
             ctx,
             title=_("Setting Changed"),
             description=_("Persisting queues: {true_or_false}.").format(
-                true_or_false=_("Enabled") if not persist_cache else _("Disabled")
+                true_or_false=_("Enabled") if enabled else _("Disabled")
             ),
         )
 

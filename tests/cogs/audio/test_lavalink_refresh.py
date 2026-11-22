@@ -3,6 +3,7 @@ import io
 import json
 import os
 import shutil
+import socket
 import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -84,21 +85,81 @@ def test_running_checks_full_release_tag(tmp_path, monkeypatch, live, expected):
     assert release.main() == expected
 
 
-@pytest.mark.parametrize("flags", [[], ["--available"]])
-def test_optional_probe_accepts_unconfigured_channel(monkeypatch, flags):
+@pytest.mark.parametrize(
+    ("flags", "response", "command", "code"),
+    [
+        ([], b"ok", b"check", 0),
+        ([], b"unconfigured", b"check", 78),
+        (["--available"], b"unconfigured", b"available", 78),
+        (["--available", "--require-playback"], b"ready", b"available", 0),
+        (["--available", "--require-playback"], b"unavailable", b"available", 78),
+        (["--require-playback"], b"busy", b"verify", 75),
+        (["--require-playback"], b"finished", b"verify", 0),
+        (["--require-playback"], b"ok", b"verify", 1),
+        (["--require-playback"], b"invalid", b"verify", 1),
+    ],
+)
+def test_probe_protocol(monkeypatch, flags, response, command, code):
     monkeypatch.setattr(probe.sys, "argv", ["probe.py", *flags, "test.sock"])
     connection = MagicMock()
-    connection.makefile.return_value = io.BytesIO(b"unconfigured\n")
+    connection.makefile.return_value = io.BytesIO(response + b"\n")
     sockets = MagicMock()
     sockets.socket.return_value.__enter__.return_value = connection
     monkeypatch.setattr(probe, "socket", sockets)
-    assert probe.main() == 0
-    connection.sendall.assert_called_once_with(b"available\n" if flags else b"check\n")
+    assert probe.main() == code
+    connection.sendall.assert_called_once_with(command + b"\n")
+
+
+@pytest.mark.skipif(
+    os.name != "posix", reason="the maintenance service uses Unix socket ownership"
+)
+def test_refresh_runs_each_probe_as_its_red_unit_user(tmp_path, monkeypatch):
+    script = """
+        source "$1"
+        helper=/usr/local/libexec/red-lavalink/release.py
+        bots=(red@canary.service red@main.service)
+        RED_PLAYBACK_SOCKETS="$2 $3"
+        systemctl() { if [[ "$5" == red@canary.service ]]; then echo canary; else echo main; fi; }
+        id() { if [[ "$2" == canary ]]; then echo 1001; else echo 1002; fi; }
+        stat() { if [[ "${*: -1}" == "${second_parent}" ]]; then echo 1002; else echo 1001; fi; }
+        runuser() { printf '%s %s\n' "$2" "${*: -1}"; }
+        socket_for_unit() { if [[ "$1" == red@canary.service ]]; then echo "$first_socket"; else echo "$second_socket"; fi; }
+        verified_voice --require-playback
+    """
+    first, second = [tmp_path / name / "check.sock" for name in ("canary", "main")]
+    first.parent.mkdir()
+    second.parent.mkdir()
+    monkeypatch.chdir(tmp_path)
+    with socket.socket(socket.AF_UNIX) as one, socket.socket(socket.AF_UNIX) as two:
+        one.bind(str(first.relative_to(tmp_path)))
+        two.bind(str(second.relative_to(tmp_path)))
+        result = subprocess.run(
+            ["bash", "-c", script, "test", str(REFRESH), str(first), str(second)],
+            env={
+                **os.environ,
+                "second_parent": str(second.parent),
+                "first_socket": str(first),
+                "second_socket": str(second),
+            },
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    assert result.stdout.splitlines() == [f"canary {first}", f"main {second}"]
 
 
 # Run the systemd orchestration with controlled service, API and voice observations.
 SERVICES = """
 unit=lavalink.service
+bots=(red@canary.service red@main.service)
+RED_PLAYBACK_SOCKETS="/run/redbot-probe-canary/check.sock /run/redbot-probe-main/check.sock"
+voice_socket_ready() {
+    case "$1" in
+        red@canary.service) [[ "$2" == /run/redbot-probe-canary/check.sock ]] ;;
+        red@main.service) [[ "$2" == /run/redbot-probe-main/check.sock ]] ;;
+        *) return 1 ;;
+    esac
+}
 marker=none
 live=old
 installed=old
@@ -160,6 +221,15 @@ check_voice() {
         refresh
         [[ "$marker" == none && "$restarts" == 2 ]]
         """,
+        # An inaccessible channel defers verification until it is configured.
+        """
+        candidate_voice=78
+        refresh
+        [[ "$marker" == candidate && "$restarts" == 1 ]]
+        candidate_voice=0
+        refresh
+        [[ "$marker" == none && "$restarts" == 1 ]]
+        """,
         # An interruption after the JAR swap leaves the old process serving music.
         """
         installed=new
@@ -177,8 +247,34 @@ check_voice() {
         refresh
         [[ "$marker" == none && "$restarts" == 0 ]]
         """,
+        # An old sourced wrapper's empty foreach returned success. Neither a fresh
+        # nor an already staged release may advance when either bot is unverified.
+        """
+        check_voice() { return 0; }
+        for RED_PLAYBACK_SOCKETS in "" "/run/redbot-probe-canary/check.sock" \
+            "/run/redbot-probe-main/check.sock /run/redbot-probe-canary/check.sock" \
+            "/run/redbot-probe-canary/check.sock /run/redbot-probe-canary/check.sock"; do
+            marker=none
+            live=old
+            installed=old
+            refresh
+            [[ "$marker" == none && "$installed" == old && "$restarts" == 0 ]]
+            marker=candidate
+            live=new
+            installed=new
+            refresh
+            [[ "$marker" == candidate && "$restarts" == 0 ]]
+        done
+        """,
     ],
-    ids=["deferred-candidate", "deferred-rollback", "interrupted-candidate", "restored-rollback"],
+    ids=[
+        "deferred-candidate",
+        "deferred-rollback",
+        "missing-channel",
+        "interrupted-candidate",
+        "restored-rollback",
+        "legacy-voice-wrapper-cannot-skip-a-bot",
+    ],
 )
 def test_refresh_resumes_without_unnecessary_restart(scenario):
     bash = shutil.which("bash")
