@@ -211,21 +211,25 @@ def active(name):
 def instance_names(value):
     names = value.split()
     if (
-        len(names) < 2
+        not names
         or len(names) != len(set(names))
         or any(not re.fullmatch("[a-z][a-z0-9_]{0,31}", name) for name in names)
     ):
-        raise ValueError("RED_INSTANCES must list distinct lowercase instance names, canary first")
+        raise ValueError("RED_INSTANCES must list distinct lowercase instance names")
     return names
 
 
-def request_completion_dm(sha, names):
-    """Called as the final instance's service account on its private socket."""
-    if not re.fullmatch("[0-9a-f]{40}", sha) or instance_names(" ".join(names)) != names:
+def request_completion_dm(sha, sender, names):
+    """선택한 봇 계정의 전용 소켓으로 배포 완료 알림을 요청한다."""
+    if (
+        not re.fullmatch("[0-9a-f]{40}", sha)
+        or instance_names(" ".join(names)) != names
+        or sender not in names
+    ):
         raise ValueError("Invalid deployment receipt")
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
         client.settimeout(30)
-        client.connect(f"/run/redbot-probe-{names[-1]}/check.sock")
+        client.connect(f"/run/redbot-probe-{sender}/check.sock")
         client.sendall(f"updated {sha} {' '.join(names)}\n".encode("ascii"))
         with client.makefile("rb") as reader:
             if reader.readline(32) != b"notified\n":
@@ -244,6 +248,24 @@ class Rollout:
         self.python = Path(os.environ["RED_PYTHON"])
         self.lava_dir = Path(os.environ["LAVALINK_DIR"])
         self.names = instance_names(os.environ["RED_INSTANCES"])
+        main = os.environ.get("RED_MAIN_INSTANCE", "").strip() or self.names[0]
+        if main not in self.names:
+            raise ValueError("RED_MAIN_INSTANCE must name one instance in RED_INSTANCES")
+        self.names = [main, *(name for name in self.names if name != main)]
+        self.dm_sender = os.environ.get("RED_UPDATE_DM_SENDER", "").strip() or None
+        if self.dm_sender is not None and self.dm_sender not in self.names:
+            raise ValueError("RED_UPDATE_DM_SENDER must name an instance in RED_INSTANCES")
+        self.dm_fallbacks = os.environ.get("RED_UPDATE_DM_FALLBACK", "").split()
+        if self.dm_fallbacks and (
+            not self.dm_sender
+            or len(self.dm_fallbacks) != len(set(self.dm_fallbacks))
+            or self.dm_sender in self.dm_fallbacks
+            or not set(self.dm_fallbacks).issubset(self.names)
+        ):
+            raise ValueError(
+                "RED_UPDATE_DM_FALLBACK requires a sender and distinct backup instances "
+                "from RED_INSTANCES"
+            )
         self.data = {name: Path(os.environ[f"RED_DATA_{name.upper()}"]) for name in self.names}
         if not all(
             p.is_absolute() for p in (self.root, self.python, self.lava_dir, *self.data.values())
@@ -318,7 +340,28 @@ class Rollout:
     def invocation(self, name):
         return output("systemctl", "show", "-p", "InvocationID", "--value", f"red@{name}.service")
 
-    def idle(self, recovering=False, require_playback=False):
+    def running_instances(self):
+        running = []
+        for name in self.names:
+            unit = f"red@{name}.service"
+            states = dict(
+                line.split("=", 1)
+                for line in output(
+                    "systemctl", "show", "-p", "LoadState,ActiveState,SubState,Result", unit
+                ).splitlines()
+            )
+            state = states["ActiveState"], states["SubState"]
+            if states["LoadState"] == "loaded" and state == ("active", "running"):
+                running.append(name)
+            elif (
+                states["LoadState"] != "loaded"
+                or state != ("inactive", "dead")
+                or states["Result"] != "success"
+            ):
+                raise RuntimeError(f"Cannot select rollout targets: {unit} is {states}")
+        return running
+
+    def idle(self, recovering=False, require_playback=False, participants=None):
         def check(args, optional=False):
             result = subprocess.run(args)
             if result.returncode == 75:
@@ -333,13 +376,18 @@ class Rollout:
                 result.check_returncode()
 
         check(self.lava("idle"))
-        for name in self.names:
+        if recovering:
+            # 교체 도중 중지되거나 실패한 인스턴스도 기존 트랜잭션으로 복구한다.
+            running = [name for name in self.names if active(name)]
+        else:
+            running = self.running_instances()
+            expected = self.names if participants is None else participants
+            for name in expected:
+                if name not in running:
+                    raise RuntimeError(f"{name} stopped during the preflight check.")
+        for name in running:
             if not recovering and not self.connected(name):
                 raise RuntimeError(f"{name} is not connected to Lavalink.")
-            if not active(name):
-                if not recovering:
-                    raise RuntimeError(f"{name} stopped during the preflight check.")
-                continue
             socket = Path(f"/run/redbot-probe-{name}/check.sock")
             if socket.is_socket():
                 check(self.probe(name, "--idle"), optional=recovering)
@@ -488,33 +536,60 @@ class Rollout:
             time.sleep(2)
         raise RuntimeError(f"Timed out waiting for {name}")
 
+    @staticmethod
+    def pending_deliveries(receipt):
+        if "deliveries" in receipt:
+            return receipt["deliveries"]
+        # 구버전 대기 알림은 마지막 봇이 보내기로 한 통합 DM이다.
+        names = receipt["instances"]
+        return {names[-1]: names}
+
+    def completion_deliveries(self, tx):
+        if not self.dm_sender:
+            return {name: [name] for name in tx["instances"]}
+        running = tx.get("running_instances", tx["instances"])
+        priority = (self.dm_sender, *self.dm_fallbacks)
+        sender = next(
+            (name for name in priority if name in running and active(name)), self.dm_sender
+        )
+        # 오프라인인 대표 봇은 같은 버전으로 돌아와야 수신 확인을 할 수 있다.
+        display_names = [name for name in self.names if name in running or name == sender]
+        return {sender: display_names}
+
     def deliver_completion_dm(self, managed):
         receipt = managed.get("pending_notification")
         if not receipt:
             return
-        sha, names = receipt["sha"], receipt["instances"]
-        if names != self.names:
-            print("Completion DM deferred: deployment instance list changed.", flush=True)
-            return
-        try:
-            run(
-                *as_user(
-                    self.instance_user(names[-1]),
-                    PYTHON,
-                    "-I",
-                    Path(__file__).resolve(),
-                    "completion-dm",
-                    sha,
-                    *names,
-                ),
-                timeout=40,
-            )
-        except (OSError, subprocess.SubprocessError, ValueError) as exc:
-            print(f"Completion DM deferred for {sha[:12]}: {exc}", flush=True)
-            return
-        del managed["pending_notification"]
-        save(managed, STATE / "managed.json")
-        print(f"Completion DM acknowledged by {names[-1]} for {sha[:12]}.", flush=True)
+        sha = receipt["sha"]
+        deliveries = self.pending_deliveries(receipt)
+        for sender, display_names in list(deliveries.items()):
+            if sender not in self.names or not active(sender):
+                print(f"Completion DM waiting for {sender} at {sha[:12]}.", flush=True)
+                continue
+            try:
+                run(
+                    *as_user(
+                        self.instance_user(sender),
+                        PYTHON,
+                        "-I",
+                        Path(__file__).resolve(),
+                        "completion-dm",
+                        sha,
+                        sender,
+                        *display_names,
+                    ),
+                    timeout=40,
+                )
+            except (OSError, subprocess.SubprocessError, ValueError) as exc:
+                print(f"Completion DM deferred for {sender} at {sha[:12]}: {exc}", flush=True)
+                continue
+            del deliveries[sender]
+            if deliveries:
+                managed["pending_notification"] = {"sha": sha, "deliveries": deliveries}
+            else:
+                del managed["pending_notification"]
+            save(managed, STATE / "managed.json")
+            print(f"Completion DM acknowledged by {sender} for {sha[:12]}.", flush=True)
 
     def complete(self, tx, committed):
         ledger = STATE / "managed.json"
@@ -522,7 +597,9 @@ class Rollout:
             json.loads(ledger.read_text()) if ledger.exists() else {"releases": [], "backups": []}
         )
         releases = set(known["releases"]) | {tx["candidate"]}
-        keep = {str(self.link(name).resolve(strict=True)) for name in self.names}
+        keep = {
+            str(self.link(name).resolve(strict=name in tx["instances"])) for name in self.names
+        }
         keep.update(row["old"] for row in tx["instances"].values())
         if not committed:
             keep.update(known["releases"])
@@ -552,7 +629,14 @@ class Rollout:
         }
         if committed:
             # 전송 대기 중인 알림은 마지막으로 검증한 배포 건만 유지한다.
-            managed["pending_notification"] = {"sha": tx["sha"], "instances": list(tx["instances"])}
+            deliveries = self.completion_deliveries(tx)
+            pending = known.get("pending_notification")
+            if pending and pending["sha"] == tx["sha"]:
+                # 같은 대상의 재시도는 원문을 유지하고, 새 그룹의 통합 알림은 최신 내용을 보낸다.
+                for sender, previous in self.pending_deliveries(pending).items():
+                    if sender not in deliveries or set(previous) == set(deliveries[sender]):
+                        deliveries[sender] = previous
+            managed["pending_notification"] = {"sha": tx["sha"], "deliveries": deliveries}
         else:
             if "pending_notification" in known:
                 managed["pending_notification"] = known["pending_notification"]
@@ -636,7 +720,7 @@ class Rollout:
 
     def rollback(self, tx):
         errors = []
-        for name in reversed(self.names):
+        for name in reversed(tx["instances"]):
             try:
                 self.rollback_instance(tx, name)
             except Busy:
@@ -662,9 +746,15 @@ class Rollout:
             sync_dir(STATE)
         if JOURNAL.exists():
             tx = json.loads(JOURNAL.read_text())
-            if list(tx["instances"]) != self.names or tx["data"] != {
-                k: str(v) for k, v in self.data.items()
-            }:
+            targets = list(tx["instances"])
+            running = tx.get("running_instances", self.names)
+            if (
+                not targets
+                or list(tx["data"]) != self.names
+                or tx["data"] != {k: str(v) for k, v in self.data.items()}
+                or running != [n for n in self.names if n in running]
+                or targets != [n for n in running if n in targets]
+            ):
                 raise RuntimeError("Restore the original instance configuration before recovering")
             if "completed" in tx:
                 self.complete(tx, tx["completed"])
@@ -678,34 +768,41 @@ class Rollout:
         ledger = STATE / "managed.json"
         managed = json.loads(ledger.read_text()) if ledger.exists() else {}
         self.deliver_completion_dm(managed)
+        running = self.running_instances()
+        if not running:
+            print("No running instances to update.")
+            return
+        if self.names[0] not in running:
+            print(f"Update deferred: main instance {self.names[0]} is stopped.", flush=True)
+            return
         remote = output(*self.bot("git", "ls-remote", "--exit-code", REPO, REF)).split()
         if len(remote) != 2 or remote[1] != REF or not re.fullmatch("[0-9a-f]{40}", remote[0]):
             raise ValueError("Could not resolve the fork branch")
         sha = remote[0]
-        for name in self.names:
+        targets = []
+        for name in running:
             self.check_layout(name)
-        if all(self.revision(self.link(name)) == sha for name in self.names):
-            if not all(
-                self.connected(name, self.link(name).resolve(strict=True)) for name in self.names
-            ):
+            runtime = self.link(name).resolve(strict=True)
+            if self.revision(runtime) != sha:
+                targets.append(name)
+            elif not self.connected(name, runtime):
                 raise RuntimeError(
-                    "Installed revision matches, but a bot is disconnected or using a different venv"
+                    f"{name} has the requested revision but is disconnected or using a different venv"
                 )
-            print(f"All instances already use {sha}.")
+        if not targets:
+            print(f"All running instances already use {sha}.")
             return
         if automatic:
             retry = managed.get("automatic_retry")
             if retry and retry["sha"] == sha and time.time() < retry["after"]:
                 print(f"Delaying automatic retry of {sha} after its failed rollout.", flush=True)
                 return
-        self.idle()
-        if not all(self.connected(name) for name in self.names):
+        self.idle(participants=running)
+        if not all(self.connected(name) for name in running):
             raise RuntimeError("All existing bot services must be connected before an update")
         dest = self.prepare(sha)
         inspected = {}
-        for venv in dict.fromkeys(
-            [dest, *(self.link(n).resolve(strict=True) for n in self.names)]
-        ):
+        for venv in dict.fromkeys([dest, *(self.link(n).resolve(strict=True) for n in targets)]):
             inspected[venv] = json.loads(
                 output(
                     *self.bot(venv / "bin/python", "-I", Path(__file__).resolve(), "runtime-info")
@@ -718,10 +815,11 @@ class Rollout:
             "candidate": str(dest),
             "sha": sha,
             "data": {k: str(v) for k, v in self.data.items()},
+            "running_instances": running,
             "instances": {},
             "require_playback": False,
         }
-        for name in self.names:
+        for name in targets:
             old = self.link(name).resolve(strict=True)
             previous = inspected[old]
             tx["require_playback"] |= (
@@ -739,12 +837,40 @@ class Rollout:
         sync_dir(STATE)
         self.apply(tx)
 
+    def verify_main_before_secondary(self, tx):
+        main = self.names[0]
+        row = tx["instances"].get(main)
+        if row is not None and row["phase"] != "ready":
+            raise RuntimeError(f"Main instance {main} has not passed rollout verification")
+        runtime = (
+            Path(tx["candidate"]) if row is not None else self.link(main).resolve(strict=True)
+        )
+        if self.revision(self.link(main)) != tx["sha"] or not self.connected(main, runtime):
+            raise RuntimeError(f"Main instance {main} is not running the expected revision")
+        invocation = self.invocation(main)
+        verified = row.get("verified_invocation") if row is not None else tx.get("verified_main")
+        if invocation and verified == invocation:
+            return
+        # 이미 같은 커밋인 메인도 현재 프로세스의 검증이 끝나야 보조 봇을 교체한다.
+        require_playback = tx.get("require_playback", True)
+        self.health(main, tx["sha"], require_playback=require_playback)
+        self.idle(
+            require_playback=require_playback,
+            participants=tx.get("running_instances", tx["instances"]),
+        )
+        if not invocation or invocation != self.invocation(main):
+            raise RuntimeError(f"Main instance {main} restarted during verification")
+        if row is not None:
+            row["verified_invocation"] = invocation
+        else:
+            tx["verified_main"] = invocation
+        save(tx)
+
     def apply(self, tx):
         checking_candidate = False
         require_playback = tx.get("require_playback", True)
         try:
-            for name in self.names:
-                row = tx["instances"][name]
+            for name, row in tx["instances"].items():
                 if (
                     row["phase"] == "ready"
                     and row.get("verified_invocation")
@@ -755,7 +881,12 @@ class Rollout:
                     # Re-check both bots' idleness before the next cutover. Do not
                     # rejoin their shared channel for a trial this process completed.
                     continue
-                self.idle(require_playback=require_playback)
+                self.idle(
+                    require_playback=require_playback,
+                    participants=tx.get("running_instances", tx["instances"]),
+                )
+                if name != self.names[0]:
+                    self.verify_main_before_secondary(tx)
                 needs_start = row["phase"] == "pending"
                 if needs_start:
                     row["phase"] = "stopping"
@@ -782,6 +913,12 @@ class Rollout:
                 row["verified_invocation"] = invocation
                 save(tx)
                 print(f"Verified {name} at {tx['sha']}.", flush=True)
+            for name in tx.get("running_instances", ()):
+                if name in tx["instances"]:
+                    continue
+                runtime = self.link(name).resolve(strict=True)
+                if self.revision(runtime) != tx["sha"] or not self.connected(name, runtime):
+                    raise RuntimeError(f"{name} is no longer running the expected revision")
         except Busy:
             # 두 봇을 교체하는 사이에 봇이 음성 채널에 연결될 수 있다.
             # 다음 점검에서는 검증이 끝난 봇을 다시 중지하지 않는다.
@@ -811,7 +948,7 @@ def main():
         if command == "runtime-info":
             print(json.dumps(runtime_info()))
         elif command == "completion-dm":
-            request_completion_dm(args[0], args[1:])
+            request_completion_dm(args[0], args[1], args[2:])
         elif command == "audio-schema":
             print(audio_schema(Path(args[0])))
         elif command in ("snapshot", "recovery-snapshot"):

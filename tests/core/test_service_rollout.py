@@ -81,6 +81,8 @@ def rollout(tmp_path, monkeypatch):
     monkeypatch.setattr(update, "sync_dir", lambda path: None)
     updater = object.__new__(update.Rollout)
     updater.names = ["canary", "primary"]
+    updater.dm_sender = None
+    updater.dm_fallbacks = []
     updater.root = tmp_path
     updater.data = {name: tmp_path / "data" / name for name in updater.names}
     backup = tmp_path / "abbacaba8765-test"
@@ -132,6 +134,9 @@ def rollout(tmp_path, monkeypatch):
 
     monkeypatch.setattr(update, "run", execute)
     monkeypatch.setattr(update, "active", running.__getitem__)
+    monkeypatch.setattr(
+        updater, "running_instances", lambda: [name for name in updater.names if running[name]]
+    )
     monkeypatch.setattr(updater, "helper", lambda *args: args)
     monkeypatch.setattr(updater, "idle", lambda **kwargs: None)
     monkeypatch.setattr(updater, "health", health)
@@ -151,6 +156,203 @@ def test_update_checks_canary_before_primary(rollout):
     assert not update.JOURNAL.exists()
 
 
+@pytest.mark.parametrize(
+    "load,active,sub,result,expected",
+    [
+        ("loaded", "active", "running", "success", ["canary"]),
+        ("loaded", "inactive", "dead", "success", []),
+        ("loaded", "inactive", "dead", "exit-code", None),
+        ("loaded", "failed", "failed", "exit-code", None),
+        ("loaded", "activating", "auto-restart", "exit-code", None),
+        ("not-found", "inactive", "dead", "success", None),
+    ],
+)
+def test_select_running_instances(rollout, monkeypatch, load, active, sub, result, expected):
+    updater, _, _ = rollout
+    updater.names = ["canary"]
+    monkeypatch.setattr(
+        update,
+        "output",
+        lambda *args: f"LoadState={load}\nActiveState={active}\nSubState={sub}\nResult={result}",
+    )
+    if expected is None:
+        with pytest.raises(RuntimeError, match="red@canary.service"):
+            update.Rollout.running_instances(updater)
+    else:
+        assert update.Rollout.running_instances(updater) == expected
+
+
+@pytest.mark.parametrize("running", [[], ["primary"]])
+def test_stopped_main_does_not_start_an_update(rollout, monkeypatch, running):
+    updater, _, operations = rollout
+    update.finish()
+    monkeypatch.setattr(updater, "running_instances", lambda: running)
+    monkeypatch.setattr(updater, "bot", lambda *args: pytest.fail("unexpected remote lookup"))
+    updater.update(automatic=True)
+    assert not operations
+    assert not update.JOURNAL.exists()
+
+
+@pytest.mark.parametrize(
+    "order,running,stale",
+    [
+        (["canary"], ["canary"], ["canary"]),
+        (["canary", "primary"], ["canary"], ["canary"]),
+        (["canary", "primary"], ["canary", "primary"], ["primary"]),
+        (["primary", "canary"], ["primary", "canary"], ["primary", "canary"]),
+    ],
+)
+def test_only_stale_running_instances_are_updated(rollout, monkeypatch, order, running, stale):
+    updater, tx, operations = rollout
+    update.finish()
+    updater.names = order
+    updater.data = {name: updater.data[name] for name in order}
+    sha = tx["sha"]
+    dest = Path(tx["candidate"])
+    layout = Mock()
+    monkeypatch.setattr(updater, "check_layout", layout)
+    monkeypatch.setattr(updater, "running_instances", lambda: running)
+    monkeypatch.setattr(updater, "bot", lambda *args: args)
+
+    def revision(runtime):
+        if runtime.name in stale and ("switch", runtime.name) not in operations:
+            return "b" * 40
+        return sha
+
+    monkeypatch.setattr(updater, "revision", revision)
+    monkeypatch.setattr(
+        update,
+        "output",
+        lambda *args: (
+            json.dumps({"music": "same", "format": None})
+            if args[-1] == "runtime-info"
+            else f"{sha} {update.REF}"
+        ),
+    )
+    snapshots = []
+    apply = updater.apply
+
+    def prepare(revision):
+        update.save(str(dest), update.STATE / "staging.json")
+        return dest
+
+    def apply_transaction(transaction):
+        snapshots.append(json.loads(update.JOURNAL.read_text()))
+        apply(transaction)
+
+    monkeypatch.setattr(updater, "prepare", prepare)
+    monkeypatch.setattr(updater, "apply", apply_transaction)
+    updater.update(automatic=True)
+    assert [args.args[0] for args in layout.call_args_list] == running
+    assert snapshots[0]["running_instances"] == running
+    assert list(snapshots[0]["instances"]) == stale
+    assert list(snapshots[0]["data"]) == order
+    assert [name for action, name in operations if action == "switch"] == stale
+    for name in stale:
+        assert ("new_health", name) in operations
+        if name != order[0]:
+            assert operations.index(("new_health", order[0])) < operations.index(("stop", name))
+
+
+@pytest.mark.parametrize("reject", ["wrong revision", "health failure", "restarted"])
+def test_secondary_waits_for_successful_main_verification(rollout, monkeypatch, reject):
+    updater, tx, operations = rollout
+    del tx["instances"]["canary"]
+    tx["running_instances"] = ["canary", "primary"]
+    if reject == "wrong revision":
+        monkeypatch.setattr(updater, "revision", lambda link: "b" * 40)
+    elif reject == "health failure":
+        monkeypatch.setattr(updater, "health", Mock(side_effect=RuntimeError("probe failed")))
+    else:
+        monkeypatch.setattr(updater, "invocation", Mock(side_effect=["previous", "restarted"]))
+    with pytest.raises(RuntimeError):
+        updater.apply(tx)
+    assert not any(name == "primary" for _, name in operations)
+
+
+def test_changing_main_during_recovery_requires_original_order(rollout):
+    updater, _, operations = rollout
+    updater.names.reverse()
+    with pytest.raises(RuntimeError, match="original instance configuration"):
+        updater.update()
+    assert not operations and update.JOURNAL.exists()
+
+
+def test_recover_one_instance_even_when_cutover_left_it_stopped(rollout, monkeypatch):
+    updater, tx, operations = rollout
+    tx["running_instances"] = ["primary"]
+    del tx["instances"]["canary"]
+    tx["instances"]["primary"]["phase"] = "stopping"
+    update.save(tx)
+    monkeypatch.setattr(updater, "running_instances", lambda: pytest.fail("cohort was recomputed"))
+    updater.update()
+    assert operations == [("start", "primary"), ("old_health", "primary")]
+    assert not update.JOURNAL.exists()
+
+
+def test_partial_cutover_keeps_offline_instance_runtime(rollout):
+    updater, tx, _ = rollout
+    del tx["instances"]["primary"]
+    tx["running_instances"] = ["canary"]
+    offline_runtime = updater.link("primary").resolve()
+    update.save({"releases": [str(offline_runtime)], "backups": []}, update.STATE / "managed.json")
+    updater.apply(tx)
+    managed = json.loads((update.STATE / "managed.json").read_text())
+    assert str(offline_runtime) in managed["releases"]
+    assert all(call.args[0] != offline_runtime for call in updater.discard.call_args_list)
+
+
+def test_current_instance_must_be_running_its_linked_revision(rollout, monkeypatch):
+    updater, tx, operations = rollout
+    update.finish()
+    monkeypatch.setattr(updater, "bot", lambda *args: args)
+    monkeypatch.setattr(update, "output", lambda *args: f"{tx['sha']} {update.REF}")
+    monkeypatch.setattr(updater, "check_layout", lambda name: None)
+    monkeypatch.setattr(
+        updater, "revision", lambda link: tx["sha"] if link.name == "primary" else ""
+    )
+    monkeypatch.setattr(updater, "connected", lambda name, runtime: False)
+    with pytest.raises(RuntimeError, match="primary.*different venv"):
+        updater.update()
+    assert not operations
+
+
+@pytest.mark.parametrize(
+    "main,expected",
+    [
+        (None, ["sub", "extra", "main"]),
+        ("   ", ["sub", "extra", "main"]),
+        ("main", ["main", "sub", "extra"]),
+        ("extra", ["extra", "sub", "main"]),
+        ("other", None),
+        ("sub main", None),
+    ],
+)
+def test_main_instance_defines_rollout_order(monkeypatch, tmp_path, main, expected):
+    monkeypatch.setitem(
+        sys.modules, "pwd", SimpleNamespace(getpwnam=lambda _: SimpleNamespace(pw_uid=1001))
+    )
+    for key in ("RED_UPDATE_DM_SENDER", "RED_UPDATE_DM_FALLBACK", "RED_MAIN_INSTANCE"):
+        monkeypatch.delenv(key, raising=False)
+    for key in ("RED_ROOT", "RED_PYTHON", "LAVALINK_DIR"):
+        monkeypatch.setenv(key, str(tmp_path))
+    monkeypatch.setenv("RED_USER", "red")
+    monkeypatch.setenv("LAVALINK_USER", "lavalink")
+    names = ["sub", "extra", "main"]
+    monkeypatch.setenv("RED_INSTANCES", " ".join(names))
+    for name in names:
+        monkeypatch.setenv(f"RED_DATA_{name.upper()}", str(tmp_path / name))
+    if main is not None:
+        monkeypatch.setenv("RED_MAIN_INSTANCE", main)
+    if expected is None:
+        with pytest.raises(ValueError, match="RED_MAIN_INSTANCE"):
+            update.Rollout()
+    else:
+        updater = update.Rollout()
+        assert updater.names == expected
+        assert list(updater.data) == expected
+
+
 def test_dm_retried_after_commit_without_restarting_services(rollout, monkeypatch):
     updater, tx, operations = rollout
     execute = update.run
@@ -160,27 +362,164 @@ def test_dm_retried_after_commit_without_restarting_services(rollout, monkeypatc
     def run(*args, **kwargs):
         if "completion-dm" not in args:
             return execute(*args, **kwargs)
-        assert args[:4] == ("/usr/sbin/runuser", "-u", "red-primary", "--")
-        assert args[-4:] == ("completion-dm", tx["sha"], "canary", "primary")
+        sender = args[-1]
+        assert args[:4] == ("/usr/sbin/runuser", "-u", "red-" + sender, "--")
+        assert args[-4:] == ("completion-dm", tx["sha"], sender, sender)
         assert not update.JOURNAL.exists()
         assert json.loads(ledger.read_text())["pending_notification"]["sha"] == tx["sha"]
         assert operations[-1] == ("new_health", "primary")
-        attempts.append(args)
-        if len(attempts) == 1:
+        attempts.append(sender)
+        if attempts == ["canary"]:
             raise update.subprocess.TimeoutExpired(args, 40)
 
     monkeypatch.setattr(update, "run", run)
     updater.apply(tx)
-    assert len(attempts) == 1
+    assert attempts == ["canary", "primary"]
+    assert json.loads(ledger.read_text())["pending_notification"]["deliveries"] == {
+        "canary": ["canary"]
+    }
     before = operations.copy()
+    updater.dm_sender = "primary"
     monkeypatch.setattr(updater, "check_layout", lambda name: None)
     monkeypatch.setattr(updater, "bot", lambda *args: args)
     monkeypatch.setattr(update, "output", lambda *args: f"{tx['sha']} {update.REF}")
     updater.update(automatic=True)
     updater.update(automatic=True)
-    assert len(attempts) == 2
+    assert attempts == ["canary", "primary", "canary"]
     assert "pending_notification" not in json.loads(ledger.read_text())
     assert operations == before
+
+
+@pytest.mark.parametrize(
+    ("participants", "sender", "fallbacks", "expected_sender"),
+    [
+        (["canary", "primary"], "canary", ["primary"], "canary"),
+        (["primary"], None, [], "primary"),
+        (["primary"], "canary", ["primary"], "primary"),
+        (["canary", "primary"], "standby", ["primary", "canary"], "primary"),
+    ],
+)
+def test_completion_dm_sender_selection(
+    rollout, monkeypatch, participants, sender, fallbacks, expected_sender
+):
+    updater, tx, _ = rollout
+    updater.dm_sender = sender
+    updater.dm_fallbacks = fallbacks
+    if sender and sender not in updater.names:
+        updater.names.append(sender)
+        (updater.root / "instances" / sender).mkdir()
+    tx["running_instances"] = participants
+    tx["instances"] = {name: tx["instances"][name] for name in participants}
+    monkeypatch.setattr(update, "active", participants.__contains__)
+    run = Mock()
+    monkeypatch.setattr(update, "run", run)
+    updater.complete(tx, committed=True)
+    run.assert_called_once()
+    args = run.call_args.args
+    assert args[:4] == ("/usr/sbin/runuser", "-u", "red-" + expected_sender, "--")
+    assert args[args.index("completion-dm") :] == (
+        "completion-dm",
+        tx["sha"],
+        expected_sender,
+        *participants,
+    )
+    assert "pending_notification" not in json.loads((update.STATE / "managed.json").read_text())
+
+
+def test_only_running_bot_waits_for_its_configured_sender(rollout, monkeypatch):
+    updater, tx, _ = rollout
+    updater.dm_sender = "canary"
+    tx["running_instances"] = ["primary"]
+    tx["instances"].pop("canary")
+    online = {"primary"}
+    monkeypatch.setattr(update, "active", online.__contains__)
+    send = Mock()
+    monkeypatch.setattr(update, "run", send)
+    updater.complete(tx, committed=True)
+    send.assert_not_called()
+    ledger = update.STATE / "managed.json"
+    receipt = json.loads(ledger.read_text())["pending_notification"]
+    assert receipt["deliveries"] == {"canary": ["canary", "primary"]}
+
+    online.add("canary")
+    send.side_effect = [update.subprocess.CalledProcessError(1, "completion-dm"), None]
+    updater.deliver_completion_dm(json.loads(ledger.read_text()))
+    assert json.loads(ledger.read_text())["pending_notification"] == receipt
+    updater.deliver_completion_dm(json.loads(ledger.read_text()))
+    assert send.call_count == 2
+    for args, _ in send.call_args_list:
+        assert args[2] == "red-canary"
+        assert args[-5:] == ("completion-dm", tx["sha"], "canary", "canary", "primary")
+    assert "pending_notification" not in json.loads(ledger.read_text())
+
+
+def test_uncertain_main_delivery_is_not_retried_by_a_fallback(rollout, monkeypatch):
+    updater, tx, _ = rollout
+    updater.dm_sender = "primary"
+    updater.dm_fallbacks = ["canary"]
+    run = Mock(side_effect=update.subprocess.TimeoutExpired("completion-dm", 40))
+    monkeypatch.setattr(update, "run", run)
+    updater.complete(tx, committed=True)
+    run.assert_called_once()
+    assert run.call_args.args[2] == "red-primary"
+    ledger = update.STATE / "managed.json"
+    monkeypatch.setattr(update, "active", lambda name: name == "canary")
+    updater.deliver_completion_dm(json.loads(ledger.read_text()))
+    run.assert_called_once()
+    assert list(json.loads(ledger.read_text())["pending_notification"]["deliveries"]) == [
+        "primary"
+    ]
+
+
+def test_legacy_pending_dm_retries_only_original_last_sender(rollout, monkeypatch):
+    updater, tx, _ = rollout
+    updater.dm_sender = "canary"
+    ledger = update.STATE / "managed.json"
+    managed = {"pending_notification": {"sha": tx["sha"], "instances": updater.names.copy()}}
+    update.save(managed, ledger)
+    run = Mock()
+    monkeypatch.setattr(update, "run", run)
+    updater.deliver_completion_dm(managed)
+    run.assert_called_once()
+    args = run.call_args.args
+    assert args[:4] == ("/usr/sbin/runuser", "-u", "red-primary", "--")
+    assert args[args.index("completion-dm") :] == (
+        "completion-dm",
+        tx["sha"],
+        "primary",
+        "canary",
+        "primary",
+    )
+    assert "pending_notification" not in json.loads(ledger.read_text())
+
+
+def test_later_rollout_of_same_revision_preserves_pending_dm(rollout, monkeypatch):
+    updater, tx, _ = rollout
+    ledger = update.STATE / "managed.json"
+    old_delivery = {"canary": ["canary", "primary"]}
+    update.save(
+        {
+            "releases": [],
+            "backups": [],
+            "pending_notification": {"sha": tx["sha"], "deliveries": old_delivery},
+        },
+        ledger,
+    )
+    tx["running_instances"] = ["primary"]
+    tx["instances"].pop("canary")
+    monkeypatch.setattr(updater, "running_instances", lambda: ["primary"])
+    delivered = []
+
+    def send(*args, **kwargs):
+        sender, *names = args[args.index("completion-dm") + 2 :]
+        if sender == "canary":
+            raise update.subprocess.CalledProcessError(1, args)
+        delivered.append((sender, names))
+
+    monkeypatch.setattr(update, "run", send)
+    updater.complete(tx, committed=True)
+    assert delivered == [("primary", ["primary"])]
+    assert json.loads(ledger.read_text())["pending_notification"]["deliveries"] == old_delivery
 
 
 def test_second_service_failure_restores_both_offline(rollout, monkeypatch):
@@ -380,13 +719,19 @@ def test_missing_test_channel_blocks_music_cutover(rollout, monkeypatch):
     assert ("stop", "primary") in operations
 
 
-def test_cutover_waits_when_second_bot_is_connected_to_voice(rollout, monkeypatch):
+@pytest.mark.parametrize("primary_started_later", [False, True])
+def test_cutover_waits_when_second_bot_is_connected_to_voice(
+    rollout, monkeypatch, primary_started_later
+):
     updater, tx, operations = rollout
     monkeypatch.setattr(updater, "idle", update.Rollout.idle.__get__(updater))
     monkeypatch.setattr(updater, "probe", lambda name, *flags: ["probe", name, *flags])
     monkeypatch.setattr(updater, "lava", lambda action: ["lava", action])
     monkeypatch.setattr(Path, "is_socket", lambda self: True)
     tx["require_playback"] = False
+    if primary_started_later:
+        tx["running_instances"] = ["canary"]
+        del tx["instances"]["primary"]
     checked = []
 
     def run(args):
@@ -607,26 +952,94 @@ def test_split_runtime_accounts_route_data_helpers_without_changing_build_accoun
 
 
 def test_instance_names_must_be_unique_and_safe():
+    assert update.instance_names("main") == ["main"]
     assert update.instance_names("test01 main") == ["test01", "main"]
-    for names in ("main", "main main", "main ../other", "main --other"):
+    for names in ("", "main main", "main ../other", "main --other"):
         with pytest.raises(ValueError):
             update.instance_names(names)
 
 
+@pytest.mark.parametrize(
+    ("sender", "fallbacks", "invalid"),
+    [
+        (None, None, None),
+        ("", "", None),
+        ("canary", None, None),
+        ("primary", "canary", None),
+        ("outside", None, "RED_UPDATE_DM_SENDER"),
+        (None, "primary", "RED_UPDATE_DM_FALLBACK"),
+        ("canary", "primary primary", "RED_UPDATE_DM_FALLBACK"),
+        ("canary", "canary", "RED_UPDATE_DM_FALLBACK"),
+        ("canary", "outside", "RED_UPDATE_DM_FALLBACK"),
+    ],
+)
+def test_update_dm_sender_configuration(tmp_path, monkeypatch, sender, fallbacks, invalid):
+    monkeypatch.setitem(
+        sys.modules, "pwd", SimpleNamespace(getpwnam=lambda _: SimpleNamespace(pw_uid=1001))
+    )
+    env = {
+        "RED_USER": "red",
+        "LAVALINK_USER": "lavalink",
+        "RED_ROOT": str(tmp_path),
+        "RED_PYTHON": str(tmp_path / "python"),
+        "LAVALINK_DIR": str(tmp_path / "lavalink"),
+        "RED_INSTANCES": "canary primary",
+        "RED_MAIN_INSTANCE": "primary",
+        "RED_DATA_CANARY": str(tmp_path / "canary"),
+        "RED_DATA_PRIMARY": str(tmp_path / "primary"),
+    }
+    for key, value in env.items():
+        monkeypatch.setenv(key, value)
+    for key, value in (("RED_UPDATE_DM_SENDER", sender), ("RED_UPDATE_DM_FALLBACK", fallbacks)):
+        if value is None:
+            monkeypatch.delenv(key, raising=False)
+        else:
+            monkeypatch.setenv(key, value)
+    if invalid:
+        with pytest.raises(ValueError, match=invalid):
+            update.Rollout()
+    else:
+        updater = update.Rollout()
+        assert updater.names == ["primary", "canary"]
+        assert updater.dm_sender == (sender or None)
+        assert updater.dm_fallbacks == (fallbacks or "").split()
+        monkeypatch.setattr(update, "active", updater.names.__contains__)
+        tx = {"instances": dict.fromkeys(updater.names), "running_instances": updater.names}
+        if sender:
+            assert updater.completion_deliveries(tx) == {sender: ["primary", "canary"]}
+        else:
+            assert updater.completion_deliveries(tx) == {
+                "primary": ["primary"],
+                "canary": ["canary"],
+            }
+            solo = {"instances": {"canary": {}}, "running_instances": ["canary"]}
+            assert updater.completion_deliveries(solo) == {"canary": ["canary"]}
+
+
 @pytest.mark.parametrize("response", [b"notified\n", b"retry\n", b"invalid\n", b""])
-def test_dm_client_requires_an_acknowledgement(monkeypatch, response):
+@pytest.mark.parametrize(("sender", "names"), [("sub", ["sub", "main"]), ("main", ["main"])])
+def test_dm_client_requires_an_acknowledgement(monkeypatch, response, sender, names):
     client = MagicMock()
     client.__enter__.return_value = client
     client.makefile.return_value = BytesIO(response)
     monkeypatch.setattr(update, "socket", MagicMock(socket=Mock(return_value=client)))
     sha = "f" * 40
     if response == b"notified\n":
-        update.request_completion_dm(sha, ["sub", "main"])
+        update.request_completion_dm(sha, sender, names)
     else:
         with pytest.raises(RuntimeError, match="acknowledge"):
-            update.request_completion_dm(sha, ["sub", "main"])
-    client.connect.assert_called_once_with("/run/redbot-probe-main/check.sock")
-    client.sendall.assert_called_once_with(f"updated {sha} sub main\n".encode())
+            update.request_completion_dm(sha, sender, names)
+    client.connect.assert_called_once_with(f"/run/redbot-probe-{sender}/check.sock")
+    client.sendall.assert_called_once_with(f"updated {sha} {' '.join(names)}\n".encode())
+
+
+@pytest.mark.parametrize("sender", ["outside", "../main"])
+def test_dm_client_rejects_unlisted_sender_before_connect(monkeypatch, sender):
+    sockets = Mock()
+    monkeypatch.setattr(update, "socket", sockets)
+    with pytest.raises(ValueError):
+        update.request_completion_dm("f" * 40, sender, ["sub", "main"])
+    sockets.socket.assert_not_called()
 
 
 def test_failed_candidate_build_discards_only_its_new_directory(rollout, monkeypatch):

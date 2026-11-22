@@ -71,14 +71,14 @@ class PlaybackProbe:
 
     async def _notify_update(self, request):
         match = re.fullmatch(
-            rb"updated ([0-9a-f]{40}) ((?:[a-z][a-z0-9_]{0,31} )+[a-z][a-z0-9_]{0,31})\n",
+            rb"updated ([0-9a-f]{40}) ([a-z][a-z0-9_]{0,31}(?: [a-z][a-z0-9_]{0,31})*)\n",
             request,
         )
         if not match:
             return "invalid"
         revision = match[1].decode("ascii")
         names = match[2].decode("ascii").split()
-        if len(set(names)) != len(names) or names[-1] != data_manager.instance_name():
+        if len(set(names)) != len(names) or data_manager.instance_name() not in names:
             return "invalid"
         dist = metadata.distribution("Red-DiscordBot")
         origin = json.loads(dist.read_text("direct_url.json") or "{}")
@@ -92,12 +92,22 @@ class PlaybackProbe:
         async with receipt.get_lock():
             state = await receipt()
             if state.get("revision") != revision:
-                state = {"revision": revision, "recipients": {}}
-            recipients = state["recipients"]
+                state = {"revision": revision, "reports": {}}
+            group = " ".join(sorted(names))
+            reports = state.setdefault("reports", {})
+            if "recipients" in state and len(names) > 1:
+                # 구버전은 통합 알림만 보냈다. 재시도 시 기존 전송 기록과 nonce를 유지한다.
+                reports[group] = state.pop("recipients")
+                state["legacy_group"] = group
+                await receipt.set(state)
+            recipients = reports.setdefault(group, {})
+            nonce_prefix = (
+                revision if state.get("legacy_group") == group else f"{revision}:{group}"
+            )
             opt_outs = await bot._config.owner_opt_out_list()
             retry = False
             for owner_id in sorted(set(bot.owner_ids).difference(opt_outs)):
-                nonce = hashlib.sha256(f"{revision}:{owner_id}".encode()).hexdigest()[:24]
+                nonce = hashlib.sha256(f"{nonce_prefix}:{owner_id}".encode()).hexdigest()[:24]
                 previous = recipients.get(nonce)
                 if previous == "done":
                     continue

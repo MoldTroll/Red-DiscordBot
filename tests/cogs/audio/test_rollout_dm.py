@@ -1,5 +1,6 @@
 import asyncio
 import copy
+import hashlib
 import json
 import logging
 from types import SimpleNamespace
@@ -25,7 +26,12 @@ def notifier(monkeypatch):
     state = {}
     receipt = AsyncMock(side_effect=lambda: copy.deepcopy(state))
     receipt.get_lock = Mock(return_value=asyncio.Lock())
-    receipt.set = AsyncMock(side_effect=lambda value: state.update(copy.deepcopy(value)))
+
+    def save(value):
+        state.clear()
+        state.update(copy.deepcopy(value))
+
+    receipt.set = AsyncMock(side_effect=save)
     bot = SimpleNamespace(
         owner_ids={11, 12, 13},
         user=SimpleNamespace(id=30),
@@ -68,6 +74,55 @@ async def test_rollout_dm_only_to_eligible_owners_once_across_retries(notifier):
     assert n.dms[11].send.await_args.kwargs["nonce"] != n.dms[13].send.await_args.kwargs["nonce"]
 
 
+@pytest.mark.parametrize(
+    ("names", "summary"),
+    [
+        ("moldsub", "`moldsub`"),
+        ("moldsub mold", "`moldsub`, `mold`"),
+    ],
+)
+async def test_single_instance_or_selected_representative_sends_dm(
+    notifier, monkeypatch, names, summary
+):
+    monkeypatch.setattr(playback_probe.data_manager, "instance_name", lambda: "moldsub")
+    request = f"updated {REVISION} {names}\n".encode()
+    assert await notifier.probe._notify_update(request) == "notified"
+    assert await PlaybackProbe(notifier.cog)._notify_update(request) == "notified"
+    for dm in notifier.dms.values():
+        dm.send.assert_awaited_once()
+        assert dm.send.await_args.args[0].splitlines()[0] == f"{summary} 업데이트를 완료했습니다."
+
+
+async def test_same_revision_new_participants_get_a_separate_completion_dm(notifier):
+    single = f"updated {REVISION} mold\n".encode()
+    for request in (single, REQUEST, single, REQUEST):
+        assert await PlaybackProbe(notifier.cog)._notify_update(request) == "notified"
+    for dm in notifier.dms.values():
+        first, second = dm.send.await_args_list
+        assert first.args[0].splitlines()[0] == "`mold` 업데이트를 완료했습니다."
+        assert second.args[0].splitlines()[0] == "`moldsub`, `mold` 업데이트를 완료했습니다."
+        assert first.kwargs["nonce"] != second.kwargs["nonce"]
+
+
+async def test_legacy_recipient_receipts_apply_only_to_the_prior_group(notifier):
+    dms = notifier.dms
+    nonce = {i: hashlib.sha256(f"{REVISION}:{i}".encode()).hexdigest()[:24] for i in dms}
+    await notifier.cog.config.rollout_dm_receipt.set(
+        {"revision": REVISION, "recipients": {nonce[11]: "done", nonce[13]: 1}}
+    )
+    assert await notifier.probe._notify_update(REQUEST) == "notified"
+    assert await PlaybackProbe(notifier.cog)._notify_update(REQUEST) == "notified"
+    dms[11].send.assert_not_awaited()
+    dms[13].send.assert_awaited_once()
+    assert dms[13].send.await_args.kwargs["nonce"] == nonce[13]
+
+    single = f"updated {REVISION} mold\n".encode()
+    assert await notifier.probe._notify_update(single) == "notified"
+    dms[11].send.assert_awaited_once()
+    assert dms[13].send.await_count == 2
+    assert dms[13].send.await_args.kwargs["nonce"] != nonce[13]
+
+
 @pytest.mark.parametrize("accepted", [True, False])
 async def test_rollout_dm_recovers_ambiguous_delivery_after_restart(notifier, accepted):
     n = notifier
@@ -102,7 +157,9 @@ async def test_rollout_dm_closed_dms_do_not_block_other_owners(notifier, caplog)
     [
         b"updated foobar moldsub mold\n",
         REQUEST.replace(b"1a", b"2b"),
-        REQUEST.replace(b"moldsub mold", b"mold moldsub"),
+        REQUEST.replace(b"moldsub mold", b"moldsub"),
+        REQUEST.replace(b"moldsub mold", b"primary moldsub"),
+        REQUEST.replace(b"moldsub mold", b""),
         REQUEST.replace(b"moldsub mold", b"mold mold"),
         REQUEST.replace(b"moldsub", b"@everyone"),
     ],

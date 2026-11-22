@@ -35,11 +35,11 @@ under its existing instance name so it uses the same bot data.
 Staged updates for Linux music bot services
 ------------------------------------------
 
-For two or more systemd-managed music instances with JSON storage and a shared
+For one or more systemd-managed music instances with JSON storage and a shared
 Lavalink node, the fork includes a staged updater. It installs the
 exact head of the fork's branch into a fresh virtual environment, then updates
-the instances in the order you specify. Each bot must reconnect to Lavalink and
-pass its health checks before the next bot is stopped.
+the main instance first and the others in their declared order. Each bot must
+reconnect to Lavalink and pass its health checks before the next bot is stopped.
 
 Install the helpers from a reviewed checkout using a root shell:
 
@@ -53,16 +53,16 @@ Install the helpers from a reviewed checkout using a root shell:
 The host needs systemd, Git, iproute2, util-linux and system Python 3.11 or
 newer with PyYAML. The bot account needs a supported Python with the
 ``venv`` module. Set the root-owned file ``/etc/default/redbot-fork-update``
-for your installation. This example deploys ``canary`` first:
+for your installation. This example deploys ``main`` first:
 
 .. code-block:: ini
 
-    RED_INSTANCES="canary main"
+    RED_INSTANCES="main secondary"
     RED_USER=red
     RED_ROOT=/home/red/.local/share/redbot-fork
     RED_PYTHON=/opt/python3.15/bin/python3.15
-    RED_DATA_CANARY=/home/red/.local/share/Red-DiscordBot/data/canary
     RED_DATA_MAIN=/home/red/.local/share/Red-DiscordBot/data/main
+    RED_DATA_SECONDARY=/home/red/.local/share/Red-DiscordBot/data/secondary
     LAVALINK_USER=lavalink
     LAVALINK_DIR=/srv/lavalink
     LAVALINK_PORT=2333
@@ -122,17 +122,44 @@ To check the fork automatically, install and enable the systemd timer:
 
 The timer checks 15 seconds after activation and every five minutes thereafter.
 It leaves running bots alone when they already use the fork's current commit.
-Set ``RED_INSTANCES="moldsub mold"`` to verify ``moldsub`` before switching
-``mold``. If a bot joins voice between the two, the timer resumes the rollout
-on an idle check. After a candidate fails to start or pass health checks and
-the previous runtimes are restored, automatic checks wait six hours before
+By default the first name in ``RED_INSTANCES`` is the main instance. With
+``RED_INSTANCES="mold moldsub"``, the updater verifies ``mold`` before switching
+``moldsub``. To select a later entry as the main instance, set
+``RED_MAIN_INSTANCE`` to its name. Change the configured order after any
+in-progress rollout or rollback has finished so recovery uses the same order.
+If a bot joins voice between the two, the timer resumes the rollout on an
+idle check. After a candidate fails to start or pass health checks and the
+previous runtimes are restored, automatic checks wait six hours before
 retrying that commit. A newer commit is eligible on the next check. An
 operator can retry immediately with ``redbot-fork-update.service``.
 
-After all instances pass verification, the last bot in ``RED_INSTANCES`` sends
-its opted-in owners a direct message with the instance names and the deployed
-commit. This uses the bot's private Audio probe socket. If Discord is
-temporarily unavailable, the timer retries the latest completion notice.
+An instance that was cleanly stopped before the update stays stopped. A new
+release waits for the main instance before proceeding to other instances.
+When a stopped secondary starts again, the timer can update it without
+restarting a main instance already running the target commit. A failed or
+transitioning service must recover before a new rollout can start.
+
+After a successful rollout, each updated instance sends its own opted-in
+owners a DM with its name and the deployed commit. This also works with a
+single instance. To have one bot send a consolidated DM, set the following
+in ``/etc/default/redbot-fork-update``:
+
+.. code-block:: ini
+
+    RED_INSTANCES="mold moldsub"
+    RED_UPDATE_DM_SENDER=mold
+
+The update order and the DM sender are configured independently.
+``mold`` sends the notice after verification. If the designated sender is
+offline when a notice is due, that notice waits for it to run the deployed
+commit. To allow ``moldsub`` to send on its behalf, set
+``RED_UPDATE_DM_FALLBACK=moldsub``. The fallback setting accepts
+a space-separated list of backup senders in priority order. All senders must
+be in ``RED_INSTANCES``.
+
+The timer retries unacknowledged notices for the latest deployed commit
+through the selected bot's private Audio socket. A temporary Discord failure
+keeps the same sender. Changes to the sender settings apply to new notices.
 Starting a bot, checking an unchanged commit, or rolling back a failed update
 does not create a notice.
 
