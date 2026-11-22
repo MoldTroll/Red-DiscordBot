@@ -7,8 +7,26 @@ from packaging.version import Version
 
 from redbot import _fork
 from redbot._update.common import get_red_dependency_specifier
+from redbot.core import _events
 from redbot.core.utils._internal_utils import AvailableVersion
 from redbot.core.utils import _internal_utils
+
+
+async def test_startup_and_reconnect_do_not_poll_for_updates_or_notify_owners(red, monkeypatch):
+    monkeypatch.setattr(red._connection, "user", SimpleNamespace(display_name="Red"))
+    version = AvailableVersion(Version("99.0"), {}, commit="a" * 40, requires_python=">=3.11")
+    available_versions = AsyncMock(return_value=[version])
+    monkeypatch.setattr(_internal_utils, "fetch_available_red_versions", available_versions)
+    destinations = AsyncMock(return_value=[])
+    monkeypatch.setattr(red, "get_owner_notification_destinations", destinations)
+
+    _events.init_events(red, red._cli_flags)
+    await red.on_ready()
+    await red.on_ready()
+
+    assert red._red_ready.is_set()
+    available_versions.assert_not_awaited()
+    destinations.assert_not_awaited()
 
 
 async def test_fork_discovery_reads_metadata_from_resolved_commit(monkeypatch):

@@ -2,6 +2,10 @@
 
 import asyncio
 from contextlib import suppress
+from datetime import datetime, timezone
+import hashlib
+from importlib import metadata
+import json
 import logging
 import os
 from pathlib import Path
@@ -9,6 +13,9 @@ import re
 
 import discord
 import lavalink
+
+from redbot import _fork
+from redbot.core import data_manager
 
 
 log = logging.getLogger("red.Audio.playback")
@@ -50,6 +57,8 @@ class PlaybackProbe:
                     result = "finished"
             elif request == b"available\n":
                 result, _ = await self.channel_status()
+            elif request.startswith(b"updated "):
+                result = await self._notify_update(request)
             else:
                 result = "invalid"
             writer.write((result + "\n").encode("ascii"))
@@ -57,6 +66,67 @@ class PlaybackProbe:
         finally:
             writer.close()
             await writer.wait_closed()
+
+    async def _notify_update(self, request):
+        match = re.fullmatch(
+            rb"updated ([0-9a-f]{40}) ((?:[a-z][a-z0-9_]{0,31} )+[a-z][a-z0-9_]{0,31})\n",
+            request,
+        )
+        if not match:
+            return "invalid"
+        revision = match[1].decode("ascii")
+        names = match[2].decode("ascii").split()
+        if len(set(names)) != len(names) or names[-1] != data_manager.instance_name():
+            return "invalid"
+        dist = metadata.distribution("Red-DiscordBot")
+        origin = json.loads(dist.read_text("direct_url.json") or "{}")
+        if origin.get("vcs_info", {}).get("commit_id") != revision:
+            return "invalid"
+        bots = ", ".join(f"`{name}`" for name in names)
+        content = f"{bots} 업데이트를 완료했습니다.\n<{_fork.REPOSITORY_URL}/commit/{revision}>"
+        bot = self.cog.bot
+        await bot.wait_until_red_ready()
+        receipt = self.cog.config.rollout_dm_receipt
+        async with receipt.get_lock():
+            state = await receipt()
+            if state.get("revision") != revision:
+                state = {"revision": revision, "recipients": {}}
+            recipients = state["recipients"]
+            opt_outs = await bot._config.owner_opt_out_list()
+            retry = False
+            for owner_id in sorted(set(bot.owner_ids).difference(opt_outs)):
+                nonce = hashlib.sha256(f"{revision}:{owner_id}".encode()).hexdigest()[:24]
+                previous = recipients.get(nonce)
+                if previous == "done":
+                    continue
+                try:
+                    user = bot.get_user(owner_id) or await bot.fetch_user(owner_id)
+                    if not user.bot:
+                        dm = await user.create_dm()
+                        sent = False
+                        if previous:
+                            # 응답을 받기 전에 종료됐다면 실제 DM 기록에서 전송 결과를 찾는다.
+                            async for message in dm.history(
+                                limit=None, after=datetime.fromtimestamp(previous, timezone.utc)
+                            ):
+                                if message.author.id == bot.user.id and message.content == content:
+                                    sent = True
+                                    break
+                        else:
+                            recipients[nonce] = discord.utils.utcnow().timestamp() - 60
+                            await receipt.set(state)
+                        if not sent:
+                            await dm.send(content, nonce=nonce)
+                        log.info("Confirmed owner update DM for revision %s.", revision)
+                except (discord.Forbidden, discord.NotFound):
+                    log.warning("Cannot deliver the rollout DM to an owner for %s.", revision[:12])
+                except (discord.HTTPException, OSError, asyncio.TimeoutError):
+                    log.warning("Will retry an owner rollout DM for %s.", revision[:12])
+                    retry = True
+                    continue
+                recipients[nonce] = "done"
+                await receipt.set(state)
+        return "retry" if retry else "notified"
 
     async def channel_status(self):
         channel_id = await self.cog.config.playback_check_channel()

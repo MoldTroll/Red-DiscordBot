@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import socket
 import subprocess
 import sys
 import tarfile
@@ -216,6 +217,19 @@ def instance_names(value):
     ):
         raise ValueError("RED_INSTANCES must list distinct lowercase instance names, canary first")
     return names
+
+
+def request_completion_dm(sha, names):
+    """Called as the final instance's service account on its private socket."""
+    if not re.fullmatch("[0-9a-f]{40}", sha) or instance_names(" ".join(names)) != names:
+        raise ValueError("Invalid deployment receipt")
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+        client.settimeout(30)
+        client.connect(f"/run/redbot-probe-{names[-1]}/check.sock")
+        client.sendall(f"updated {sha} {' '.join(names)}\n".encode("ascii"))
+        with client.makefile("rb") as reader:
+            if reader.readline(32) != b"notified\n":
+                raise RuntimeError("The bot did not acknowledge the deployment receipt")
 
 
 class Rollout:
@@ -469,6 +483,34 @@ class Rollout:
             time.sleep(2)
         raise RuntimeError(f"Timed out waiting for {name}")
 
+    def deliver_completion_dm(self, managed):
+        receipt = managed.get("pending_notification")
+        if not receipt:
+            return
+        sha, names = receipt["sha"], receipt["instances"]
+        if names != self.names:
+            print("Completion DM deferred: deployment instance list changed.", flush=True)
+            return
+        try:
+            run(
+                *as_user(
+                    self.instance_user(names[-1]),
+                    PYTHON,
+                    "-I",
+                    Path(__file__).resolve(),
+                    "completion-dm",
+                    sha,
+                    *names,
+                ),
+                timeout=40,
+            )
+        except (OSError, subprocess.SubprocessError, ValueError) as exc:
+            print(f"Completion DM deferred for {sha[:12]}: {exc}", flush=True)
+            return
+        del managed["pending_notification"]
+        save(managed, STATE / "managed.json")
+        print(f"Completion DM acknowledged by {names[-1]} for {sha[:12]}.", flush=True)
+
     def complete(self, tx, committed):
         ledger = STATE / "managed.json"
         known = (
@@ -503,7 +545,12 @@ class Rollout:
             "backups": backups,
             "failed_backup": failed_backup,
         }
-        if not committed:
+        if committed:
+            # 전송 대기 중인 알림은 마지막으로 검증한 배포 건만 유지한다.
+            managed["pending_notification"] = {"sha": tx["sha"], "instances": list(tx["instances"])}
+        else:
+            if "pending_notification" in known:
+                managed["pending_notification"] = known["pending_notification"]
             if "retry_after" in tx:
                 managed["automatic_retry"] = {"sha": tx["sha"], "after": tx["retry_after"]}
             elif "automatic_retry" in known:
@@ -511,6 +558,8 @@ class Rollout:
         save(managed, ledger)
         finish()
         print("Verified new runtimes." if committed else "Restored previous runtimes.", flush=True)
+        if committed:
+            self.deliver_completion_dm(managed)
 
     def rollback_instance(self, tx, name):
         row = tx["instances"][name]
@@ -621,6 +670,9 @@ class Rollout:
                 print("Recovering an interrupted rollout.", flush=True)
                 self.rollback(tx)
             return
+        ledger = STATE / "managed.json"
+        managed = json.loads(ledger.read_text()) if ledger.exists() else {}
+        self.deliver_completion_dm(managed)
         remote = output(*self.bot("git", "ls-remote", "--exit-code", REPO, REF)).split()
         if len(remote) != 2 or remote[1] != REF or not re.fullmatch("[0-9a-f]{40}", remote[0]):
             raise ValueError("Could not resolve the fork branch")
@@ -636,9 +688,8 @@ class Rollout:
                 )
             print(f"All instances already use {sha}.")
             return
-        ledger = STATE / "managed.json"
-        if automatic and ledger.exists():
-            retry = json.loads(ledger.read_text()).get("automatic_retry")
+        if automatic:
+            retry = managed.get("automatic_retry")
             if retry and retry["sha"] == sha and time.time() < retry["after"]:
                 print(f"Delaying automatic retry of {sha} after its failed rollout.", flush=True)
                 return
@@ -754,6 +805,8 @@ def main():
         command, *args = sys.argv[1:]
         if command == "runtime-info":
             print(json.dumps(runtime_info()))
+        elif command == "completion-dm":
+            request_completion_dm(args[0], args[1:])
         elif command == "audio-schema":
             print(audio_schema(Path(args[0])))
         elif command in ("snapshot", "recovery-snapshot"):

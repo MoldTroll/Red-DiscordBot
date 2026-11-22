@@ -91,6 +91,7 @@ class Audio(
 
         default_global = dict(
             playback_check_channel=None,
+            rollout_dm_receipt={},
             schema_version=1,
             bundled_playlist_version=0,
             owner_notification=0,

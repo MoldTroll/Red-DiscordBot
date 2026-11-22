@@ -123,6 +123,13 @@ the previous runtimes are restored, automatic checks wait six hours before
 retrying that commit. A newer commit is eligible on the next check. An
 operator can retry immediately with ``redbot-fork-update.service``.
 
+After all instances pass verification, the last bot in ``RED_INSTANCES`` sends
+its opted-in owners a direct message with the instance names and the deployed
+commit. This uses the bot's private Audio probe socket. If Discord is
+temporarily unavailable, the timer retries the latest completion notice.
+Starting a bot, checking an unchanged commit, or rolling back a failed update
+does not create a notice.
+
 The root-only ``/var/lib/redbot-fork-update`` directory holds the transaction
 journal and per-instance snapshots. Before switching a bot, the updater stops
 it and archives its JSON files and SQLite Audio database, including any WAL or

@@ -5,7 +5,7 @@ from pathlib import Path, PurePosixPath
 import sqlite3
 import sys
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import MagicMock, Mock
 
 import pytest
 
@@ -110,6 +110,8 @@ def rollout(tmp_path, monkeypatch):
             _, action, unit = args
             name = unit.split("@")[1].split(".")[0]
             running[name] = action == "start"
+        elif "completion-dm" in args:
+            return
         elif args[0] in ("snapshot", "recovery-snapshot", "restore", "switch"):
             action, path = args[:2]
             name = Path(path).name
@@ -134,6 +136,7 @@ def rollout(tmp_path, monkeypatch):
     monkeypatch.setattr(updater, "idle", lambda **kwargs: None)
     monkeypatch.setattr(updater, "health", health)
     monkeypatch.setattr(updater, "invocation", lambda name: name + "-running")
+    monkeypatch.setattr(updater, "instance_user", lambda name: "red-" + name)
     monkeypatch.setattr(updater, "connected", lambda name, runtime=None: running[name])
     monkeypatch.setattr(updater, "revision", lambda link: sha)
     monkeypatch.setattr(updater, "discard", Mock())
@@ -148,6 +151,38 @@ def test_update_checks_canary_before_primary(rollout):
     assert not update.JOURNAL.exists()
 
 
+def test_dm_retried_after_commit_without_restarting_services(rollout, monkeypatch):
+    updater, tx, operations = rollout
+    execute = update.run
+    attempts = []
+    ledger = update.STATE / "managed.json"
+
+    def run(*args, **kwargs):
+        if "completion-dm" not in args:
+            return execute(*args, **kwargs)
+        assert args[:4] == ("/usr/sbin/runuser", "-u", "red-primary", "--")
+        assert args[-4:] == ("completion-dm", tx["sha"], "canary", "primary")
+        assert not update.JOURNAL.exists()
+        assert json.loads(ledger.read_text())["pending_notification"]["sha"] == tx["sha"]
+        assert operations[-1] == ("new_health", "primary")
+        attempts.append(args)
+        if len(attempts) == 1:
+            raise update.subprocess.TimeoutExpired(args, 40)
+
+    monkeypatch.setattr(update, "run", run)
+    updater.apply(tx)
+    assert len(attempts) == 1
+    before = operations.copy()
+    monkeypatch.setattr(updater, "check_layout", lambda name: None)
+    monkeypatch.setattr(updater, "bot", lambda *args: args)
+    monkeypatch.setattr(update, "output", lambda *args: f"{tx['sha']} {update.REF}")
+    updater.update(automatic=True)
+    updater.update(automatic=True)
+    assert len(attempts) == 2
+    assert "pending_notification" not in json.loads(ledger.read_text())
+    assert operations == before
+
+
 def test_second_service_failure_restores_both_offline(rollout, monkeypatch):
     updater, tx, operations = rollout
     health = updater.health
@@ -158,11 +193,15 @@ def test_second_service_failure_restores_both_offline(rollout, monkeypatch):
         health(name, sha)
 
     monkeypatch.setattr(updater, "health", reject_primary)
+    notification = Mock()
+    monkeypatch.setattr(updater, "deliver_completion_dm", notification)
     with pytest.raises(RuntimeError, match="failed primary probe"):
         updater.apply(tx)
     assert [name for action, name in operations if action == "restore"] == ["primary", "canary"]
     assert operations[-1] == ("old_health", "canary")
     assert not update.JOURNAL.exists()
+    notification.assert_not_called()
+    assert "pending_notification" not in json.loads((update.STATE / "managed.json").read_text())
 
 
 @pytest.mark.parametrize(
@@ -493,6 +532,22 @@ def test_instance_names_must_be_unique_and_safe():
     for names in ("main", "main main", "main ../other", "main --other"):
         with pytest.raises(ValueError):
             update.instance_names(names)
+
+
+@pytest.mark.parametrize("response", [b"notified\n", b"retry\n", b"invalid\n", b""])
+def test_dm_client_requires_an_acknowledgement(monkeypatch, response):
+    client = MagicMock()
+    client.__enter__.return_value = client
+    client.makefile.return_value = BytesIO(response)
+    monkeypatch.setattr(update, "socket", MagicMock(socket=Mock(return_value=client)))
+    sha = "f" * 40
+    if response == b"notified\n":
+        update.request_completion_dm(sha, ["sub", "main"])
+    else:
+        with pytest.raises(RuntimeError, match="acknowledge"):
+            update.request_completion_dm(sha, ["sub", "main"])
+    client.connect.assert_called_once_with("/run/redbot-probe-main/check.sock")
+    client.sendall.assert_called_once_with(f"updated {sha} sub main\n".encode())
 
 
 def test_failed_candidate_build_discards_only_its_new_directory(rollout, monkeypatch):
