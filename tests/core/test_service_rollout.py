@@ -269,6 +269,57 @@ def test_audio_schema_tracks_durable_layout_and_ignores_song_changes(tmp_path):
         db.close()
 
 
+def test_format_two_held_queue_archived_before_old_runtime_reads_format_one(rollout, monkeypatch):
+    updater, tx, _ = rollout
+    root = updater.data["canary"]
+    audio = root / "cogs/Audio/Audio.db"
+    audio.parent.mkdir(parents=True)
+    (root / "core").mkdir()
+    (root / "core/settings.json").write_text("{}")
+    with sqlite3.connect(audio) as db:
+        db.execute("CREATE TABLE persist_queue (title TEXT)")
+        db.execute("INSERT INTO persist_queue VALUES ('before')")
+    db.close()
+    backup = Path(tx["backup"])
+    archive = backup / "canary.tar.gz"
+    with archive.open("wb") as dst:
+        update.snapshot(root, dst)
+    with sqlite3.connect(audio) as db:
+        db.execute("ALTER TABLE persist_queue ADD COLUMN held INTEGER NOT NULL DEFAULT 0")
+        db.execute("INSERT INTO persist_queue VALUES ('added after cutover', 1)")
+    db.close()
+    row = tx["instances"]["canary"]
+    row.update(phase="ready", compatible_data=False, checksum=update.checksum(archive))
+    execute = update.run
+
+    def run(*args, **kwargs):
+        if args[0] == "recovery-snapshot":
+            update.snapshot(root, kwargs["stdout"], recovery=True)
+        elif args[0] == "restore":
+            update.restore(root, kwargs["stdin"])
+        else:
+            if args[0] == "switch":
+                with sqlite3.connect(audio) as db:
+                    assert db.execute("SELECT * FROM persist_queue").fetchall() == [("before",)]
+                    assert [c[1] for c in db.execute("PRAGMA table_info(persist_queue)")] == [
+                        "title"
+                    ]
+                db.close()
+            return execute(*args, **kwargs)
+
+    monkeypatch.setattr(update, "run", run)
+    updater.rollback_instance(tx, "canary")
+    evidence = updater.root / "evidence"
+    evidence.mkdir()
+    with (backup / "canary-before-rollback.tar.gz").open("rb") as src:
+        update.restore(evidence, src)
+    with sqlite3.connect(evidence / "cogs/Audio/Audio.db") as db:
+        assert db.execute("SELECT title FROM persist_queue WHERE held=1").fetchall() == [
+            ("added after cutover",)
+        ]
+    db.close()
+
+
 def test_missing_test_channel_blocks_music_cutover(rollout, monkeypatch):
     updater, tx, operations = rollout
     monkeypatch.setattr(updater, "idle", update.Rollout.idle.__get__(updater))
