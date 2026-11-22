@@ -380,18 +380,91 @@ def test_missing_test_channel_blocks_music_cutover(rollout, monkeypatch):
     assert ("stop", "primary") in operations
 
 
+def test_cutover_waits_when_second_bot_is_connected_to_voice(rollout, monkeypatch):
+    updater, tx, operations = rollout
+    monkeypatch.setattr(updater, "idle", update.Rollout.idle.__get__(updater))
+    monkeypatch.setattr(updater, "probe", lambda name, *flags: ["probe", name, *flags])
+    monkeypatch.setattr(updater, "lava", lambda action: ["lava", action])
+    monkeypatch.setattr(Path, "is_socket", lambda self: True)
+    tx["require_playback"] = False
+    checked = []
+
+    def run(args):
+        checked.append(args)
+        return update.subprocess.CompletedProcess(
+            args, 75 if args == ["probe", "primary", "--idle"] else 0
+        )
+
+    monkeypatch.setattr(update.subprocess, "run", run)
+    with pytest.raises(update.Busy):
+        updater.apply(tx)
+    assert checked == [
+        ["lava", "idle"],
+        ["probe", "canary", "--idle"],
+        ["probe", "primary", "--idle"],
+    ]
+    assert not operations
+
+
+def test_music_cutover_finishes_with_a_listener_in_the_test_channel(rollout, monkeypatch, capsys):
+    updater, tx, operations = rollout
+    updater.timeout = 30
+    tx["require_playback"] = True
+    monkeypatch.setattr(updater, "idle", update.Rollout.idle.__get__(updater))
+    monkeypatch.setattr(updater, "health", update.Rollout.health.__get__(updater))
+    monkeypatch.setattr(updater, "lava", lambda action: ["lava", action])
+    monkeypatch.setattr(updater, "probe", lambda name, *flags: ["probe", name, *flags])
+    monkeypatch.setattr(Path, "is_socket", lambda self: True)
+    execute = update.run
+
+    def run(*args, **kwargs):
+        if args == ("lava", "check"):
+            operations.append(args)
+        else:
+            return execute(*args, **kwargs)
+
+    def probe(args):
+        if args == ["lava", "idle"] or args[2:] == ["--idle"]:
+            return update.subprocess.CompletedProcess(args, 0)
+        assert args[2:] == ["--rollout-check", "--require-playback"]
+        operations.append(("occupied", args[1]))
+        return update.subprocess.CompletedProcess(args, 76)
+
+    monkeypatch.setattr(update, "run", run)
+    monkeypatch.setattr(update.subprocess, "run", probe)
+    updater.apply(tx)
+
+    output = capsys.readouterr().out
+    assert [name for action, name in operations if action == "switch"] == ["canary", "primary"]
+    assert operations.index(("occupied", "canary")) < operations.index(("stop", "primary"))
+    assert operations.count(("lava", "check")) == 2
+    for name in updater.names:
+        assert f"{name}: skipped voice playback check (test channel occupied)." in output
+        assert tx["instances"][name]["phase"] == "ready"
+    assert tx["completed"] and not update.JOURNAL.exists()
+
+
 @pytest.mark.parametrize(
-    "strict, result, expected", [(True, 0, None), (True, 78, update.Busy), (False, 78, None)]
+    "strict, result, expected",
+    [
+        (True, 0, None),
+        (True, 75, update.Busy),
+        (True, 76, None),
+        (False, 76, None),
+        (True, 78, update.Busy),
+        (False, 78, None),
+        (True, 1, update.subprocess.CalledProcessError),
+    ],
 )
-def test_music_candidate_requires_completed_voice_check(
-    rollout, monkeypatch, strict, result, expected
-):
+def test_candidate_voice_check_results(rollout, monkeypatch, capsys, strict, result, expected):
     updater, tx, _ = rollout
     updater.timeout = 30
-    monkeypatch.setattr(updater, "connected", lambda *args: True)
+    connected = Mock(return_value=True)
+    monkeypatch.setattr(updater, "connected", connected)
     monkeypatch.setattr(updater, "revision", lambda path: tx["sha"])
     monkeypatch.setattr(updater, "lava", lambda action: ["lava", action])
-    monkeypatch.setattr(update, "run", Mock())
+    lava_check = Mock()
+    monkeypatch.setattr(update, "run", lava_check)
     monkeypatch.setattr(Path, "is_socket", lambda self: True)
     probe = Mock(return_value=["probe"])
     monkeypatch.setattr(updater, "probe", probe)
@@ -404,7 +477,13 @@ def test_music_candidate_requires_completed_voice_check(
             health()
     else:
         health()
-    probe.assert_called_once_with("canary", *(["--require-playback"] if strict else []))
+    probe.assert_called_once_with(
+        "canary", "--rollout-check", *(["--require-playback"] if strict else [])
+    )
+    if result == 76:
+        assert "skipped voice playback check (test channel occupied)" in capsys.readouterr().out
+        lava_check.assert_called_once_with("lava", "check")
+        assert connected.call_count == 2
 
 
 def test_interrupted_rollout_recovers_without_network_or_new_release(rollout):
@@ -420,7 +499,7 @@ def test_interrupted_rollout_recovers_without_network_or_new_release(rollout):
     assert not update.JOURNAL.exists()
 
 
-def test_listener_between_switches_defers_then_resumes(rollout, monkeypatch):
+def test_bot_joining_voice_between_switches_defers_then_resumes(rollout, monkeypatch):
     updater, tx, operations = rollout
     monkeypatch.setattr(updater, "idle", Mock(side_effect=[None, update.Busy()]))
     with pytest.raises(update.Busy):

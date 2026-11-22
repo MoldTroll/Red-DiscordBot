@@ -342,7 +342,7 @@ class Rollout:
                 continue
             socket = Path(f"/run/redbot-probe-{name}/check.sock")
             if socket.is_socket():
-                check(self.probe(name, "--available"), optional=recovering)
+                check(self.probe(name, "--idle"), optional=recovering)
             if not socket.is_socket() and not recovering:
                 if not self.socket_disabled(name):
                     raise Busy(f"Update deferred: waiting for the enabled {name} Audio probe.")
@@ -459,10 +459,15 @@ class Rollout:
                 run(*self.lava("check"))
                 if ready:
                     flags = ["--require-playback"] if require_playback else []
-                    result = subprocess.run(self.probe(name, *flags))
+                    result = subprocess.run(self.probe(name, "--rollout-check", *flags))
                     if result.returncode == 75:
                         raise Busy()
-                    if result.returncode == 78:
+                    if result.returncode == 76:
+                        print(
+                            f"{name}: skipped voice playback check (test channel occupied).",
+                            flush=True,
+                        )
+                    elif result.returncode == 78:
                         if not socket.is_socket():
                             time.sleep(2)
                             continue
@@ -778,8 +783,8 @@ class Rollout:
                 save(tx)
                 print(f"Verified {name} at {tx['sha']}.", flush=True)
         except Busy:
-            # A listener may have joined between the first and second cutover.
-            # Resume when idle without stopping the healthy canary a second time.
+            # 두 봇을 교체하는 사이에 봇이 음성 채널에 연결될 수 있다.
+            # 다음 점검에서는 검증이 끝난 봇을 다시 중지하지 않는다.
             tx["deferred"] = True
             save(tx)
             raise
@@ -833,7 +838,7 @@ def main():
         try:
             Rollout().update(automatic=automatic)
         except Busy as exc:
-            print(str(exc) or "Music or its test channel is busy. Run the update again when idle.")
+            print(str(exc) or "A music bot is busy in voice. Run the update again when idle.")
 
 
 if __name__ == "__main__":

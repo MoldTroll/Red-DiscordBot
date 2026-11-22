@@ -94,15 +94,21 @@ fork updates, run:
     # systemctl start redbot-fork-update.service
     # journalctl -u redbot-fork-update.service -n 50 --no-pager
 
-The updater shares a lock with the Lavalink updater and checks the node for
-active playback immediately before each service stop. A busy lock, playing
-music or an occupied test channel defers the update with a successful service
-exit. The service logs each deferral and each verified instance and commit.
-Start the service again when idle to resume. Where a test channel is
-configured, the probe joins it and checks that playback advances. Otherwise the
-bot reports that the voice test was skipped. The remaining checks verify
-the running virtual environment, installed commit, bot connection, Lavalink
-API and configured YouTube plugin.
+Before each service stop, the updater checks each bot's voice connections
+across all Discord servers. If either bot is in a voice channel, even with
+playback paused or stopped, the update waits. The updater also checks for
+active Lavalink playback and shares a lock with the Lavalink updater.
+
+If only listeners are in the designated test channel, the rollout proceeds.
+The bot skips the playback trial in that channel and the updater logs that
+voice playback was not verified. It still checks the running virtual
+environment, installed commit, bot connection, Lavalink API and configured
+YouTube plugin. When the channel is empty, the bot can run the playback trial.
+
+When upgrading from an older release, install the updated
+``tools/redbot/update.py`` and ``tools/lavalink/probe.py`` helpers together.
+A running bot with the older probe still uses its original idle check, so the
+test channel may need to be empty for that first rollout.
 
 To check the fork automatically, install and enable the systemd timer:
 
@@ -117,7 +123,7 @@ To check the fork automatically, install and enable the systemd timer:
 The timer checks 15 seconds after activation and every five minutes thereafter.
 It leaves running bots alone when they already use the fork's current commit.
 Set ``RED_INSTANCES="moldsub mold"`` to verify ``moldsub`` before switching
-``mold``. If playback starts between the two, the timer resumes the rollout
+``mold``. If a bot joins voice between the two, the timer resumes the rollout
 on an idle check. After a candidate fails to start or pass health checks and
 the previous runtimes are restored, automatic checks wait six hours before
 retrying that commit. A newer commit is eligible on the next check. An

@@ -51,12 +51,14 @@ class PlaybackProbe:
     async def _serve(self, reader, writer):
         try:
             request = await asyncio.wait_for(reader.readline(), timeout=5)
-            if request in (b"check\n", b"verify\n"):
-                result = await self.check()
-                if request == b"verify\n" and result == "ok":
+            if request in (b"check\n", b"verify\n", b"rollout-check\n", b"rollout-verify\n"):
+                result = await self.check(rollout=request.startswith(b"rollout-"))
+                if request in (b"verify\n", b"rollout-verify\n") and result == "ok":
                     result = "finished"
-            elif request == b"available\n":
-                result, _ = await self.channel_status()
+            elif request in (b"available\n", b"idle\n"):
+                result, _ = await self.channel_status(rollout=request == b"idle\n")
+                if result == "occupied":
+                    result = "ready"
             elif request.startswith(b"updated "):
                 result = await self._notify_update(request)
             else:
@@ -128,7 +130,16 @@ class PlaybackProbe:
                 await receipt.set(state)
         return "retry" if retry else "notified"
 
-    async def channel_status(self):
+    def _voice_in_use(self, *, probe_channel=None, probe_player=None):
+        for guild in self.cog.bot.guilds:
+            if guild.voice_client is not None and guild.voice_client is not probe_player:
+                return True
+            voice = guild.me.voice if guild.me is not None else None
+            if voice is not None and (probe_channel is None or voice.channel != probe_channel):
+                return True
+        return False
+
+    async def _configured_channel(self):
         channel_id = await self.cog.config.playback_check_channel()
         if not channel_id:
             return "unconfigured", None
@@ -140,19 +151,29 @@ class PlaybackProbe:
             return "unavailable", None
         if await self.cog.bot.cog_disabled_in_guild(self.cog, channel.guild):
             return "unavailable", None
-        if self.task or channel.members or channel.guild.voice_client or channel.guild.me.voice:
-            return "busy", None
         return "ready", channel
 
-    async def check(self):
-        status, channel = await self.channel_status()
+    async def channel_status(self, *, rollout=False):
+        status, channel = await self._configured_channel()
+        if rollout and (self.task or self._voice_in_use()):
+            return "busy", None
+        if channel is None:
+            return status, None
+        if self.task or channel.guild.voice_client or channel.guild.me.voice:
+            return "busy", None
+        if channel.voice_states:
+            return ("occupied" if rollout else "busy"), None
+        return "ready", channel
+
+    async def check(self, *, rollout=False):
+        status, channel = await self.channel_status(rollout=rollout)
         if status != "ready":
             return status
         self.task = asyncio.current_task()
         self.guild_id = channel.guild.id
         try:
             async with asyncio.timeout(60):
-                return await self._play(channel)
+                return await self._play(channel, rollout=rollout)
         except Exception as exc:
             log.warning("Playback check failed (%s)", type(exc).__name__)
             return "failed"
@@ -160,7 +181,7 @@ class PlaybackProbe:
             self.task = None
             self.guild_id = None
 
-    async def _play(self, channel):
+    async def _play(self, channel, *, rollout):
         video_id = os.getenv("RED_AUDIO_PROBE_VIDEO_ID", TEST_VIDEO_ID)
         if not re.fullmatch(r"[A-Za-z0-9_-]{11}", video_id):
             log.warning("RED_AUDIO_PROBE_VIDEO_ID must be an 11-character YouTube video ID")
@@ -174,13 +195,19 @@ class PlaybackProbe:
             player.store("red_playback_probe", True)
             return player
 
+        def interrupted():
+            if rollout and self._voice_in_use(probe_channel=channel, probe_player=player):
+                return "busy"
+            if any(member_id != channel.guild.me.id for member_id in channel.voice_states):
+                return "occupied" if rollout else "busy"
+
         try:
             await channel.connect(cls=create_player, self_deaf=True, timeout=10)
             result = await player.load_tracks(f"https://www.youtube.com/watch?v={video_id}")
+            if status := interrupted():
+                return status
             if not result.tracks:
                 return "failed"
-            if any(member != channel.guild.me for member in channel.members):
-                return "busy"
             track = result.tracks[0]
             if (
                 track._info.get("identifier") != video_id
@@ -196,12 +223,18 @@ class PlaybackProbe:
                 if not outcome.done():
                     outcome.set_result(status)
 
+            async def on_voice_state_update(member, before, after):
+                if member.id != channel.guild.me.id and after.channel != channel:
+                    return
+                if status := interrupted():
+                    finish(status)
+
             async def on_update(updated_player, state, raw_data):
                 nonlocal first, last
                 if updated_player is not player or player.current is not track:
                     return
-                if any(member != channel.guild.me for member in channel.members):
-                    finish("busy")
+                if status := interrupted():
+                    finish(status)
                 elif not state.connected:
                     first = last = None
                 elif first is None:
@@ -212,8 +245,8 @@ class PlaybackProbe:
             async def on_event(updated_player, event, extra):
                 if updated_player is not player:
                     return
-                if any(member != channel.guild.me for member in channel.members):
-                    finish("busy")
+                if status := interrupted():
+                    finish(status)
                 elif event in (
                     lavalink.LavalinkEvents.TRACK_EXCEPTION,
                     lavalink.LavalinkEvents.TRACK_STUCK,
@@ -235,12 +268,18 @@ class PlaybackProbe:
 
             lavalink.register_update_listener(on_update)
             lavalink.register_event_listener(on_event)
+            self.cog.bot.add_listener(on_voice_state_update)
             try:
                 await player.set_volume(1)
+                if outcome.done():
+                    return outcome.result()
+                if status := interrupted():
+                    return status
                 player.add(channel.guild.me, track)
                 await player.play()
                 return await outcome
             finally:
+                self.cog.bot.remove_listener(on_voice_state_update)
                 lavalink.unregister_event_listener(on_event)
                 lavalink.unregister_update_listener(on_update)
         finally:

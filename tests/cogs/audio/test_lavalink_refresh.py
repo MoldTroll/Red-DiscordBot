@@ -97,6 +97,17 @@ def test_running_checks_full_release_tag(tmp_path, monkeypatch, live, expected):
         (["--require-playback"], b"finished", b"verify", 0),
         (["--require-playback"], b"ok", b"verify", 1),
         (["--require-playback"], b"invalid", b"verify", 1),
+        (["--idle"], b"ready", b"idle", 0),
+        (["--idle"], b"busy", b"idle", 75),
+        (["--idle"], b"unconfigured", b"idle", 78),
+        (["--idle"], b"occupied", b"idle", 1),
+        (["--rollout-check"], b"ok", b"rollout-check", 0),
+        (["--rollout-check"], b"busy", b"rollout-check", 75),
+        (["--rollout-check"], b"occupied", b"rollout-check", 76),
+        (["--rollout-check", "--require-playback"], b"occupied", b"rollout-verify", 76),
+        (["--rollout-check", "--require-playback"], b"finished", b"rollout-verify", 0),
+        (["--rollout-check", "--require-playback"], b"ok", b"rollout-verify", 1),
+        (["--require-playback"], b"occupied", b"verify", 1),
     ],
 )
 def test_probe_protocol(monkeypatch, flags, response, command, code):
@@ -108,6 +119,29 @@ def test_probe_protocol(monkeypatch, flags, response, command, code):
     monkeypatch.setattr(probe, "socket", sockets)
     assert probe.main() == code
     connection.sendall.assert_called_once_with(command + b"\n")
+
+
+@pytest.mark.parametrize(
+    ("flags", "commands", "response", "code"),
+    [
+        (["--idle"], [b"idle", b"available"], b"busy\n", 75),
+        (["--rollout-check"], [b"rollout-check", b"check"], b"ok\n", 0),
+        (["--rollout-check", "--require-playback"], [b"rollout-verify", b"verify"], b"ok\n", 1),
+    ],
+)
+def test_rollout_probe_with_older_bot(monkeypatch, flags, commands, response, code):
+    monkeypatch.setattr(probe.sys, "argv", ["probe.py", *flags, "test.sock"])
+    replies = iter([b"invalid\n", response])
+    requests = []
+
+    def ask(path, command):
+        assert path == "test.sock"
+        requests.append(command)
+        return next(replies)
+
+    monkeypatch.setattr(probe, "ask", ask)
+    assert probe.main() == code
+    assert requests == commands
 
 
 @pytest.mark.skipif(

@@ -27,10 +27,10 @@ def probe_setup(monkeypatch):
 
     player.play = play
     player.current = None
-    guild = SimpleNamespace(id=12, me=SimpleNamespace(voice=None), voice_client=None)
+    guild = SimpleNamespace(id=12, me=SimpleNamespace(id=123, voice=None), voice_client=None)
     channel = Mock(spec=discord.VoiceChannel)
     channel.guild = guild
-    channel.members = []
+    channel.voice_states = {}
     channel.id = 34
     player.channel = channel
     player.node = object.__new__(Node)
@@ -46,8 +46,13 @@ def probe_setup(monkeypatch):
     channel.connect = AsyncMock(side_effect=connect)
     player.cleanup.side_effect = lambda: setattr(guild, "voice_client", None)
     configured = AsyncMock(return_value=channel.id)
+    voice_listeners = []
     bot = SimpleNamespace(
-        get_channel=Mock(return_value=channel), cog_disabled_in_guild=AsyncMock(return_value=False)
+        guilds=[guild],
+        get_channel=Mock(return_value=channel),
+        cog_disabled_in_guild=AsyncMock(return_value=False),
+        add_listener=voice_listeners.append,
+        remove_listener=voice_listeners.remove,
     )
     probe = PlaybackProbe(
         SimpleNamespace(bot=bot, config=SimpleNamespace(playback_check_channel=configured))
@@ -65,6 +70,7 @@ def probe_setup(monkeypatch):
         started=started,
         updates=updates,
         events=events,
+        voice_listeners=voice_listeners,
     )
 
 
@@ -106,6 +112,7 @@ async def test_playback_requires_sustained_connected_progress_and_finished(probe
             await asyncio.gather(task, return_exceptions=True)
     assert p.probe.task is None and p.probe.guild_id is None
     assert not p.updates and not p.events
+    assert not p.voice_listeners
     p.player.load_tracks.assert_awaited_once_with(
         f"https://www.youtube.com/watch?v={TEST_VIDEO_ID}"
     )
@@ -141,7 +148,7 @@ async def test_end_without_confirmed_continuous_voice_fails(probe_setup, cause):
         await update(p.player, SimpleNamespace(connected=False, time=17000, position=17000), {})
         await update(p.player, SimpleNamespace(connected=True, time=18000, position=18000), {})
     if cause == "listener":
-        p.channel.members = [object()]
+        p.channel.voice_states[45] = object()
     if cause == "exception":
         await event(p.player, lavalink.LavalinkEvents.TRACK_EXCEPTION, {})
     elif cause == "stuck":
@@ -181,7 +188,7 @@ async def test_unusable_probe_channel_never_joins(probe_setup, cause):
     elif cause == "permission":
         p.channel.permissions_for.return_value.speak = False
     elif cause == "occupied":
-        p.channel.members = [object()]
+        p.channel.voice_states[45] = object()
         expected = "busy"
     elif cause == "connected":
         p.channel.guild.voice_client = object()
@@ -216,26 +223,95 @@ async def test_probe_cancellation_and_concurrent_request(probe_setup):
     p.player.disconnect.assert_awaited_once()
 
 
+async def probe_request(probe, line):
+    reader = asyncio.StreamReader()
+    reader.feed_data(line)
+    reader.feed_eof()
+    writer = Mock(drain=AsyncMock(), wait_closed=AsyncMock())
+    await probe._serve(reader, writer)
+    writer.close.assert_called_once()
+    return writer.write.call_args.args[0]
+
+
 @pytest.mark.parametrize(
     "line,answer",
     [
         (b"available\n", b"ready\n"),
+        (b"idle\n", b"ready\n"),
         (b"check\n", b"ok\n"),
         (b"verify\n", b"finished\n"),
+        (b"rollout-check\n", b"ok\n"),
+        (b"rollout-verify\n", b"finished\n"),
         (b"unknown\n", b"invalid\n"),
     ],
 )
 async def test_local_probe_protocol(probe_setup, line, answer):
     p = probe_setup
     p.probe.check = AsyncMock(return_value="ok")
-    reader = asyncio.StreamReader()
-    reader.feed_data(line)
-    reader.feed_eof()
-    writer = Mock(drain=AsyncMock(), wait_closed=AsyncMock())
-    await p.probe._serve(reader, writer)
-    writer.write.assert_called_once_with(answer)
-    writer.close.assert_called_once()
-    assert p.probe.check.await_count == (line in (b"check\n", b"verify\n"))
+    assert await probe_request(p.probe, line) == answer
+    if line.endswith((b"check\n", b"verify\n")):
+        p.probe.check.assert_awaited_once_with(rollout=line.startswith(b"rollout-"))
+    else:
+        p.probe.check.assert_not_awaited()
+
+
+async def test_uncached_listener_only_skips_rollout_playback_trial(probe_setup):
+    p = probe_setup
+    p.channel.members = []
+    p.channel.voice_states[45] = object()
+    assert await probe_request(p.probe, b"idle\n") == b"ready\n"
+    assert await probe_request(p.probe, b"available\n") == b"busy\n"
+    for line in (b"rollout-check\n", b"rollout-verify\n"):
+        assert await probe_request(p.probe, line) == b"occupied\n"
+    assert await p.probe.check() == "busy"
+    p.channel.connect.assert_not_awaited()
+
+
+@pytest.mark.parametrize("voice_client", [True, False])
+async def test_rollout_detects_bot_in_any_guild_even_without_test_channel(
+    probe_setup, voice_client
+):
+    p = probe_setup
+    p.probe.cog.config.playback_check_channel.return_value = None
+    assert await probe_request(p.probe, b"idle\n") == b"unconfigured\n"
+    other = SimpleNamespace(
+        voice_client=object() if voice_client else None,
+        me=SimpleNamespace(voice=None if voice_client else SimpleNamespace(channel=object())),
+    )
+    p.probe.cog.bot.guilds.append(other)
+    assert await probe_request(p.probe, b"idle\n") == b"busy\n"
+    assert await p.probe.check(rollout=True) == "busy"
+    p.channel.connect.assert_not_awaited()
+
+
+@pytest.mark.parametrize("other_bot_connection", [False, True])
+async def test_voice_change_interrupts_rollout_trial(probe_setup, other_bot_connection):
+    p = probe_setup
+    task = asyncio.create_task(p.probe.check(rollout=True))
+    await asyncio.wait_for(p.started.wait(), timeout=1)
+    if other_bot_connection:
+        p.probe.cog.bot.guilds.append(SimpleNamespace(voice_client=object(), me=None))
+        member = p.channel.guild.me
+        destination = object()
+    else:
+        p.channel.voice_states[45] = object()
+        member = SimpleNamespace(id=45)
+        destination = p.channel
+    await p.voice_listeners[0](member, None, SimpleNamespace(channel=destination))
+    assert await asyncio.wait_for(task, timeout=1) == (
+        "busy" if other_bot_connection else "occupied"
+    )
+    assert not p.voice_listeners and not p.updates and not p.events
+    p.player.disconnect.assert_awaited_once()
+
+
+async def test_listener_arriving_while_setting_volume_prevents_trial_audio(probe_setup):
+    p = probe_setup
+    p.player.set_volume.side_effect = lambda volume: p.channel.voice_states.update({45: object()})
+    assert await p.probe.check(rollout=True) == "occupied"
+    assert not p.started.is_set()
+    p.player.add.assert_not_called()
+    p.player.disconnect.assert_awaited_once()
 
 
 async def test_owner_command_configures_and_disables_test_channel(probe_setup):
